@@ -1,4 +1,4 @@
-package com.nextgenlab.game.manager;
+package com.nextgenlab.game.facade;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;

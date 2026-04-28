@@ -2,8 +2,8 @@ package com.nextgenlab.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.nextgenlab.game.manager.AssetFacade;
-import com.nextgenlab.game.manager.BackendFacade;
+import com.nextgenlab.game.facade.AssetFacade;
+import com.nextgenlab.game.facade.BackendFacade;
 import com.nextgenlab.game.screen.MenuScreen;
 
 public class NextGenLabGame extends Game {
