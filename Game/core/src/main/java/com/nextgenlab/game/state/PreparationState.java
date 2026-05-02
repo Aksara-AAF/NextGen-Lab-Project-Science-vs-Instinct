@@ -54,6 +54,10 @@ public class PreparationState implements GameStateHandler {
                 Monster m = screen.monster;
                 if ("RESEARCHER".equals(u.role) && r != null && !isResearcher) {
                     r.applyRemoteUpdate(u);
+                    if (u.taskProgress > tasksCompleted) {
+                        tasksCompleted = Math.min(u.taskProgress, TOTAL_TASKS);
+                        if (tasksCompleted >= TOTAL_TASKS) phaseComplete = true;
+                    }
                 } else if ("MONSTER".equals(u.role) && m != null && isResearcher) {
                     m.applyRemoteUpdate(u);
                 }
@@ -80,6 +84,10 @@ public class PreparationState implements GameStateHandler {
                 Gdx.input.setInputProcessor(null);
                 if (screen.matchId != null)
                     screen.game.backend.sendProgressUpdate(screen.matchId, "RESEARCHER", 34);
+                if (isMultiplayer) {
+                    transport.sendPosition(snapshot(screen, true));
+                    netSendTimer = 0f;
+                }
                 if (tasksCompleted >= TOTAL_TASKS) phaseComplete = true;
             }
             return;
@@ -177,6 +185,7 @@ public class PreparationState implements GameStateHandler {
             u.moving = r.isMoving();
             u.actionFlag = r.getActionFlag();
             u.hp = r.getHp();
+            u.taskProgress = tasksCompleted;
             u.role = "RESEARCHER";
         } else {
             Monster m = screen.monster;

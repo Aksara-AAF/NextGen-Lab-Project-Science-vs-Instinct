@@ -14,5 +14,6 @@ public class PositionUpdate {
     public boolean moving;
     public int actionFlag;
     public int hp;
+    public int taskProgress;
     public long timestamp;
 }

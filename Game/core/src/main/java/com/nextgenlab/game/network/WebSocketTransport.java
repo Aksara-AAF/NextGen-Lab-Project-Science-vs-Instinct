@@ -78,6 +78,7 @@ public class WebSocketTransport implements NetworkTransport {
             u.moving = data.getBoolean("moving", false);
             u.actionFlag = data.getInt("actionFlag", 0);
             u.hp = data.getInt("hp", 0);
+            u.taskProgress = data.getInt("taskProgress", 0);
             u.timestamp = data.getLong("timestamp", 0);
             if (myRole.equals(u.role)) return;
             positionQueue.offer(u);
@@ -120,6 +121,7 @@ public class WebSocketTransport implements NetworkTransport {
         sb.append("\"moving\":").append(update.moving).append(',');
         sb.append("\"actionFlag\":").append(update.actionFlag).append(',');
         sb.append("\"hp\":").append(update.hp).append(',');
+        sb.append("\"taskProgress\":").append(update.taskProgress).append(',');
         sb.append("\"timestamp\":").append(update.timestamp);
         sb.append("}}");
         client.send(sb.toString());

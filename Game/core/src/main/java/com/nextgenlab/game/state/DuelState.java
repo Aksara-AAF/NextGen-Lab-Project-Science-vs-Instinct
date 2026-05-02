@@ -226,6 +226,7 @@ public class DuelState implements GameStateHandler {
 
     private PositionUpdate snapshot(GameScreen screen, boolean isResearcher) {
         PositionUpdate u = new PositionUpdate();
+        u.taskProgress = Integer.MAX_VALUE;
         if (isResearcher) {
             Researcher r = screen.researcher;
             u.x = r.getX();
