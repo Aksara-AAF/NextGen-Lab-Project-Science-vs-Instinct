@@ -41,7 +41,7 @@ public class GameOverScreen extends ScreenAdapter {
         Label resultLabel = new Label(resultText, gold);
         resultLabel.setFontScale(2.5f);
 
-        Label hintLabel = new Label("[ENTER] Main Lagi   [ESC] Keluar", white);
+        Label hintLabel = new Label("[ENTER] Main Lagi   [ESC] Menu Utama", white);
 
         table.add(resultLabel).padBottom(40).row();
         table.add(hintLabel);
@@ -58,10 +58,12 @@ public class GameOverScreen extends ScreenAdapter {
         stage.draw();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            game.setScreen(new GameScreen(game));
+            game.resetSession();
+            game.setScreen(new LobbyScreen(game));
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
+            game.resetSession();
+            game.setScreen(new MenuScreen(game));
         }
     }
 
