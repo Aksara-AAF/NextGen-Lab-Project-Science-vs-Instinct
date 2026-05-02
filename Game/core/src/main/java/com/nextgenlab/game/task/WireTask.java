@@ -14,9 +14,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class WireTask extends LabTask {
 
-    private static final int    TOTAL_WIRES = 3;
-    private static final String[] WIRE_NAMES  = {"Kabel Merah", "Kabel Kuning", "Kabel Biru"};
-    private static final Color[]  WIRE_COLORS = {Color.RED, Color.YELLOW, Color.CYAN};
+    private static final int TOTAL_WIRES = 3;
+    private static final String[] WIRE_NAMES = {"Kabel Merah", "Kabel Kuning", "Kabel Biru"};
+    private static final Color[] WIRE_COLORS = {Color.RED, Color.YELLOW, Color.CYAN};
 
     private int wiresConnected = 0;
     private Label statusLabel;
@@ -27,13 +27,13 @@ public class WireTask extends LabTask {
     protected void buildUI() {
         BitmapFont font = new BitmapFont();
 
-        panelTex   = solidTex(320, 210, 0.05f, 0.05f, 0.15f, 0.93f);
-        btnUpTex   = solidTex(260, 44,  0.22f, 0.22f, 0.28f, 1f);
-        btnDownTex = solidTex(260, 44,  0.10f, 0.10f, 0.13f, 1f);
+        panelTex = solidTex(320, 210, 0.05f, 0.05f, 0.15f, 0.93f);
+        btnUpTex = solidTex(260, 44, 0.22f, 0.22f, 0.28f, 1f);
+        btnDownTex = solidTex(260, 44, 0.10f, 0.10f, 0.13f, 1f);
 
         TextureRegionDrawable panelBg = wrap(panelTex);
-        TextureRegionDrawable up      = wrap(btnUpTex);
-        TextureRegionDrawable down    = wrap(btnDownTex);
+        TextureRegionDrawable up = wrap(btnUpTex);
+        TextureRegionDrawable down = wrap(btnDownTex);
 
         Table panel = new Table();
         panel.setBackground(panelBg);
@@ -48,11 +48,11 @@ public class WireTask extends LabTask {
 
         for (int i = 0; i < TOTAL_WIRES; i++) {
             TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
-            style.font      = font;
+            style.font = font;
             style.fontColor = WIRE_COLORS[i];
-            style.up        = up;
-            style.down      = down;
-            style.disabled  = down;
+            style.up = up;
+            style.down = down;
+            style.disabled = down;
 
             TextButton btn = new TextButton("Sambungkan " + WIRE_NAMES[i], style);
             btn.addListener(new ClickListener() {

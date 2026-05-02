@@ -17,6 +17,7 @@ public class ProjectilePool {
         }
     }
 
+
     public Projectile obtain() {
         for (Projectile p : pool) {
             if (!p.active) return p;
@@ -36,7 +37,9 @@ public class ProjectilePool {
         for (Projectile p : pool) p.reset();
     }
 
-    public Projectile[] getAll() { return pool; }
+    public Projectile[] getAll() {
+        return pool;
+    }
 
     public void dispose() {
         for (Projectile p : pool) p.dispose();

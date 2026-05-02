@@ -16,17 +16,24 @@ import com.nextgenlab.game.state.GameStateHandler;
 import com.nextgenlab.game.state.PreparationState;
 
 public class GameScreen extends ScreenAdapter {
+
     public final NextGenLabGame game;
+
 
     public TiledMap map;
     public OrthogonalTiledMapRenderer mapRenderer;
     public OrthographicCamera camera;
 
+
     public Researcher researcher;
     public Monster monster;
+
+
     public final InputHandler inputHandler = new InputHandler();
 
+
     public Long matchId;
+
 
     private GameStateHandler currentState;
     private GameStateHandler pendingState;
@@ -39,6 +46,7 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 600, 450);
+
         map = new TmxMapLoader().load("test.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(map);
 
@@ -55,8 +63,12 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+
         if (pendingState != null) {
-            if (currentState != null) { currentState.exit(this); currentState.dispose(); }
+            if (currentState != null) {
+                currentState.exit(this);
+                currentState.dispose();
+            }
             currentState = pendingState;
             pendingState = null;
             currentState.enter(this);
@@ -66,6 +78,7 @@ public class GameScreen extends ScreenAdapter {
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 
         boolean isResearcher = "RESEARCHER".equals(game.playerRole);
         float camX = isResearcher ? researcher.getX() : (monster != null ? monster.getX() : researcher.getX());
@@ -81,6 +94,7 @@ public class GameScreen extends ScreenAdapter {
         researcher.render(game.batch);
         if (monster != null) monster.render(game.batch);
         game.batch.end();
+
 
         if (currentState != null) currentState.render(this);
     }
@@ -100,6 +114,9 @@ public class GameScreen extends ScreenAdapter {
         mapRenderer.dispose();
         researcher.dispose();
         if (monster != null) monster.dispose();
-        if (currentState != null) { currentState.exit(this); currentState.dispose(); }
+        if (currentState != null) {
+            currentState.exit(this);
+            currentState.dispose();
+        }
     }
 }

@@ -1,11 +1,12 @@
 package com.nextgenlab.game.entity;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.nextgenlab.game.network.PositionUpdate;
 import com.nextgenlab.game.strategy.MovementStrategy;
 import com.nextgenlab.game.strategy.PatrolStrategy;
 
@@ -20,9 +21,23 @@ public class Monster {
     private static final float HIT_HEIGHT = 24f;
     private static final int TILE_SIZE = 48;
 
-    private Texture texture;
+
+    private Texture idleN, idleS, idleE, idleW, idleNE, idleNW, idleSE, idleSW;
+
+    private Texture walkN, walkS, walkE, walkW, walkNE, walkNW, walkSE, walkSW;
+
+    private Animation<TextureRegion> animIdleN, animIdleS, animIdleE, animIdleW;
+    private Animation<TextureRegion> animIdleNE, animIdleNW, animIdleSE, animIdleSW;
+    private Animation<TextureRegion> animWalkN, animWalkS, animWalkE, animWalkW;
+    private Animation<TextureRegion> animWalkNE, animWalkNW, animWalkSE, animWalkSW;
+
+    private Animation<TextureRegion> currentAnimation;
+    private float stateTime = 0f;
+    private boolean moving = false;
+
     private MovementStrategy strategy;
     private Direction lastDirection = Direction.S;
+    private int actionFlag = 0;
 
     private int hp = 5;
     private int maxHp = 5;
@@ -38,21 +53,59 @@ public class Monster {
     }
 
     public void show() {
-        Pixmap p = new Pixmap((int) SIZE, (int) SIZE, Pixmap.Format.RGBA8888);
-        p.setColor(Color.PURPLE);
-        p.fill();
-        p.setColor(0.3f, 0f, 0.3f, 1f);
-        p.drawRectangle(0, 0, (int) SIZE, (int) SIZE);
-        texture = new Texture(p);
-        p.dispose();
+        idleN = new Texture("monster/north.png");
+        idleS = new Texture("monster/south.png");
+        idleE = new Texture("monster/east.png");
+        idleW = new Texture("monster/west.png");
+        idleNE = new Texture("monster/north-east.png");
+        idleNW = new Texture("monster/north-west.png");
+        idleSE = new Texture("monster/south-east.png");
+        idleSW = new Texture("monster/south-west.png");
+
+        walkN = new Texture("monster/walking(6frames)-north.png");
+        walkS = new Texture("monster/walking(6frames)-south.png");
+        walkE = new Texture("monster/walking(6frames)-east.png");
+        walkW = new Texture("monster/walking(6frames)-west.png");
+        walkNE = new Texture("monster/walking(6frames)-north-east.png");
+        walkNW = new Texture("monster/walking(6frames)-north-west.png");
+        walkSE = new Texture("monster/walking(6frames)-south-east.png");
+        walkSW = new Texture("monster/walking(6frames)-south-west.png");
+
+        animIdleN = buildIdleAnim(idleN);
+        animIdleS = buildIdleAnim(idleS);
+        animIdleE = buildIdleAnim(idleE);
+        animIdleW = buildIdleAnim(idleW);
+        animIdleNE = buildIdleAnim(idleNE);
+        animIdleNW = buildIdleAnim(idleNW);
+        animIdleSE = buildIdleAnim(idleSE);
+        animIdleSW = buildIdleAnim(idleSW);
+
+        animWalkN = buildWalkAnim(walkN);
+        animWalkS = buildWalkAnim(walkS);
+        animWalkE = buildWalkAnim(walkE);
+        animWalkW = buildWalkAnim(walkW);
+        animWalkNE = buildWalkAnim(walkNE);
+        animWalkNW = buildWalkAnim(walkNW);
+        animWalkSE = buildWalkAnim(walkSE);
+        animWalkSW = buildWalkAnim(walkSW);
+
+        currentAnimation = animIdleS;
     }
 
+
     public void update(float delta, float targetX, float targetY) {
+        moving = false;
         if (strategy != null) strategy.move(this, targetX, targetY, delta);
+        if (!moving) applyIdle();
     }
+
 
     public void applyMovement(float rawVx, float rawVy, Direction dir, float delta) {
         lastDirection = dir;
+        currentAnimation = walkAnimFor(dir);
+        stateTime += delta;
+        moving = true;
+
         float vx = rawVx, vy = rawVy;
         if (vx != 0 && vy != 0) {
             float len = (float) Math.sqrt(vx * vx + vy * vy);
@@ -62,43 +115,209 @@ public class Monster {
             vx *= speed;
             vy *= speed;
         }
-        if (vx != 0) { float nx = x + vx * delta; if (!isCollision(nx, y)) x = nx; }
-        if (vy != 0) { float ny = y + vy * delta; if (!isCollision(x, ny)) y = ny; }
+        if (vx != 0) {
+            float nx = x + vx * delta;
+            if (!isCollision(nx, y)) x = nx;
+        }
+        if (vy != 0) {
+            float ny = y + vy * delta;
+            if (!isCollision(x, ny)) y = ny;
+        }
     }
 
+
     public void applyVelocity(float normVx, float normVy, float delta) {
+        Direction dir = directionFrom(normVx, normVy);
+        lastDirection = dir;
+        currentAnimation = walkAnimFor(dir);
+        stateTime += delta;
+        moving = true;
+
         float vx = normVx * speed;
         float vy = normVy * speed;
-        if (vx != 0) { float nx = x + vx * delta; if (!isCollision(nx, y)) x = nx; }
-        if (vy != 0) { float ny = y + vy * delta; if (!isCollision(x, ny)) y = ny; }
+        if (vx != 0) {
+            float nx = x + vx * delta;
+            if (!isCollision(nx, y)) x = nx;
+        }
+        if (vy != 0) {
+            float ny = y + vy * delta;
+            if (!isCollision(x, ny)) y = ny;
+        }
+    }
+
+    public void applyIdle() {
+        currentAnimation = idleAnimFor(lastDirection);
+        stateTime = 0f;
+        moving = false;
+    }
+
+    public void applyRemoteUpdate(PositionUpdate u) {
+        x = u.x;
+        y = u.y;
+        if (u.direction >= 0 && u.direction < Direction.values().length) {
+            lastDirection = Direction.values()[u.direction];
+        }
+        moving = u.moving;
+        actionFlag = u.actionFlag;
+        if (u.hp > 0) hp = u.hp;
+    }
+
+    public void tickRemoteAnimation(float delta) {
+        if (moving) {
+            currentAnimation = walkAnimFor(lastDirection);
+            stateTime += delta;
+        } else {
+            currentAnimation = idleAnimFor(lastDirection);
+        }
     }
 
     public void setStrategy(MovementStrategy strategy) {
         this.strategy = strategy;
     }
 
-    public void setPosition(float x, float y) { this.x = x; this.y = y; }
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
 
     public void render(SpriteBatch batch) {
-        batch.draw(texture, x - SIZE / 2f, y - SIZE / 2f, SIZE, SIZE);
+        TextureRegion frame = currentAnimation.getKeyFrame(stateTime, true);
+        batch.draw(frame, x - SIZE / 2f, y - SIZE / 2f, SIZE, SIZE);
     }
 
     public void dispose() {
-        if (texture != null) texture.dispose();
+        idleN.dispose();
+        idleS.dispose();
+        idleE.dispose();
+        idleW.dispose();
+        idleNE.dispose();
+        idleNW.dispose();
+        idleSE.dispose();
+        idleSW.dispose();
+        walkN.dispose();
+        walkS.dispose();
+        walkE.dispose();
+        walkW.dispose();
+        walkNE.dispose();
+        walkNW.dispose();
+        walkSE.dispose();
+        walkSW.dispose();
     }
 
-    public void takeDamage() { if (hp > 0) hp--; }
-    public boolean isAlive() { return hp > 0; }
 
-    public float getX() { return x; }
-    public float getY() { return y; }
-    public int getHp() { return hp; }
-    public int getMaxHp() { return maxHp; }
-    public Direction getLastDirection(){ return lastDirection; }
+    public void takeDamage() {
+        if (hp > 0) hp--;
+    }
+
+    public boolean isAlive() {
+        return hp > 0;
+    }
+
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public int getHp() {
+        return hp;
+    }
+
+    public int getMaxHp() {
+        return maxHp;
+    }
+
+    public Direction getLastDirection() {
+        return lastDirection;
+    }
+
+    public boolean isMoving() {
+        return moving;
+    }
+
+    public int getActionFlag() {
+        return actionFlag;
+    }
+
+    public void setActionFlag(int flag) {
+        actionFlag = flag;
+    }
 
     public boolean overlaps(float px, float py, float radius) {
         float dx = x - px, dy = y - py;
         return dx * dx + dy * dy < (radius + HIT_WIDTH / 2f) * (radius + HIT_WIDTH / 2f);
+    }
+
+
+    private Direction directionFrom(float normVx, float normVy) {
+        boolean goN = normVy > 0.3f, goS = normVy < -0.3f;
+        boolean goE = normVx > 0.3f, goW = normVx < -0.3f;
+        if (goN && goE) return Direction.NE;
+        if (goN && goW) return Direction.NW;
+        if (goS && goE) return Direction.SE;
+        if (goS && goW) return Direction.SW;
+        if (goN) return Direction.N;
+        if (goS) return Direction.S;
+        if (goE) return Direction.E;
+        if (goW) return Direction.W;
+        return lastDirection;
+    }
+
+    private Animation<TextureRegion> buildIdleAnim(Texture tex) {
+        return new Animation<>(1f, new TextureRegion(tex, 0, 0, (int) SIZE, (int) SIZE));
+    }
+
+    private Animation<TextureRegion> buildWalkAnim(Texture tex) {
+        return new Animation<>(0.1f, TextureRegion.split(tex, (int) SIZE, (int) SIZE)[0]);
+    }
+
+    private Animation<TextureRegion> idleAnimFor(Direction dir) {
+        switch (dir) {
+            case N:
+                return animIdleN;
+            case S:
+                return animIdleS;
+            case E:
+                return animIdleE;
+            case W:
+                return animIdleW;
+            case NE:
+                return animIdleNE;
+            case NW:
+                return animIdleNW;
+            case SE:
+                return animIdleSE;
+            case SW:
+                return animIdleSW;
+            default:
+                return animIdleS;
+        }
+    }
+
+    private Animation<TextureRegion> walkAnimFor(Direction dir) {
+        switch (dir) {
+            case N:
+                return animWalkN;
+            case S:
+                return animWalkS;
+            case E:
+                return animWalkE;
+            case W:
+                return animWalkW;
+            case NE:
+                return animWalkNE;
+            case NW:
+                return animWalkNW;
+            case SE:
+                return animWalkSE;
+            case SW:
+                return animWalkSW;
+            default:
+                return animWalkS;
+        }
     }
 
     private boolean isCollision(float cx, float cy) {

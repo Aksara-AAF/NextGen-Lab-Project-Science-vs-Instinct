@@ -3,6 +3,11 @@ package com.nextgenlab.game.state;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.nextgenlab.game.entity.Direction;
+import com.nextgenlab.game.entity.Monster;
+import com.nextgenlab.game.entity.Researcher;
+import com.nextgenlab.game.network.NetworkTransport;
+import com.nextgenlab.game.network.PositionUpdate;
+import com.nextgenlab.game.network.ProjectileSpawn;
 import com.nextgenlab.game.pool.Projectile;
 import com.nextgenlab.game.pool.ProjectilePool;
 import com.nextgenlab.game.screen.GameOverScreen;
@@ -13,18 +18,18 @@ import com.nextgenlab.game.ui.HudOverlay;
 public class DuelState implements GameStateHandler {
 
     private static final float MONSTER_SHOOT_INTERVAL = 2.5f;
-    private static final float WS_SEND_RATE = 0.05f;
+    private static final float NET_SEND_RATE = 0.05f;
 
     private ProjectilePool projectilePool;
     private HudOverlay hud;
     private float monsterShootTimer = 0f;
-    private float wsSendTimer = 0f;
+    private float netSendTimer = 0f;
 
     @Override
     public void enter(GameScreen screen) {
         projectilePool = new ProjectilePool(20);
         hud = new HudOverlay();
-        if (screen.monster != null && screen.game.wsClient == null) {
+        if (screen.monster != null && screen.game.transport == null) {
             screen.monster.setStrategy(new ChasePlayerStrategy());
         }
     }
@@ -32,19 +37,34 @@ public class DuelState implements GameStateHandler {
     @Override
     public void update(float delta, GameScreen screen) {
         boolean isResearcher = "RESEARCHER".equals(screen.game.playerRole);
-        boolean isMultiplayer = screen.game.wsClient != null;
+        boolean isMultiplayer = screen.game.transport != null;
+        NetworkTransport transport = screen.game.transport;
 
         if (isMultiplayer) {
-            screen.game.wsClient.applyRemotePosition((rx, ry) -> {
-                if (isResearcher) screen.monster.setPosition(rx, ry);
-                else              screen.researcher.setPosition(rx, ry);
+            transport.pollPosition(u -> {
+                Researcher r = screen.researcher;
+                Monster m = screen.monster;
+                if ("RESEARCHER".equals(u.role) && r != null && !isResearcher) {
+                    r.applyRemoteUpdate(u);
+                } else if ("MONSTER".equals(u.role) && m != null && isResearcher) {
+                    m.applyRemoteUpdate(u);
+                }
             });
-            wsSendTimer += delta;
-            if (wsSendTimer >= WS_SEND_RATE) {
-                wsSendTimer = 0;
-                float lx = isResearcher ? screen.researcher.getX() : screen.monster.getX();
-                float ly = isResearcher ? screen.researcher.getY() : screen.monster.getY();
-                screen.game.wsClient.sendPosition(lx, ly);
+            transport.pollProjectile(s -> {
+                Projectile p = projectilePool.obtain();
+                if (p != null) p.init(s.x, s.y, s.dirX, s.dirY, s.shooter);
+            });
+
+            if (isResearcher && screen.monster != null) {
+                screen.monster.tickRemoteAnimation(delta);
+            } else if (!isResearcher && screen.researcher != null) {
+                screen.researcher.tickRemoteAnimation(delta);
+            }
+
+            netSendTimer += delta;
+            if (netSendTimer >= NET_SEND_RATE) {
+                netSendTimer = 0;
+                transport.sendPosition(snapshot(screen, isResearcher));
             }
         }
 
@@ -57,12 +77,15 @@ public class DuelState implements GameStateHandler {
         }
 
         if (isResearcher && screen.inputHandler.isShootPressed()) {
-            fireFrom(screen.researcher.getX(), screen.researcher.getY(),
-                     dirVec(screen.researcher.getLastDirection()), "RESEARCHER");
+            float[] dir = dirVec(screen.researcher.getLastDirection());
+            fireFrom(screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
+            if (isMultiplayer)
+                broadcastSpawn(transport, screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
         }
         if (!isResearcher && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            fireFrom(screen.monster.getX(), screen.monster.getY(),
-                     dirVec(screen.monster.getLastDirection()), "MONSTER");
+            float[] dir = dirVec(screen.monster.getLastDirection());
+            fireFrom(screen.monster.getX(), screen.monster.getY(), dir, "MONSTER");
+            if (isMultiplayer) broadcastSpawn(transport, screen.monster.getX(), screen.monster.getY(), dir, "MONSTER");
         }
 
         if (!isMultiplayer && screen.monster != null) {
@@ -72,7 +95,7 @@ public class DuelState implements GameStateHandler {
                 float dx = screen.researcher.getX() - screen.monster.getX();
                 float dy = screen.researcher.getY() - screen.monster.getY();
                 fireFrom(screen.monster.getX(), screen.monster.getY(),
-                         new float[]{dx, dy}, "MONSTER");
+                    new float[]{dx, dy}, "MONSTER");
             }
         }
 
@@ -81,11 +104,11 @@ public class DuelState implements GameStateHandler {
         for (Projectile p : projectilePool.getAll()) {
             if (!p.active) continue;
             if ("RESEARCHER".equals(p.shooter) && screen.monster != null
-                    && screen.monster.overlaps(p.x, p.y, p.getRadius())) {
+                && screen.monster.overlaps(p.x, p.y, p.getRadius())) {
                 screen.monster.takeDamage();
                 p.reset();
             } else if ("MONSTER".equals(p.shooter)
-                    && screen.researcher.overlaps(p.x, p.y, p.getRadius())) {
+                && screen.researcher.overlaps(p.x, p.y, p.getRadius())) {
                 screen.researcher.takeDamage();
                 p.reset();
             }
@@ -104,12 +127,14 @@ public class DuelState implements GameStateHandler {
         projectilePool.renderAll(screen.game.batch);
         screen.game.batch.end();
 
-        int mHp    = screen.monster != null ? screen.monster.getHp()    : 0;
+        int mHp = screen.monster != null ? screen.monster.getHp() : 0;
         int mMaxHp = screen.monster != null ? screen.monster.getMaxHp() : 1;
         hud.renderDuel(screen.researcher.getHp(), screen.researcher.getMaxHp(), mHp, mMaxHp);
     }
 
-    @Override public void exit(GameScreen screen) {}
+    @Override
+    public void exit(GameScreen screen) {
+    }
 
     @Override
     public void dispose() {
@@ -122,6 +147,17 @@ public class DuelState implements GameStateHandler {
         if (p != null) p.init(x, y, dir[0], dir[1], shooter);
     }
 
+    private void broadcastSpawn(NetworkTransport transport, float x, float y, float[] dir, String shooter) {
+        ProjectileSpawn s = new ProjectileSpawn();
+        s.x = x;
+        s.y = y;
+        s.dirX = dir[0];
+        s.dirY = dir[1];
+        s.shooter = shooter;
+        s.timestamp = System.currentTimeMillis();
+        transport.sendProjectileSpawn(s);
+    }
+
     private void applyMonsterInput(GameScreen screen, float delta) {
         boolean w = Gdx.input.isKeyPressed(Input.Keys.W);
         boolean s = Gdx.input.isKeyPressed(Input.Keys.S);
@@ -131,29 +167,85 @@ public class DuelState implements GameStateHandler {
         float vx = 0, vy = 0;
         Direction dir = Direction.S;
 
-        if      (w && d) { vy =  1; vx =  1; dir = Direction.NE; }
-        else if (w && a) { vy =  1; vx = -1; dir = Direction.NW; }
-        else if (s && d) { vy = -1; vx =  1; dir = Direction.SE; }
-        else if (s && a) { vy = -1; vx = -1; dir = Direction.SW; }
-        else if (w)      { vy =  1;            dir = Direction.N;  }
-        else if (s)      { vy = -1;            dir = Direction.S;  }
-        else if (d)      {            vx =  1; dir = Direction.E;  }
-        else if (a)      {            vx = -1; dir = Direction.W;  }
+        if (w && d) {
+            vy = 1;
+            vx = 1;
+            dir = Direction.NE;
+        } else if (w && a) {
+            vy = 1;
+            vx = -1;
+            dir = Direction.NW;
+        } else if (s && d) {
+            vy = -1;
+            vx = 1;
+            dir = Direction.SE;
+        } else if (s && a) {
+            vy = -1;
+            vx = -1;
+            dir = Direction.SW;
+        } else if (w) {
+            vy = 1;
+            dir = Direction.N;
+        } else if (s) {
+            vy = -1;
+            dir = Direction.S;
+        } else if (d) {
+            vx = 1;
+            dir = Direction.E;
+        } else if (a) {
+            vx = -1;
+            dir = Direction.W;
+        }
 
         if (vx != 0 || vy != 0) screen.monster.applyMovement(vx, vy, dir, delta);
+        else screen.monster.applyIdle();
     }
 
     private float[] dirVec(Direction dir) {
         switch (dir) {
-            case N:  return new float[]{ 0,  1};
-            case S:  return new float[]{ 0, -1};
-            case E:  return new float[]{ 1,  0};
-            case W:  return new float[]{-1,  0};
-            case NE: return new float[]{ 1,  1};
-            case NW: return new float[]{-1,  1};
-            case SE: return new float[]{ 1, -1};
-            case SW: return new float[]{-1, -1};
-            default: return new float[]{ 0, -1};
+            case N:
+                return new float[]{0, 1};
+            case S:
+                return new float[]{0, -1};
+            case E:
+                return new float[]{1, 0};
+            case W:
+                return new float[]{-1, 0};
+            case NE:
+                return new float[]{1, 1};
+            case NW:
+                return new float[]{-1, 1};
+            case SE:
+                return new float[]{1, -1};
+            case SW:
+                return new float[]{-1, -1};
+            default:
+                return new float[]{0, -1};
         }
+    }
+
+    private PositionUpdate snapshot(GameScreen screen, boolean isResearcher) {
+        PositionUpdate u = new PositionUpdate();
+        if (isResearcher) {
+            Researcher r = screen.researcher;
+            u.x = r.getX();
+            u.y = r.getY();
+            u.direction = r.getLastDirection().ordinal();
+            u.moving = r.isMoving();
+            u.actionFlag = r.getActionFlag();
+            u.hp = r.getHp();
+            u.role = "RESEARCHER";
+        } else {
+            Monster m = screen.monster;
+            u.x = m.getX();
+            u.y = m.getY();
+            u.direction = m.getLastDirection().ordinal();
+            u.moving = m.isMoving();
+            u.actionFlag = m.getActionFlag();
+            u.hp = m.getHp();
+            u.role = "MONSTER";
+        }
+        u.timestamp = System.currentTimeMillis();
+        return u;
     }
 }

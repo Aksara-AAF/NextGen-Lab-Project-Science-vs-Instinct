@@ -55,7 +55,9 @@ public class Projectile {
         shooter = null;
     }
 
-    public float getRadius() { return SIZE / 2f; }
+    public float getRadius() {
+        return SIZE / 2f;
+    }
 
     public void dispose() {
         texture.dispose();

@@ -17,13 +17,14 @@ public class HudOverlay {
     public HudOverlay() {
         shapes = new ShapeRenderer();
         font = new BitmapFont();
-        hudBatch  = new SpriteBatch();
+        hudBatch = new SpriteBatch();
         hudCamera = new OrthographicCamera();
         hudCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     public void renderPreparation(int tasksCompleted, int totalTasks) {
         hudCamera.update();
+
 
         shapes.setProjectionMatrix(hudCamera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
@@ -51,10 +52,12 @@ public class HudOverlay {
         shapes.setProjectionMatrix(hudCamera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
 
+
         shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
         shapes.rect(10, 10, 160, 16);
         shapes.setColor(Color.CYAN);
         shapes.rect(10, 10, 160f * resHp / resMaxHp, 16);
+
 
         float barX = W - 170f;
         shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
@@ -69,7 +72,7 @@ public class HudOverlay {
         font.setColor(Color.WHITE);
         font.draw(hudBatch, "FASE: DUEL", W / 2f - 36, Gdx.graphics.getHeight() - 8);
         font.draw(hudBatch, "Peneliti  " + resHp + "/" + resMaxHp, 10, 44);
-        font.draw(hudBatch, "Monster  "  + monHp + "/" + monMaxHp, barX, 44);
+        font.draw(hudBatch, "Monster  " + monHp + "/" + monMaxHp, barX, 44);
         font.draw(hudBatch, "[SPACE] tembak", W / 2f - 48, 44);
         hudBatch.end();
     }

@@ -10,13 +10,22 @@ public class BackendFacade {
 
     private final String baseUrl;
 
-    public interface MatchStartCallback { void onSuccess(Long matchId); }
-    public interface StatusCallback     { void onStatus(String status); }
-    public interface RoomCallback       { void onResult(String roomCode, Long matchSessionId, String status); }
+    public interface MatchStartCallback {
+        void onSuccess(Long matchId);
+    }
+
+    public interface StatusCallback {
+        void onStatus(String status);
+    }
+
+    public interface RoomCallback {
+        void onResult(String roomCode, Long matchSessionId, String status);
+    }
 
     public BackendFacade(String url) {
         this.baseUrl = url;
     }
+
 
     public void startMatch(MatchStartCallback callback) {
         post("/api/match/start", "{}", response -> {
@@ -52,6 +61,7 @@ public class BackendFacade {
         }, t -> Gdx.app.error("BACKEND", "getStatus gagal: " + t.getMessage()));
     }
 
+
     public void createRoom(String role, RoomCallback callback) {
         String body = "{\"role\":\"" + role + "\"}";
         post("/api/room/create", body, response -> parseRoom(response, callback),
@@ -68,6 +78,7 @@ public class BackendFacade {
         get("/api/room/" + code, response -> parseRoom(response, callback),
             t -> Gdx.app.error("BACKEND", "getRoomStatus gagal: " + t.getMessage()));
     }
+
 
     private void post(String path, String body,
                       java.util.function.Consumer<String> onSuccess,
@@ -94,19 +105,29 @@ public class BackendFacade {
     private Net.HttpResponseListener listener(java.util.function.Consumer<String> onSuccess,
                                               java.util.function.Consumer<Throwable> onFail) {
         return new Net.HttpResponseListener() {
-            @Override public void handleHttpResponse(Net.HttpResponse r) { onSuccess.accept(r.getResultAsString()); }
-            @Override public void failed(Throwable t)                    { onFail.accept(t); }
-            @Override public void cancelled()                            {}
+            @Override
+            public void handleHttpResponse(Net.HttpResponse r) {
+                onSuccess.accept(r.getResultAsString());
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                onFail.accept(t);
+            }
+
+            @Override
+            public void cancelled() {
+            }
         };
     }
 
     private void parseRoom(String response, RoomCallback callback) {
         if (callback == null) return;
         try {
-            JsonValue root      = new JsonReader().parse(response);
-            String roomCode     = root.getString("roomCode");
-            long   matchSessId  = root.getLong("matchSessionId");
-            String status       = root.getString("status");
+            JsonValue root = new JsonReader().parse(response);
+            String roomCode = root.getString("roomCode");
+            long matchSessId = root.getLong("matchSessionId");
+            String status = root.getString("status");
             callback.onResult(roomCode, matchSessId, status);
         } catch (Exception e) {
             Gdx.app.error("BACKEND", "parseRoom: " + e.getMessage());
