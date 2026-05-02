@@ -10,6 +10,11 @@ public class BackendFacade {
 
     private final String baseUrl;
 
+    private String authToken = null;
+    private Long currentUserId = null;
+    private String currentUsername = null;
+    private String currentEmail = null;
+
     public interface MatchStartCallback {
         void onSuccess(Long matchId);
     }
@@ -22,8 +27,85 @@ public class BackendFacade {
         void onResult(String roomCode, Long matchSessionId, String status);
     }
 
+    public interface AuthCallback {
+        void onSuccess(Long userId, String username, String email);
+
+        void onFailure(String errorMessage);
+    }
+
     public BackendFacade(String url) {
         this.baseUrl = url;
+    }
+
+
+    public boolean isLoggedIn() {
+        return authToken != null;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public Long getCurrentUserId() {
+        return currentUserId;
+    }
+
+    public String getCurrentUsername() {
+        return currentUsername;
+    }
+
+    public String getCurrentEmail() {
+        return currentEmail;
+    }
+
+    public void logout() {
+        authToken = null;
+        currentUserId = null;
+        currentUsername = null;
+        currentEmail = null;
+    }
+
+
+    public void register(String email, String username, String password, AuthCallback callback) {
+        String body = "{\"email\":\"" + esc(email) + "\",\"username\":\"" + esc(username)
+            + "\",\"password\":\"" + esc(password) + "\"}";
+        post("/api/auth/register", body, response -> handleAuthResponse(response, callback),
+            t -> {
+                if (callback != null) callback.onFailure("Network error: " + t.getMessage());
+            });
+    }
+
+    public void login(String email, String password, AuthCallback callback) {
+        String body = "{\"email\":\"" + esc(email) + "\",\"password\":\"" + esc(password) + "\"}";
+        post("/api/auth/login", body, response -> handleAuthResponse(response, callback),
+            t -> {
+                if (callback != null) callback.onFailure("Network error: " + t.getMessage());
+            });
+    }
+
+    private void handleAuthResponse(String response, AuthCallback callback) {
+        try {
+            JsonValue root = new JsonReader().parse(response);
+            JsonValue err = root.get("error");
+            if (err != null) {
+                if (callback != null) callback.onFailure(err.asString());
+                return;
+            }
+            String token = root.getString("token");
+            JsonValue u = root.get("user");
+            Long id = u.getLong("id");
+            String name = u.getString("username");
+            String email = u.getString("email");
+
+            authToken = token;
+            currentUserId = id;
+            currentUsername = name;
+            currentEmail = email;
+
+            if (callback != null) callback.onSuccess(id, name, email);
+        } catch (Exception e) {
+            if (callback != null) callback.onFailure("Parse error: " + e.getMessage());
+        }
     }
 
 
@@ -83,23 +165,23 @@ public class BackendFacade {
     private void post(String path, String body,
                       java.util.function.Consumer<String> onSuccess,
                       java.util.function.Consumer<Throwable> onFail) {
-        Net.HttpRequest req = new HttpRequestBuilder()
+        HttpRequestBuilder builder = new HttpRequestBuilder()
             .newRequest().method(Net.HttpMethods.POST)
             .url(baseUrl + path)
             .header("Content-Type", "application/json")
-            .content(body)
-            .build();
-        Gdx.net.sendHttpRequest(req, listener(onSuccess, onFail));
+            .content(body);
+        if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
+        Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
     }
 
     private void get(String path,
                      java.util.function.Consumer<String> onSuccess,
                      java.util.function.Consumer<Throwable> onFail) {
-        Net.HttpRequest req = new HttpRequestBuilder()
+        HttpRequestBuilder builder = new HttpRequestBuilder()
             .newRequest().method(Net.HttpMethods.GET)
-            .url(baseUrl + path)
-            .build();
-        Gdx.net.sendHttpRequest(req, listener(onSuccess, onFail));
+            .url(baseUrl + path);
+        if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
+        Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
     }
 
     private Net.HttpResponseListener listener(java.util.function.Consumer<String> onSuccess,
@@ -132,5 +214,10 @@ public class BackendFacade {
         } catch (Exception e) {
             Gdx.app.error("BACKEND", "parseRoom: " + e.getMessage());
         }
+    }
+
+    private static String esc(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }
