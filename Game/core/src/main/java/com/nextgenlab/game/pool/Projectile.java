@@ -9,7 +9,7 @@ public class Projectile {
 
     private static final float SPEED = 420f;
     private static final float SIZE = 10f;
-    private static final float MAP_BOUND = 1920f;
+    private static final float MAP_BOUND = 1280f;
 
     public float x, y;
     public float velX, velY;

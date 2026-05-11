@@ -1,0 +1,1020 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="48" height="36" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="150">
+ <tileset firstgid="1" name="tileset_lab" tilewidth="32" tileheight="32" tilecount="128" columns="8">
+  <image source="tileset_lab.png" width="256" height="512"/>
+ </tileset>
+ <layer id="1" name="Background" width="48" height="36">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,1,6,1,1,1,1,1,6,1,6,1,0,1,6,1,1,1,1,1,1,6,1,1,1,1,1,1,6,6,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,6,1,1,6,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,1,1,1,0,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,6,6,1,1,1,1,6,5,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,1,1,1,5,1,6,1,6,1,1,1,1,6,1,1,6,1,6,1,1,1,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,6,1,1,1,1,6,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,6,1,1,0,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,6,1,1,1,1,1,1,1,1,1,0,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,0,0,0,5,5,0,0,0,0,5,5,0,0,0,0,0,0,5,5,0,0,0,0,5,5,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,5,5,0,0,0,0,
+0,4,4,4,4,4,4,4,4,0,6,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,0,1,6,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,5,1,1,1,1,1,1,1,1,1,6,1,1,6,1,1,1,1,1,1,6,6,1,1,1,1,1,1,5,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,1,5,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,0,1,1,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,0,1,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,0,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,0,
+0,0,0,0,5,5,0,0,0,0,1,1,6,1,1,1,6,1,1,1,1,1,1,1,6,1,1,1,1,1,1,1,6,1,1,1,1,0,0,0,0,0,5,5,0,0,0,0,
+0,4,4,4,4,4,4,4,4,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,0,1,1,6,1,1,1,1,1,1,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,6,0,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,0,1,1,1,1,1,1,1,6,1,1,6,1,1,1,6,1,1,1,1,1,1,1,1,6,6,1,1,0,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,5,1,1,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,1,1,1,1,5,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,5,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,5,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,0,1,1,1,1,1,1,1,1,6,1,1,1,1,1,6,1,1,1,1,1,1,1,1,6,1,6,1,0,4,4,4,4,4,4,4,4,4,0,
+0,4,4,4,4,4,4,4,4,0,1,1,1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,0,
+0,0,0,0,5,5,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,
+0,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,5,5,5,5,5,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,5,5,5,5,5,1,1,1,1,1,1,1,1,3,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,5,5,5,5,5,1,1,1,1,1,1,1,1,1,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,5,5,5,5,5,1,1,1,1,1,1,1,1,1,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,5,5,5,5,5,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,3,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="5" name="Dekorasi Non-Solid" width="48" height="36">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,1610612772,0,0,0,0,2684354596,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,36,0,0,36,0,0,0,36,0,0,0,0,0,3221225508,0,0,1610612772,0,0,0,
+0,0,36,0,0,0,0,2684354596,0,0,0,0,0,3,36,0,0,0,0,0,0,1610612772,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,
+0,0,0,0,0,36,0,0,0,0,0,0,0,1610612772,0,0,0,0,0,0,0,0,0,0,0,36,0,3,0,0,0,0,0,36,0,0,3221225508,0,2684354596,0,0,0,0,0,36,3221225508,0,0,
+0,0,0,0,0,0,0,0,0,3221225508,3,3221225508,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,36,0,0,0,0,36,0,0,0,0,0,0,3,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612772,0,0,0,0,3221225508,0,0,0,1610612772,0,2684354596,0,0,0,0,
+0,0,0,3,1610612772,0,0,0,1610612772,0,0,0,0,0,0,1610612772,0,0,0,0,0,0,0,0,0,0,0,0,2684354596,0,0,2684354596,0,0,0,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,1610612772,0,0,3221225508,0,0,0,0,2684354596,0,0,0,2684354596,0,0,36,0,0,36,0,0,0,3221225508,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,2684354596,0,0,3221225508,0,
+0,0,36,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,1610612772,0,0,2684354596,0,0,0,1610612772,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,1610612772,0,0,0,0,0,
+0,0,0,0,0,0,0,95,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,36,0,0,1610612772,0,0,0,2684354596,0,0,2684354596,0,0,0,0,0,0,0,0,0,0,0,2684354596,0,0,
+0,0,0,0,2684354596,0,2684354596,3221225508,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2684354596,0,0,0,37,0,0,3,3221225508,0,0,0,0,0,0,0,0,36,0,0,1610612772,0,0,3,2684354596,0,
+0,2684354596,0,2684354653,0,0,0,0,0,0,0,0,0,0,0,37,0,36,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612772,0,0,0,
+0,0,3221225508,0,0,0,2684354596,36,0,0,0,0,0,36,0,0,0,1610612772,0,0,0,37,0,0,0,0,0,0,0,0,1610612772,0,0,0,0,1610612772,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,36,3,0,2684354596,0,36,0,0,0,0,0,0,0,0,0,0,0,2684354596,0,0,0,0,3221225508,0,0,0,0,0,0,0,0,0,0,3,0,0,0,36,0,0,0,0,0,
+0,1610612772,0,0,0,0,0,0,0,0,36,0,0,0,0,1610612772,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,3,0,2684354596,0,0,0,0,3221225508,0,0,0,0,0,0,1610612772,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,0,0,3221225508,0,0,36,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,3,0,0,0,2684354596,0,2684354596,0,0,0,0,2684354596,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,2684354596,0,0,1610612772,0,0,0,0,0,0,0,0,0,3,0,0,0,0,36,0,0,0,0,
+0,0,3221225508,1610612772,0,1610612772,0,0,1610612772,0,0,0,0,0,0,0,0,3221225508,0,0,0,37,1610612772,1610612772,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612772,0,0,0,0,0,0,1610612772,0,0,
+0,0,0,1610612772,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,1610612772,36,0,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,2684354596,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2684354596,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612772,0,3221225508,0,0,0,0,0,3221225508,0,0,0,0,0,0,
+0,36,0,2684354596,0,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,37,0,0,0,0,0,0,0,0,0,0,0,0,1610612772,0,
+0,0,0,0,0,0,3221225508,1610612772,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,0,0,3221225508,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,0,2684354596,0,0,0,36,0,0,1610612772,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,102,0,3221225508,3221225508,0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612772,0,0,0,1610612772,0,0,
+0,37,3221225508,0,0,0,0,3221225508,0,0,3221225508,0,0,3221225508,0,2684354596,0,0,0,0,0,3221225508,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,1610612772,0,36,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2684354596,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,102,0,0,3221225508,0,0,0,0,3221225508,0,0,0,0,0,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,3221225508,0,0,0,37,0,0,3221225574,0,2684354596,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0,
+0,0,0,2684354596,0,0,0,0,0,36,1610612772,0,0,3221225508,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,3221225508,0,0,0,0,0,0,0,0,2684354596,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612772,0,0,36,0,0,
+0,0,0,0,0,3221225574,0,0,0,0,0,0,0,0,36,0,2684354596,0,0,0,0,1610612772,0,0,0,0,0,0,0,1610612772,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="2" name="Foreground" width="48" height="36">
+  <data encoding="csv">
+13,9,9,9,9,66,9,9,9,9,9,9,13,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,13,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,14,
+10,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,19,0,19,0,0,0,0,19,0,19,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+13,9,9,79,0,0,79,9,9,14,0,0,13,9,9,9,9,79,0,0,79,9,9,9,0,0,9,9,9,9,9,9,78,0,0,78,9,13,9,9,69,76,0,0,76,9,9,14,
+10,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,11,
+10,0,17,18,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,17,18,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,34,0,0,0,0,0,0,0,0,0,34,0,0,0,0,0,0,0,0,10,0,0,56,0,0,0,0,51,0,11,
+10,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,11,
+13,9,68,79,0,0,76,9,9,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,9,9,9,78,0,0,78,9,9,14,
+10,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,11,
+10,0,23,0,0,0,23,64,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,17,18,0,0,62,0,0,11,
+10,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,34,0,0,0,0,0,0,0,0,0,34,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,62,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,63,0,0,11,
+10,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,11,
+13,9,9,76,0,0,79,9,9,9,9,67,9,79,0,0,79,9,9,9,9,9,9,13,9,9,9,76,0,0,77,9,9,9,9,9,65,9,9,9,9,78,0,0,78,9,9,14,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,58,0,0,0,0,0,0,0,0,0,0,0,60,0,0,0,0,0,10,0,0,21,0,0,0,0,0,21,0,0,0,0,0,21,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,22,0,0,0,0,0,22,0,0,0,0,0,22,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,59,0,0,0,0,0,0,0,0,0,0,0,60,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,60,0,0,0,0,0,0,0,0,0,0,0,59,0,0,0,0,0,0,0,0,0,56,0,0,0,0,0,50,0,0,0,0,0,53,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,59,0,0,0,0,0,0,0,0,0,0,0,60,61,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+15,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,15,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,16
+</data>
+ </layer>
+ <layer id="3" name="Interact Object" width="48" height="36">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,122,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,28,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,29,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="4" name="Spawn">
+  <object id="1" name="spawn_researcher_Lobby_1" x="128" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="2" name="spawn_monster_Lobby_1" x="128" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="3" name="spawn_researcher_Lobby_2" x="224" y="160" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="4" name="spawn_monster_Lobby_2" x="224" y="160" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="5" name="spawn_researcher_Lobby_3" x="320" y="96" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="6" name="spawn_monster_Lobby_3" x="320" y="96" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="7" name="spawn_researcher_Lobby_4" x="96" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="8" name="spawn_monster_Lobby_4" x="96" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="9" name="spawn_researcher_Lobby_5" x="192" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="10" name="spawn_monster_Lobby_5" x="192" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="11" name="spawn_researcher_Corridor_1" x="512" y="96" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="12" name="spawn_monster_Corridor_1" x="512" y="96" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="13" name="spawn_researcher_Corridor_2" x="704" y="160" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="14" name="spawn_monster_Corridor_2" x="704" y="160" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="15" name="spawn_researcher_Corridor_3" x="864" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="16" name="spawn_monster_Corridor_3" x="864" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="17" name="spawn_researcher_Corridor_4" x="480" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="18" name="spawn_monster_Corridor_4" x="480" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="19" name="spawn_researcher_Corridor_5" x="896" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="20" name="spawn_monster_Corridor_5" x="896" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="21" name="spawn_researcher_Armory_1" x="1056" y="96" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="22" name="spawn_monster_Armory_1" x="1056" y="96" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="23" name="spawn_researcher_Armory_2" x="1216" y="160" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="24" name="spawn_monster_Armory_2" x="1216" y="160" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="25" name="spawn_researcher_Armory_3" x="1408" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="26" name="spawn_monster_Armory_3" x="1408" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="27" name="spawn_researcher_Armory_4" x="1280" y="192" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="28" name="spawn_monster_Armory_4" x="1280" y="192" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="29" name="spawn_researcher_Armory_5" x="1120" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="30" name="spawn_monster_Armory_5" x="1120" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="31" name="spawn_researcher_Wire_1" x="96" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="32" name="spawn_monster_Wire_1" x="96" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="33" name="spawn_researcher_Wire_2" x="192" y="448" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="34" name="spawn_monster_Wire_2" x="192" y="448" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="35" name="spawn_researcher_Wire_3" x="128" y="480" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="36" name="spawn_monster_Wire_3" x="128" y="480" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="37" name="spawn_researcher_Wire_4" x="64" y="416" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="38" name="spawn_monster_Wire_4" x="64" y="416" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="39" name="spawn_researcher_MainHall_1" x="416" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="40" name="spawn_monster_MainHall_1" x="416" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="41" name="spawn_researcher_MainHall_2" x="640" y="448" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="42" name="spawn_monster_MainHall_2" x="640" y="448" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="43" name="spawn_researcher_MainHall_3" x="864" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="44" name="spawn_monster_MainHall_3" x="864" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="45" name="spawn_researcher_MainHall_4" x="1056" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="46" name="spawn_monster_MainHall_4" x="1056" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="47" name="spawn_researcher_MainHall_5" x="480" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="48" name="spawn_monster_MainHall_5" x="480" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="49" name="spawn_researcher_MainHall_6" x="1024" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="50" name="spawn_monster_MainHall_6" x="1024" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="51" name="spawn_researcher_MainHall_7" x="768" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="52" name="spawn_monster_MainHall_7" x="768" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="53" name="spawn_researcher_MainHall_8" x="384" y="512" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="54" name="spawn_monster_MainHall_8" x="384" y="512" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="55" name="spawn_researcher_MainHall_9" x="1120" y="512" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="56" name="spawn_monster_MainHall_9" x="1120" y="512" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="57" name="spawn_researcher_Hack_1" x="1280" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="58" name="spawn_monster_Hack_1" x="1280" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="59" name="spawn_researcher_Hack_2" x="1408" y="448" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="60" name="spawn_monster_Hack_2" x="1408" y="448" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="61" name="spawn_researcher_Hack_3" x="1376" y="352" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="62" name="spawn_monster_Hack_3" x="1376" y="352" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="63" name="spawn_researcher_Hack_4" x="1248" y="480" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="64" name="spawn_monster_Hack_4" x="1248" y="480" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="65" name="spawn_researcher_Chem_1" x="96" y="640" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="66" name="spawn_monster_Chem_1" x="96" y="640" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="67" name="spawn_researcher_Chem_2" x="192" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="68" name="spawn_monster_Chem_2" x="192" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="69" name="spawn_researcher_Chem_3" x="128" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="70" name="spawn_monster_Chem_3" x="128" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="71" name="spawn_researcher_Chem_4" x="64" y="736" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="72" name="spawn_monster_Chem_4" x="64" y="736" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="73" name="spawn_researcher_Bio_1" x="1280" y="640" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="74" name="spawn_monster_Bio_1" x="1280" y="640" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="75" name="spawn_researcher_Bio_2" x="1376" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="76" name="spawn_monster_Bio_2" x="1376" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="77" name="spawn_researcher_Bio_3" x="1376" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="78" name="spawn_monster_Bio_3" x="1376" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="79" name="spawn_researcher_Bio_4" x="1248" y="736" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="80" name="spawn_monster_Bio_4" x="1248" y="736" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="81" name="spawn_researcher_Reactor_1" x="160" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="82" name="spawn_monster_Reactor_1" x="160" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="83" name="spawn_researcher_Reactor_2" x="576" y="1024" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="84" name="spawn_monster_Reactor_2" x="576" y="1024" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="85" name="spawn_researcher_Reactor_3" x="640" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="86" name="spawn_monster_Reactor_3" x="640" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="87" name="spawn_researcher_Reactor_4" x="256" y="1056" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="88" name="spawn_monster_Reactor_4" x="256" y="1056" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="89" name="spawn_researcher_Reactor_5" x="96" y="992" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="90" name="spawn_monster_Reactor_5" x="96" y="992" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="91" name="spawn_researcher_Server_1" x="864" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="92" name="spawn_monster_Server_1" x="864" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="93" name="spawn_researcher_Server_2" x="1120" y="1024" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="94" name="spawn_monster_Server_2" x="1120" y="1024" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="95" name="spawn_researcher_Server_3" x="1344" y="960" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="96" name="spawn_monster_Server_3" x="1344" y="960" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="97" name="spawn_researcher_Server_4" x="1280" y="1056" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="98" name="spawn_monster_Server_4" x="1280" y="1056" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="99" name="spawn_researcher_Server_5" x="960" y="992" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="100" name="spawn_monster_Server_5" x="960" y="992" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="101" name="spawn_researcher_Server_6" x="1440" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="RESEARCHER"/>
+   </properties>
+  </object>
+  <object id="102" name="spawn_monster_Server_6" x="1440" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="playerSpawn"/>
+    <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="103" name="spawn_chest_Lobby_1" x="64" y="96" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="104" name="spawn_chest_Lobby_2" x="256" y="192" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="105" name="spawn_chest_Lobby_3" x="320" y="192" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="106" name="spawn_chest_Corridor_1" x="448" y="192" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="107" name="spawn_chest_Corridor_2" x="768" y="224" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="108" name="spawn_chest_Corridor_3" x="896" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="109" name="spawn_chest_Armory_1" x="1152" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="110" name="spawn_chest_Armory_2" x="1280" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="111" name="spawn_chest_Armory_3" x="1408" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="112" name="spawn_chest_Armory_4" x="1056" y="192" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="113" name="spawn_chest_Wire_1" x="224" y="416" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="114" name="spawn_chest_Wire_2" x="64" y="512" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="115" name="spawn_chest_MainHall_1" x="352" y="416" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="116" name="spawn_chest_MainHall_2" x="1120" y="448" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="117" name="spawn_chest_MainHall_3" x="384" y="736" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="118" name="spawn_chest_MainHall_4" x="1120" y="704" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="119" name="spawn_chest_MainHall_5" x="704" y="384" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="120" name="spawn_chest_MainHall_6" x="480" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="121" name="spawn_chest_MainHall_7" x="896" y="672" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="122" name="spawn_chest_Hack_1" x="1440" y="416" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="123" name="spawn_chest_Hack_2" x="1248" y="512" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="124" name="spawn_chest_Chem_1" x="224" y="576" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="125" name="spawn_chest_Chem_2" x="64" y="736" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="126" name="spawn_chest_Bio_1" x="1216" y="768" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="127" name="spawn_chest_Bio_2" x="1408" y="576" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="128" name="spawn_chest_Reactor_1" x="64" y="864" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="129" name="spawn_chest_Reactor_2" x="704" y="1088" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="130" name="spawn_chest_Reactor_3" x="480" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="131" name="spawn_chest_Server_1" x="1472" y="864" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="132" name="spawn_chest_Server_2" x="768" y="1056" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="133" name="spawn_chest_Server_3" x="1120" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="134" name="spawn_chest_Server_4" x="1280" y="832" width="32" height="32">
+   <properties>
+    <property name="kind" value="chestSpawn"/>
+   </properties>
+  </object>
+  <object id="135" name="spawn_guard_Server_1" x="896" y="960" width="32" height="32">
+   <properties>
+    <property name="kind" value="npcSpawn"/>
+   </properties>
+  </object>
+  <object id="136" name="spawn_guard_Server_2" x="1120" y="896" width="32" height="32">
+   <properties>
+    <property name="kind" value="npcSpawn"/>
+   </properties>
+  </object>
+  <object id="137" name="spawn_guard_Server_3" x="1408" y="1024" width="32" height="32">
+   <properties>
+    <property name="kind" value="npcSpawn"/>
+   </properties>
+  </object>
+  <object id="138" name="spawn_guard_Corridor_1" x="480" y="128" width="32" height="32">
+   <properties>
+    <property name="kind" value="npcSpawn"/>
+   </properties>
+  </object>
+  <object id="139" name="spawn_guard_Corridor_2" x="896" y="192" width="32" height="32">
+   <properties>
+    <property name="kind" value="npcSpawn"/>
+   </properties>
+  </object>
+  <object id="140" name="spawn_guard_MainHall_1" x="640" y="576" width="32" height="32">
+   <properties>
+    <property name="kind" value="npcSpawn"/>
+   </properties>
+  </object>
+  <object id="141" name="spawn_guard_MainHall_2" x="961.333" y="608" width="32" height="32">
+   <properties>
+    <property name="kind" value="npcSpawn"/>
+   </properties>
+  </object>
+  <object id="142" name="spawn_guard_Armory_1" x="1216" y="192" width="32" height="32">
+   <properties>
+    <property name="kind" value="npcSpawn"/>
+   </properties>
+  </object>
+  <object id="143" name="task_wire" x="128" y="416" width="32" height="32">
+   <properties>
+    <property name="kind" value="taskZone"/>
+    <property name="role" value="wire"/>
+   </properties>
+  </object>
+  <object id="144" name="task_reactor" x="336" y="944" width="64" height="64">
+   <properties>
+    <property name="kind" value="taskZone"/>
+    <property name="role" value="reactor"/>
+   </properties>
+  </object>
+  <object id="145" name="task_chem" x="128" y="672" width="32" height="32">
+   <properties>
+    <property name="kind" value="taskZone"/>
+    <property name="role" value="chem"/>
+   </properties>
+  </object>
+  <object id="146" name="task_hack" x="1344" y="416" width="32" height="32">
+   <properties>
+    <property name="kind" value="taskZone"/>
+    <property name="role" value="hack"/>
+   </properties>
+  </object>
+  <object id="147" name="task_biometric" x="1344" y="672" width="32" height="32">
+   <properties>
+    <property name="kind" value="taskZone"/>
+    <property name="role" value="biometric"/>
+   </properties>
+  </object>
+  <object id="148" name="sabotage_a" x="736" y="544" width="32" height="32">
+   <properties>
+    <property name="kind" value="sabotageZone"/>
+   </properties>
+  </object>
+  <object id="149" name="sabotage_b" x="1120" y="960" width="32" height="32">
+   <properties>
+    <property name="kind" value="sabotageZone"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

@@ -56,7 +56,7 @@ public class InputHandler {
     }
 
     public boolean isShootPressed() {
-        return Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
+        return Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT);
     }
 
     public boolean isInteractPressed() {

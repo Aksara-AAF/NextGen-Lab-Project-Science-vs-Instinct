@@ -35,6 +35,10 @@ public class GameScreen extends ScreenAdapter {
     public Long matchId;
 
 
+    private int[] bgLayerIndices;
+    private int[] fgLayerIndices;
+
+
     private GameStateHandler currentState;
     private GameStateHandler pendingState;
 
@@ -47,7 +51,7 @@ public class GameScreen extends ScreenAdapter {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 600, 450);
 
-        map = new TmxMapLoader().load("test.tmx");
+        map = new TmxMapLoader().load("lab.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(map);
 
         researcher = EntityFactory.createResearcher(map);
@@ -57,6 +61,9 @@ public class GameScreen extends ScreenAdapter {
         monster.show();
 
         matchId = game.currentMatchId;
+
+        bgLayerIndices = findLayerIndices("Background", "Dekorasi Non-Solid");
+        fgLayerIndices = findLayerIndices("Foreground", "Interact Object");
 
         transitionTo(new PreparationState());
     }
@@ -87,7 +94,7 @@ public class GameScreen extends ScreenAdapter {
         camera.update();
 
         mapRenderer.setView(camera);
-        mapRenderer.render();
+        if (bgLayerIndices.length > 0) mapRenderer.render(bgLayerIndices);
 
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
@@ -95,12 +102,29 @@ public class GameScreen extends ScreenAdapter {
         if (monster != null) monster.render(game.batch);
         game.batch.end();
 
+        if (fgLayerIndices.length > 0) mapRenderer.render(fgLayerIndices);
+
 
         if (currentState != null) currentState.render(this);
     }
 
     public void transitionTo(GameStateHandler newState) {
         pendingState = newState;
+    }
+
+    private int[] findLayerIndices(String... names) {
+        java.util.List<Integer> found = new java.util.ArrayList<>();
+        for (String name : names) {
+            for (int i = 0; i < map.getLayers().getCount(); i++) {
+                if (name.equals(map.getLayers().get(i).getName())) {
+                    found.add(i);
+                    break;
+                }
+            }
+        }
+        int[] arr = new int[found.size()];
+        for (int i = 0; i < arr.length; i++) arr[i] = found.get(i);
+        return arr;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.nextgenlab.game.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -15,20 +16,37 @@ public class Researcher {
     private final TiledMap map;
 
     private static final float FRAME_SIZE = 68f;
-    private static final float HIT_WIDTH = 30f;
-    private static final float HIT_HEIGHT = 20f;
-    private static final int TILE_SIZE = 48;
+    private static final float HIT_WIDTH = 20f;
+    private static final float HIT_HEIGHT = 13f;
+    private static final int TILE_SIZE = 32;
 
+    private static final String RUN_PREFIX = "researcher/animations/Running-3086b209/";
+    private static final String ATTACK_PREFIX = "researcher/animations/Basic_Ranged_Attack-7127fbe1/";
+    private static final String IDLE_PREFIX = "researcher/rotations/";
+    private static final int RUN_FRAMES = 4;
+    private static final int ATTACK_FRAMES = 8;
+    private static final float ATTACK_ANIM_DURATION = ATTACK_FRAMES * 0.1f;
 
-    private Texture texN, texS, texE, texW, texNE, texNW, texSE, texSW;
-    private Animation<TextureRegion> animN, animS, animE, animW, animNE, animNW, animSE, animSW;
+    private static final String[] DIR_NAMES = {
+        "north", "south", "east", "west",
+        "north-east", "north-west", "south-east", "south-west"
+    };
 
-    private Texture idleN, idleS, idleE, idleW, idleNE, idleNW, idleSE, idleSW;
-    private Animation<TextureRegion> animIdleN, animIdleS, animIdleE, animIdleW;
-    private Animation<TextureRegion> animIdleNE, animIdleNW, animIdleSE, animIdleSW;
+    private final Texture[] idleTex = new Texture[8];
+    private final Texture[][] runTex = new Texture[8][RUN_FRAMES];
+    private final Texture[][] attackTex = new Texture[8][ATTACK_FRAMES];
+
+    @SuppressWarnings("unchecked")
+    private final Animation<TextureRegion>[] idleAnims = new Animation[8];
+    @SuppressWarnings("unchecked")
+    private final Animation<TextureRegion>[] runAnims = new Animation[8];
+    @SuppressWarnings("unchecked")
+    private final Animation<TextureRegion>[] attackAnims = new Animation[8];
 
     private Animation<TextureRegion> currentAnimation;
     private float stateTime = 0f;
+    private float attackAnimTimer = 0f;
+
     private Direction lastDirection = Direction.S;
     private boolean moving = false;
     private int actionFlag = 0;
@@ -43,49 +61,35 @@ public class Researcher {
     }
 
     public void show() {
-        texN = new Texture("researcher/running-north.png");
-        texS = new Texture("researcher/running-south.png");
-        texE = new Texture("researcher/running-east.png");
-        texW = new Texture("researcher/running-west.png");
-        texNE = new Texture("researcher/running-north-east.png");
-        texNW = new Texture("researcher/running-north-west.png");
-        texSE = new Texture("researcher/running-south-east.png");
-        texSW = new Texture("researcher/running-south-west.png");
+        for (int d = 0; d < 8; d++) {
+            String dir = DIR_NAMES[d];
+            idleTex[d] = new Texture(IDLE_PREFIX + dir + ".png");
+            for (int f = 0; f < RUN_FRAMES; f++) {
+                runTex[d][f] = new Texture(
+                    RUN_PREFIX + dir + "/frame_" + String.format("%03d", f) + ".png");
+            }
+            for (int f = 0; f < ATTACK_FRAMES; f++) {
+                attackTex[d][f] = new Texture(
+                    ATTACK_PREFIX + dir + "/frame_" + String.format("%03d", f) + ".png");
+            }
+        }
+        for (int d = 0; d < 8; d++) {
+            idleAnims[d] = new Animation<>(1f, new TextureRegion(idleTex[d]));
 
-        animN = buildAnim(texN);
-        animS = buildAnim(texS);
-        animE = buildAnim(texE);
-        animW = buildAnim(texW);
-        animNE = buildAnim(texNE);
-        animNW = buildAnim(texNW);
-        animSE = buildAnim(texSE);
-        animSW = buildAnim(texSW);
+            TextureRegion[] runFrames = new TextureRegion[RUN_FRAMES];
+            for (int f = 0; f < RUN_FRAMES; f++) runFrames[f] = new TextureRegion(runTex[d][f]);
+            runAnims[d] = new Animation<>(0.1f, runFrames);
 
-        idleN = new Texture("researcher/north.png");
-        idleS = new Texture("researcher/south.png");
-        idleE = new Texture("researcher/east.png");
-        idleW = new Texture("researcher/west.png");
-        idleNE = new Texture("researcher/north-east.png");
-        idleNW = new Texture("researcher/north-west.png");
-        idleSE = new Texture("researcher/south-east.png");
-        idleSW = new Texture("researcher/south-west.png");
-
-        animIdleN = buildIdleAnim(idleN);
-        animIdleS = buildIdleAnim(idleS);
-        animIdleE = buildIdleAnim(idleE);
-        animIdleW = buildIdleAnim(idleW);
-        animIdleNE = buildIdleAnim(idleNE);
-        animIdleNW = buildIdleAnim(idleNW);
-        animIdleSE = buildIdleAnim(idleSE);
-        animIdleSW = buildIdleAnim(idleSW);
-
-        currentAnimation = animIdleS;
+            TextureRegion[] atkFrames = new TextureRegion[ATTACK_FRAMES];
+            for (int f = 0; f < ATTACK_FRAMES; f++) atkFrames[f] = new TextureRegion(attackTex[d][f]);
+            attackAnims[d] = new Animation<>(0.1f, atkFrames);
+        }
+        currentAnimation = idleAnims[Direction.S.ordinal()];
     }
-
 
     public void applyMovement(float rawVx, float rawVy, Direction dir, float delta) {
         lastDirection = dir;
-        currentAnimation = animFor(dir);
+        currentAnimation = runAnims[dir.ordinal()];
         stateTime += delta;
         moving = true;
 
@@ -110,9 +114,14 @@ public class Researcher {
     }
 
     public void applyIdle() {
-        currentAnimation = idleAnimFor(lastDirection);
+        currentAnimation = idleAnims[lastDirection.ordinal()];
         stateTime = 0f;
         moving = false;
+    }
+
+
+    public void startAttackAnim() {
+        attackAnimTimer = ATTACK_ANIM_DURATION;
     }
 
     public void applyRemoteUpdate(PositionUpdate u) {
@@ -128,40 +137,49 @@ public class Researcher {
 
     public void tickRemoteAnimation(float delta) {
         if (moving) {
-            currentAnimation = animFor(lastDirection);
+            currentAnimation = runAnims[lastDirection.ordinal()];
             stateTime += delta;
         } else {
-            currentAnimation = idleAnimFor(lastDirection);
+            currentAnimation = idleAnims[lastDirection.ordinal()];
         }
     }
 
     public void render(SpriteBatch batch) {
-        TextureRegion frame = currentAnimation.getKeyFrame(stateTime, true);
-        batch.draw(frame, x - FRAME_SIZE / 2f, y - FRAME_SIZE / 2f, FRAME_SIZE, FRAME_SIZE);
+        float dt = Gdx.graphics.getDeltaTime();
+        if (attackAnimTimer > 0) {
+            float elapsed = ATTACK_ANIM_DURATION - attackAnimTimer;
+            attackAnimTimer = Math.max(0, attackAnimTimer - dt);
+            TextureRegion frame = attackAnims[lastDirection.ordinal()].getKeyFrame(elapsed, false);
+            batch.draw(frame, x - FRAME_SIZE / 2f, y - FRAME_SIZE / 2f, FRAME_SIZE, FRAME_SIZE);
+        } else {
+            TextureRegion frame = currentAnimation.getKeyFrame(stateTime, true);
+            batch.draw(frame, x - FRAME_SIZE / 2f, y - FRAME_SIZE / 2f, FRAME_SIZE, FRAME_SIZE);
+        }
     }
 
     public void dispose() {
-        texN.dispose();
-        texS.dispose();
-        texE.dispose();
-        texW.dispose();
-        texNE.dispose();
-        texNW.dispose();
-        texSE.dispose();
-        texSW.dispose();
-        idleN.dispose();
-        idleS.dispose();
-        idleE.dispose();
-        idleW.dispose();
-        idleNE.dispose();
-        idleNW.dispose();
-        idleSE.dispose();
-        idleSW.dispose();
+        for (int d = 0; d < 8; d++) {
+            if (idleTex[d] != null) idleTex[d].dispose();
+            for (int f = 0; f < RUN_FRAMES; f++) {
+                if (runTex[d][f] != null) runTex[d][f].dispose();
+            }
+            for (int f = 0; f < ATTACK_FRAMES; f++) {
+                if (attackTex[d][f] != null) attackTex[d][f].dispose();
+            }
+        }
     }
 
 
     public void takeDamage() {
         if (hp > 0) hp--;
+    }
+
+    public void damage(int amount) {
+        hp = Math.max(0, hp - amount);
+    }
+
+    public void fullHeal() {
+        hp = maxHp;
     }
 
     public boolean isAlive() {
@@ -206,66 +224,11 @@ public class Researcher {
         this.y = y;
     }
 
-
     public boolean overlaps(float px, float py, float radius) {
         float dx = x - px, dy = y - py;
         return dx * dx + dy * dy < (radius + HIT_WIDTH / 2f) * (radius + HIT_WIDTH / 2f);
     }
 
-
-    private Animation<TextureRegion> buildAnim(Texture tex) {
-        return new Animation<>(0.1f, TextureRegion.split(tex, (int) FRAME_SIZE, (int) FRAME_SIZE)[0]);
-    }
-
-    private Animation<TextureRegion> buildIdleAnim(Texture tex) {
-        return new Animation<>(1f, new TextureRegion(tex, 0, 0, (int) FRAME_SIZE, (int) FRAME_SIZE));
-    }
-
-    private Animation<TextureRegion> idleAnimFor(Direction dir) {
-        switch (dir) {
-            case N:
-                return animIdleN;
-            case S:
-                return animIdleS;
-            case E:
-                return animIdleE;
-            case W:
-                return animIdleW;
-            case NE:
-                return animIdleNE;
-            case NW:
-                return animIdleNW;
-            case SE:
-                return animIdleSE;
-            case SW:
-                return animIdleSW;
-            default:
-                return animIdleS;
-        }
-    }
-
-    private Animation<TextureRegion> animFor(Direction dir) {
-        switch (dir) {
-            case N:
-                return animN;
-            case S:
-                return animS;
-            case E:
-                return animE;
-            case W:
-                return animW;
-            case NE:
-                return animNE;
-            case NW:
-                return animNW;
-            case SE:
-                return animSE;
-            case SW:
-                return animSW;
-            default:
-                return animS;
-        }
-    }
 
     private boolean isCollision(float cx, float cy) {
         return isCellBlocked(cx - HIT_WIDTH / 2, cy - HIT_HEIGHT / 2)

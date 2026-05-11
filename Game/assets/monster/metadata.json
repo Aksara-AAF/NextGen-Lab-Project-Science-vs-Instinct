@@ -1,0 +1,181 @@
+{
+  "character": {
+    "id": "0a8601d7-33f6-420e-8251-8afe0a8197f6",
+    "name": "A terrifying mutated genetic bioweapon monster. Muscular, slightly hunched posture. Covered in dark red and charcoal-black organic armor plating. Features glowing neon green veins and menacing glowing green eyes. Has sharp, elongated claws. Clean, readable 2D pixel art style. Sci-fi horror biopunk aesthetic.",
+    "prompt": "A terrifying mutated genetic bioweapon monster. Muscular, slightly hunched posture. Covered in dark red and charcoal-black organic armor plating. Features glowing neon green veins and menacing glowing green eyes. Has sharp, elongated claws. Clean, readable 2D pixel art style. Sci-fi horror biopunk aesthetic.",
+    "size": {
+      "width": 68,
+      "height": 68
+    },
+    "template_id": "mannequin",
+    "directions": 8,
+    "view": "low top-down",
+    "created_at": "2026-04-26T08:23:43.241586+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "south-east": "rotations/south-east.png",
+      "east": "rotations/east.png",
+      "north-east": "rotations/north-east.png",
+      "north": "rotations/north.png",
+      "north-west": "rotations/north-west.png",
+      "west": "rotations/west.png",
+      "south-west": "rotations/south-west.png"
+    },
+    "animations": {
+      "animation-b0394ebc": {
+        "south-west": [
+          "animations/animation-b0394ebc/south-west/frame_000.png",
+          "animations/animation-b0394ebc/south-west/frame_001.png",
+          "animations/animation-b0394ebc/south-west/frame_002.png",
+          "animations/animation-b0394ebc/south-west/frame_003.png",
+          "animations/animation-b0394ebc/south-west/frame_004.png",
+          "animations/animation-b0394ebc/south-west/frame_005.png"
+        ],
+        "east": [
+          "animations/animation-b0394ebc/east/frame_000.png",
+          "animations/animation-b0394ebc/east/frame_001.png",
+          "animations/animation-b0394ebc/east/frame_002.png",
+          "animations/animation-b0394ebc/east/frame_003.png",
+          "animations/animation-b0394ebc/east/frame_004.png",
+          "animations/animation-b0394ebc/east/frame_005.png"
+        ],
+        "south-east": [
+          "animations/animation-b0394ebc/south-east/frame_000.png",
+          "animations/animation-b0394ebc/south-east/frame_001.png",
+          "animations/animation-b0394ebc/south-east/frame_002.png",
+          "animations/animation-b0394ebc/south-east/frame_003.png",
+          "animations/animation-b0394ebc/south-east/frame_004.png",
+          "animations/animation-b0394ebc/south-east/frame_005.png"
+        ],
+        "north-east": [
+          "animations/animation-b0394ebc/north-east/frame_000.png",
+          "animations/animation-b0394ebc/north-east/frame_001.png",
+          "animations/animation-b0394ebc/north-east/frame_002.png",
+          "animations/animation-b0394ebc/north-east/frame_003.png",
+          "animations/animation-b0394ebc/north-east/frame_004.png",
+          "animations/animation-b0394ebc/north-east/frame_005.png"
+        ],
+        "south": [
+          "animations/animation-b0394ebc/south/frame_000.png",
+          "animations/animation-b0394ebc/south/frame_001.png",
+          "animations/animation-b0394ebc/south/frame_002.png",
+          "animations/animation-b0394ebc/south/frame_003.png",
+          "animations/animation-b0394ebc/south/frame_004.png",
+          "animations/animation-b0394ebc/south/frame_005.png"
+        ],
+        "north-west": [
+          "animations/animation-b0394ebc/north-west/frame_000.png",
+          "animations/animation-b0394ebc/north-west/frame_001.png",
+          "animations/animation-b0394ebc/north-west/frame_002.png",
+          "animations/animation-b0394ebc/north-west/frame_003.png",
+          "animations/animation-b0394ebc/north-west/frame_004.png",
+          "animations/animation-b0394ebc/north-west/frame_005.png"
+        ],
+        "west": [
+          "animations/animation-b0394ebc/west/frame_000.png",
+          "animations/animation-b0394ebc/west/frame_001.png",
+          "animations/animation-b0394ebc/west/frame_002.png",
+          "animations/animation-b0394ebc/west/frame_003.png",
+          "animations/animation-b0394ebc/west/frame_004.png",
+          "animations/animation-b0394ebc/west/frame_005.png"
+        ],
+        "north": [
+          "animations/animation-b0394ebc/north/frame_000.png",
+          "animations/animation-b0394ebc/north/frame_001.png",
+          "animations/animation-b0394ebc/north/frame_002.png",
+          "animations/animation-b0394ebc/north/frame_003.png",
+          "animations/animation-b0394ebc/north/frame_004.png",
+          "animations/animation-b0394ebc/north/frame_005.png"
+        ]
+      },
+      "Basic_Melee_Attack-3524e0a3": {
+        "north": [
+          "animations/Basic_Melee_Attack-3524e0a3/north/frame_000.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north/frame_001.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north/frame_002.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north/frame_003.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north/frame_004.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north/frame_005.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north/frame_006.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north/frame_007.png"
+        ],
+        "east": [
+          "animations/Basic_Melee_Attack-3524e0a3/east/frame_000.png",
+          "animations/Basic_Melee_Attack-3524e0a3/east/frame_001.png",
+          "animations/Basic_Melee_Attack-3524e0a3/east/frame_002.png",
+          "animations/Basic_Melee_Attack-3524e0a3/east/frame_003.png",
+          "animations/Basic_Melee_Attack-3524e0a3/east/frame_004.png",
+          "animations/Basic_Melee_Attack-3524e0a3/east/frame_005.png",
+          "animations/Basic_Melee_Attack-3524e0a3/east/frame_006.png",
+          "animations/Basic_Melee_Attack-3524e0a3/east/frame_007.png"
+        ],
+        "north-west": [
+          "animations/Basic_Melee_Attack-3524e0a3/north-west/frame_000.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-west/frame_001.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-west/frame_002.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-west/frame_003.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-west/frame_004.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-west/frame_005.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-west/frame_006.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-west/frame_007.png"
+        ],
+        "south-west": [
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_000.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_001.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_002.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_003.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_004.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_005.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_006.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_007.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-west/frame_008.png"
+        ],
+        "south-east": [
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_000.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_001.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_002.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_003.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_004.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_005.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_006.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_007.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south-east/frame_008.png"
+        ],
+        "west": [
+          "animations/Basic_Melee_Attack-3524e0a3/west/frame_000.png",
+          "animations/Basic_Melee_Attack-3524e0a3/west/frame_001.png",
+          "animations/Basic_Melee_Attack-3524e0a3/west/frame_002.png",
+          "animations/Basic_Melee_Attack-3524e0a3/west/frame_003.png",
+          "animations/Basic_Melee_Attack-3524e0a3/west/frame_004.png",
+          "animations/Basic_Melee_Attack-3524e0a3/west/frame_005.png",
+          "animations/Basic_Melee_Attack-3524e0a3/west/frame_006.png",
+          "animations/Basic_Melee_Attack-3524e0a3/west/frame_007.png"
+        ],
+        "north-east": [
+          "animations/Basic_Melee_Attack-3524e0a3/north-east/frame_000.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-east/frame_001.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-east/frame_002.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-east/frame_003.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-east/frame_004.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-east/frame_005.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-east/frame_006.png",
+          "animations/Basic_Melee_Attack-3524e0a3/north-east/frame_007.png"
+        ],
+        "south": [
+          "animations/Basic_Melee_Attack-3524e0a3/south/frame_000.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south/frame_001.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south/frame_002.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south/frame_003.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south/frame_004.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south/frame_005.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south/frame_006.png",
+          "animations/Basic_Melee_Attack-3524e0a3/south/frame_007.png"
+        ]
+      }
+    }
+  },
+  "export_version": "2.0",
+  "export_date": "2026-05-10T17:34:14.625390"
+}

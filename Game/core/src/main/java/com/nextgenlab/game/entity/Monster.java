@@ -1,5 +1,6 @@
 package com.nextgenlab.game.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,23 +18,41 @@ public class Monster {
     private final TiledMap map;
 
     private static final float SIZE = 68f;
-    private static final float HIT_WIDTH = 36f;
-    private static final float HIT_HEIGHT = 24f;
-    private static final int TILE_SIZE = 48;
+    private static final float HIT_WIDTH = 24f;
+    private static final float HIT_HEIGHT = 16f;
+    private static final int TILE_SIZE = 32;
+    private static final float ATTACK_RANGE = 48f;
+    private static final float ATTACK_COOLDOWN = 1.0f;
 
+    private static final String WALK_PREFIX = "monster/animations/animation-b0394ebc/";
+    private static final String MELEE_PREFIX = "monster/animations/Basic_Melee_Attack-3524e0a3/";
+    private static final String IDLE_PREFIX = "monster/rotations/";
+    private static final int WALK_FRAMES = 6;
+    private static final int MELEE_FRAMES = 8;
+    private static final float MELEE_ANIM_DURATION = MELEE_FRAMES * 0.1f;
 
-    private Texture idleN, idleS, idleE, idleW, idleNE, idleNW, idleSE, idleSW;
+    private static final String[] DIR_NAMES = {
+        "north", "south", "east", "west",
+        "north-east", "north-west", "south-east", "south-west"
+    };
 
-    private Texture walkN, walkS, walkE, walkW, walkNE, walkNW, walkSE, walkSW;
+    private final Texture[] idleTex = new Texture[8];
+    private final Texture[][] walkTex = new Texture[8][WALK_FRAMES];
+    private final Texture[][] meleeTex = new Texture[8][MELEE_FRAMES];
 
-    private Animation<TextureRegion> animIdleN, animIdleS, animIdleE, animIdleW;
-    private Animation<TextureRegion> animIdleNE, animIdleNW, animIdleSE, animIdleSW;
-    private Animation<TextureRegion> animWalkN, animWalkS, animWalkE, animWalkW;
-    private Animation<TextureRegion> animWalkNE, animWalkNW, animWalkSE, animWalkSW;
+    @SuppressWarnings("unchecked")
+    private final Animation<TextureRegion>[] idleAnims = new Animation[8];
+    @SuppressWarnings("unchecked")
+    private final Animation<TextureRegion>[] walkAnims = new Animation[8];
+    @SuppressWarnings("unchecked")
+    private final Animation<TextureRegion>[] meleeAnims = new Animation[8];
 
     private Animation<TextureRegion> currentAnimation;
     private float stateTime = 0f;
+    private float meleeAnimTimer = 0f;
     private boolean moving = false;
+
+    private float attackCooldownTimer = 0f;
 
     private MovementStrategy strategy;
     private Direction lastDirection = Direction.S;
@@ -53,47 +72,36 @@ public class Monster {
     }
 
     public void show() {
-        idleN = new Texture("monster/north.png");
-        idleS = new Texture("monster/south.png");
-        idleE = new Texture("monster/east.png");
-        idleW = new Texture("monster/west.png");
-        idleNE = new Texture("monster/north-east.png");
-        idleNW = new Texture("monster/north-west.png");
-        idleSE = new Texture("monster/south-east.png");
-        idleSW = new Texture("monster/south-west.png");
+        for (int d = 0; d < 8; d++) {
+            String dir = DIR_NAMES[d];
+            idleTex[d] = new Texture(IDLE_PREFIX + dir + ".png");
+            for (int f = 0; f < WALK_FRAMES; f++) {
+                walkTex[d][f] = new Texture(
+                    WALK_PREFIX + dir + "/frame_" + String.format("%03d", f) + ".png");
+            }
+            for (int f = 0; f < MELEE_FRAMES; f++) {
+                meleeTex[d][f] = new Texture(
+                    MELEE_PREFIX + dir + "/frame_" + String.format("%03d", f) + ".png");
+            }
+        }
+        for (int d = 0; d < 8; d++) {
+            idleAnims[d] = new Animation<>(1f, new TextureRegion(idleTex[d]));
 
-        walkN = new Texture("monster/walking(6frames)-north.png");
-        walkS = new Texture("monster/walking(6frames)-south.png");
-        walkE = new Texture("monster/walking(6frames)-east.png");
-        walkW = new Texture("monster/walking(6frames)-west.png");
-        walkNE = new Texture("monster/walking(6frames)-north-east.png");
-        walkNW = new Texture("monster/walking(6frames)-north-west.png");
-        walkSE = new Texture("monster/walking(6frames)-south-east.png");
-        walkSW = new Texture("monster/walking(6frames)-south-west.png");
+            TextureRegion[] walkFrames = new TextureRegion[WALK_FRAMES];
+            for (int f = 0; f < WALK_FRAMES; f++) walkFrames[f] = new TextureRegion(walkTex[d][f]);
+            walkAnims[d] = new Animation<>(0.1f, walkFrames);
 
-        animIdleN = buildIdleAnim(idleN);
-        animIdleS = buildIdleAnim(idleS);
-        animIdleE = buildIdleAnim(idleE);
-        animIdleW = buildIdleAnim(idleW);
-        animIdleNE = buildIdleAnim(idleNE);
-        animIdleNW = buildIdleAnim(idleNW);
-        animIdleSE = buildIdleAnim(idleSE);
-        animIdleSW = buildIdleAnim(idleSW);
-
-        animWalkN = buildWalkAnim(walkN);
-        animWalkS = buildWalkAnim(walkS);
-        animWalkE = buildWalkAnim(walkE);
-        animWalkW = buildWalkAnim(walkW);
-        animWalkNE = buildWalkAnim(walkNE);
-        animWalkNW = buildWalkAnim(walkNW);
-        animWalkSE = buildWalkAnim(walkSE);
-        animWalkSW = buildWalkAnim(walkSW);
-
-        currentAnimation = animIdleS;
+            TextureRegion[] meleeFrames = new TextureRegion[MELEE_FRAMES];
+            for (int f = 0; f < MELEE_FRAMES; f++) meleeFrames[f] = new TextureRegion(meleeTex[d][f]);
+            meleeAnims[d] = new Animation<>(0.1f, meleeFrames);
+        }
+        currentAnimation = idleAnims[Direction.S.ordinal()];
     }
 
 
     public void update(float delta, float targetX, float targetY) {
+        attackCooldownTimer = Math.max(0, attackCooldownTimer - delta);
+        if (meleeAnimTimer > 0) meleeAnimTimer = Math.max(0, meleeAnimTimer - delta);
         moving = false;
         if (strategy != null) strategy.move(this, targetX, targetY, delta);
         if (!moving) applyIdle();
@@ -102,7 +110,7 @@ public class Monster {
 
     public void applyMovement(float rawVx, float rawVy, Direction dir, float delta) {
         lastDirection = dir;
-        currentAnimation = walkAnimFor(dir);
+        currentAnimation = walkAnims[dir.ordinal()];
         stateTime += delta;
         moving = true;
 
@@ -129,7 +137,7 @@ public class Monster {
     public void applyVelocity(float normVx, float normVy, float delta) {
         Direction dir = directionFrom(normVx, normVy);
         lastDirection = dir;
-        currentAnimation = walkAnimFor(dir);
+        currentAnimation = walkAnims[dir.ordinal()];
         stateTime += delta;
         moving = true;
 
@@ -146,7 +154,7 @@ public class Monster {
     }
 
     public void applyIdle() {
-        currentAnimation = idleAnimFor(lastDirection);
+        currentAnimation = idleAnims[lastDirection.ordinal()];
         stateTime = 0f;
         moving = false;
     }
@@ -164,10 +172,10 @@ public class Monster {
 
     public void tickRemoteAnimation(float delta) {
         if (moving) {
-            currentAnimation = walkAnimFor(lastDirection);
+            currentAnimation = walkAnims[lastDirection.ordinal()];
             stateTime += delta;
         } else {
-            currentAnimation = idleAnimFor(lastDirection);
+            currentAnimation = idleAnims[lastDirection.ordinal()];
         }
     }
 
@@ -181,27 +189,28 @@ public class Monster {
     }
 
     public void render(SpriteBatch batch) {
-        TextureRegion frame = currentAnimation.getKeyFrame(stateTime, true);
-        batch.draw(frame, x - SIZE / 2f, y - SIZE / 2f, SIZE, SIZE);
+        float dt = Gdx.graphics.getDeltaTime();
+        if (meleeAnimTimer > 0) {
+            float elapsed = MELEE_ANIM_DURATION - meleeAnimTimer;
+            meleeAnimTimer = Math.max(0, meleeAnimTimer - dt);
+            TextureRegion frame = meleeAnims[lastDirection.ordinal()].getKeyFrame(elapsed, false);
+            batch.draw(frame, x - SIZE / 2f, y - SIZE / 2f, SIZE, SIZE);
+        } else {
+            TextureRegion frame = currentAnimation.getKeyFrame(stateTime, true);
+            batch.draw(frame, x - SIZE / 2f, y - SIZE / 2f, SIZE, SIZE);
+        }
     }
 
     public void dispose() {
-        idleN.dispose();
-        idleS.dispose();
-        idleE.dispose();
-        idleW.dispose();
-        idleNE.dispose();
-        idleNW.dispose();
-        idleSE.dispose();
-        idleSW.dispose();
-        walkN.dispose();
-        walkS.dispose();
-        walkE.dispose();
-        walkW.dispose();
-        walkNE.dispose();
-        walkNW.dispose();
-        walkSE.dispose();
-        walkSW.dispose();
+        for (int d = 0; d < 8; d++) {
+            if (idleTex[d] != null) idleTex[d].dispose();
+            for (int f = 0; f < WALK_FRAMES; f++) {
+                if (walkTex[d][f] != null) walkTex[d][f].dispose();
+            }
+            for (int f = 0; f < MELEE_FRAMES; f++) {
+                if (meleeTex[d][f] != null) meleeTex[d][f].dispose();
+            }
+        }
     }
 
 
@@ -209,8 +218,32 @@ public class Monster {
         if (hp > 0) hp--;
     }
 
+    public void fullHeal() {
+        hp = maxHp;
+    }
+
     public boolean isAlive() {
         return hp > 0;
+    }
+
+    public void updateCooldownTimer(float delta) {
+        attackCooldownTimer = Math.max(0, attackCooldownTimer - delta);
+        if (meleeAnimTimer > 0) meleeAnimTimer = Math.max(0, meleeAnimTimer - delta);
+    }
+
+
+    public boolean attackMelee(Researcher target) {
+        if (attackCooldownTimer > 0) return false;
+        float dx = target.getX() - x;
+        float dy = target.getY() - y;
+        if (dx * dx + dy * dy <= ATTACK_RANGE * ATTACK_RANGE) {
+            target.damage(1);
+            attackCooldownTimer = ATTACK_COOLDOWN;
+            meleeAnimTimer = MELEE_ANIM_DURATION;
+            stateTime = 0f;
+            return true;
+        }
+        return false;
     }
 
 
@@ -264,60 +297,6 @@ public class Monster {
         if (goE) return Direction.E;
         if (goW) return Direction.W;
         return lastDirection;
-    }
-
-    private Animation<TextureRegion> buildIdleAnim(Texture tex) {
-        return new Animation<>(1f, new TextureRegion(tex, 0, 0, (int) SIZE, (int) SIZE));
-    }
-
-    private Animation<TextureRegion> buildWalkAnim(Texture tex) {
-        return new Animation<>(0.1f, TextureRegion.split(tex, (int) SIZE, (int) SIZE)[0]);
-    }
-
-    private Animation<TextureRegion> idleAnimFor(Direction dir) {
-        switch (dir) {
-            case N:
-                return animIdleN;
-            case S:
-                return animIdleS;
-            case E:
-                return animIdleE;
-            case W:
-                return animIdleW;
-            case NE:
-                return animIdleNE;
-            case NW:
-                return animIdleNW;
-            case SE:
-                return animIdleSE;
-            case SW:
-                return animIdleSW;
-            default:
-                return animIdleS;
-        }
-    }
-
-    private Animation<TextureRegion> walkAnimFor(Direction dir) {
-        switch (dir) {
-            case N:
-                return animWalkN;
-            case S:
-                return animWalkS;
-            case E:
-                return animWalkE;
-            case W:
-                return animWalkW;
-            case NE:
-                return animWalkNE;
-            case NW:
-                return animWalkNW;
-            case SE:
-                return animWalkSE;
-            case SW:
-                return animWalkSW;
-            default:
-                return animWalkS;
-        }
     }
 
     private boolean isCollision(float cx, float cy) {

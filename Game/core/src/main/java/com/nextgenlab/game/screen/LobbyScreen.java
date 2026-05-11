@@ -61,11 +61,44 @@ public class LobbyScreen extends ScreenAdapter {
         Table t = mainTable();
 
         addTitle(t, "NEXTGEN-LAB LOBBY", 2f, Color.CYAN);
-        t.add(label("Pilih mode permainan:", Color.LIGHT_GRAY)).padBottom(20).row();
 
-        addBtn(t, "BUAT ROOM BARU", Color.GREEN, () -> buildCreateRoleUI());
-        addBtn(t, "MASUK KE ROOM", Color.YELLOW, () -> buildJoinInputUI());
+        String authLine = game.backend.isLoggedIn()
+            ? "Login: " + game.backend.getCurrentUsername()
+            : "Belum login (multiplayer wajib login)";
+        t.add(label(authLine, game.backend.isLoggedIn() ? Color.CYAN : Color.GRAY)).padBottom(16).row();
+
+        addBtn(t, "BUAT ROOM BARU", Color.GREEN, this::onCreateRoom);
+        addBtn(t, "MASUK KE ROOM", Color.YELLOW, this::onJoinRoom);
         addBtn(t, "SOLO (OFFLINE)", Color.GRAY, this::startOffline);
+        addBtn(t,
+            game.backend.isLoggedIn() ? "LOGOUT" : "LOGIN / REGISTER",
+            Color.WHITE,
+            this::onAuthBtn);
+    }
+
+    private void onCreateRoom() {
+        if (game.backend.isLoggedIn()) buildCreateRoleUI();
+        else openAuthScreen();
+    }
+
+    private void onJoinRoom() {
+        if (game.backend.isLoggedIn()) buildJoinInputUI();
+        else openAuthScreen();
+    }
+
+    private void onAuthBtn() {
+        if (game.backend.isLoggedIn()) {
+            game.backend.logout();
+            buildMainUI();
+        } else {
+            openAuthScreen();
+        }
+    }
+
+    private void openAuthScreen() {
+        game.setScreen(new AuthScreen(game,
+            () -> game.setScreen(new LobbyScreen(game)),
+            () -> game.setScreen(new LobbyScreen(game))));
     }
 
     private void buildCreateRoleUI() {
@@ -173,11 +206,9 @@ public class LobbyScreen extends ScreenAdapter {
     }
 
     private void startOffline() {
-        game.backend.startMatch(matchId -> Gdx.app.postRunnable(() -> {
-            game.currentMatchId = matchId;
-            game.playerRole = "RESEARCHER";
-            game.setScreen(new GameScreen(game));
-        }));
+        game.currentMatchId = null;
+        game.playerRole = "RESEARCHER";
+        game.setScreen(new GameScreen(game));
     }
 
 

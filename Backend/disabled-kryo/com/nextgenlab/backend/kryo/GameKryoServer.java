@@ -22,7 +22,7 @@ public class GameKryoServer {
 
 
     private final ConcurrentHashMap<Long, CopyOnWriteArrayList<Connection>> matchConns
-            = new ConcurrentHashMap<>();
+        = new ConcurrentHashMap<>();
 
 
     private final ConcurrentHashMap<Integer, Long> connToMatch = new ConcurrentHashMap<>();
@@ -49,10 +49,10 @@ public class GameKryoServer {
             private void register(Connection conn, long matchId) {
                 connToMatch.computeIfAbsent(conn.getID(), id -> {
                     CopyOnWriteArrayList<Connection> list = matchConns.computeIfAbsent(matchId,
-                            k -> new CopyOnWriteArrayList<>());
+                        k -> new CopyOnWriteArrayList<>());
                     list.add(conn);
                     System.out.println("[KryoNet] Registered conn=" + conn.getID()
-                            + " match=" + matchId + " (peers in match=" + list.size() + ")");
+                        + " match=" + matchId + " (peers in match=" + list.size() + ")");
                     return matchId;
                 });
             }
@@ -66,12 +66,12 @@ public class GameKryoServer {
                 for (Connection peer : peers) {
                     if (peer.getID() == sender.getID() || !peer.isConnected()) continue;
                     if (reliable) peer.sendTCP(payload);
-                    else peer.sendUDP(payload);
+                    else          peer.sendUDP(payload);
                     sent++;
                 }
                 if (reliable && sent == 0) {
                     System.out.println("[KryoNet] No peers to forward " + payload.getClass().getSimpleName()
-                            + " from conn=" + sender.getID() + " match=" + matchId);
+                        + " from conn=" + sender.getID() + " match=" + matchId);
                 }
             }
 

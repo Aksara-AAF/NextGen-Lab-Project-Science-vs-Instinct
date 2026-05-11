@@ -2,6 +2,7 @@ package com.nextgenlab.game.state;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Buttons;
 import com.nextgenlab.game.entity.Direction;
 import com.nextgenlab.game.entity.Monster;
 import com.nextgenlab.game.entity.Researcher;
@@ -47,7 +48,9 @@ public class DuelState implements GameStateHandler {
                 if ("RESEARCHER".equals(u.role) && r != null && !isResearcher) {
                     r.applyRemoteUpdate(u);
                 } else if ("MONSTER".equals(u.role) && m != null && isResearcher) {
+                    boolean wasHit = (u.actionFlag & PositionUpdate.FLAG_HIT) != 0;
                     m.applyRemoteUpdate(u);
+                    if (wasHit && screen.researcher != null) screen.researcher.damage(1);
                 }
             });
             transport.pollProjectile(s -> {
@@ -65,6 +68,9 @@ public class DuelState implements GameStateHandler {
             if (netSendTimer >= NET_SEND_RATE) {
                 netSendTimer = 0;
                 transport.sendPosition(snapshot(screen, isResearcher));
+                if (!isResearcher)
+                    screen.monster.setActionFlag(
+                        screen.monster.getActionFlag() & ~PositionUpdate.FLAG_HIT);
             }
         }
 
@@ -76,16 +82,36 @@ public class DuelState implements GameStateHandler {
             applyMonsterInput(screen, delta);
         }
 
+
         if (isResearcher && screen.inputHandler.isShootPressed()) {
             float[] dir = dirVec(screen.researcher.getLastDirection());
             fireFrom(screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
+            screen.researcher.startAttackAnim();
             if (isMultiplayer)
                 broadcastSpawn(transport, screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
         }
-        if (!isResearcher && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            float[] dir = dirVec(screen.monster.getLastDirection());
-            fireFrom(screen.monster.getX(), screen.monster.getY(), dir, "MONSTER");
-            if (isMultiplayer) broadcastSpawn(transport, screen.monster.getX(), screen.monster.getY(), dir, "MONSTER");
+
+        if (!isResearcher) {
+            if (Gdx.input.isButtonJustPressed(Buttons.RIGHT)) {
+                float[] dir = dirVec(screen.monster.getLastDirection());
+                fireFrom(screen.monster.getX(), screen.monster.getY(), dir, "MONSTER");
+                if (isMultiplayer)
+                    broadcastSpawn(transport, screen.monster.getX(), screen.monster.getY(), dir, "MONSTER");
+            }
+            if (Gdx.input.isButtonJustPressed(Buttons.LEFT) && screen.researcher != null) {
+                boolean hit = screen.monster.attackMelee(screen.researcher);
+                if (hit && isMultiplayer)
+                    screen.monster.setActionFlag(
+                        screen.monster.getActionFlag() | PositionUpdate.FLAG_HIT);
+            }
+        }
+
+
+        if (!isResearcher && isMultiplayer
+            && (screen.monster.getActionFlag() & PositionUpdate.FLAG_HIT) != 0) {
+            transport.sendPosition(snapshot(screen, false));
+            screen.monster.setActionFlag(screen.monster.getActionFlag() & ~PositionUpdate.FLAG_HIT);
+            netSendTimer = 0;
         }
 
         if (!isMultiplayer && screen.monster != null) {
