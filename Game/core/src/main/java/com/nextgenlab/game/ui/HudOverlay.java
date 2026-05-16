@@ -2,6 +2,7 @@ package com.nextgenlab.game.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,6 +11,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.nextgenlab.game.crafting.Item;
 import com.nextgenlab.game.crafting.ItemType;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HudOverlay {
 
@@ -21,12 +26,26 @@ public class HudOverlay {
         Color.MAGENTA, Color.RED, Color.GRAY, Color.BLUE
     };
 
+
+    private static final String[] ALL_GENE_CODES = {
+        "PREDATOR_CLAWS","ADRENAL_SURGE","THICK_HIDE","FRENZY","ECHOLOCATION",
+        "ACIDIC_BLOOD","REGENERATION","TOXIC_AURA","PHASE_SHIFT","BERSERKER"
+    };
+    private static final String[] ALL_GENE_PATHS = {
+        "evolution/predator_claws.png","evolution/adrenal_surge.png",
+        "evolution/thick_hide.png",    "evolution/frenzy.png",
+        "evolution/echolocation.png",  "evolution/acidic_blood.png",
+        "evolution/regeneration.png",  "evolution/toxic_aura.png",
+        "evolution/phase_shift.png",   "evolution/berserker.png"
+    };
+
     private final ShapeRenderer shapes;
     private final BitmapFont    font;
     private final SpriteBatch   hudBatch;
     private final OrthographicCamera hudCamera;
     private final StaminaBar    staminaBar;
     private final Texture[]     itemIcons = new Texture[ItemType.values().length];
+    private final Map<String, Texture> geneTex = new HashMap<>();
 
     public HudOverlay() {
         shapes     = new ShapeRenderer();
@@ -45,6 +64,15 @@ public class HudOverlay {
                 itemIcons[i] = new Texture(types[i].iconPath);
             } else {
                 itemIcons[i] = solidTex(ITEM_FALLBACK_COLORS[i % ITEM_FALLBACK_COLORS.length]);
+            }
+        }
+    }
+
+    private void ensureGeneTex() {
+        if (!geneTex.isEmpty()) return;
+        for (int i = 0; i < ALL_GENE_CODES.length; i++) {
+            if (Gdx.files.internal(ALL_GENE_PATHS[i]).exists()) {
+                geneTex.put(ALL_GENE_CODES[i], new Texture(ALL_GENE_PATHS[i]));
             }
         }
     }
@@ -69,7 +97,6 @@ public class HudOverlay {
         hudCamera.update();
         shapes.setProjectionMatrix(hudCamera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-
         shapes.setColor(0.1f, 0.1f, 0.1f, 1f);
         shapes.rect(slot1X, slotY, SLOT_SIZE, SLOT_SIZE);
         shapes.rect(slot2X, slotY, SLOT_SIZE, SLOT_SIZE);
@@ -94,11 +121,14 @@ public class HudOverlay {
         hudBatch.end();
     }
 
+
     public void renderPreparation(int tasksCompleted, int totalTasks,
                                   int resHp, int resMaxHp,
                                   float stamina, float maxStamina,
-                                  int monHp, int monMaxHp) {
+                                  int monHp, int monMaxHp,
+                                  boolean isMonsterView) {
         int W = Gdx.graphics.getWidth();
+        int H = Gdx.graphics.getHeight();
         hudCamera.update();
 
         shapes.setProjectionMatrix(hudCamera.combined);
@@ -106,26 +136,26 @@ public class HudOverlay {
 
 
         shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
-        shapes.rect(10, Gdx.graphics.getHeight() - 34, 200, 18);
+        shapes.rect(10, H - 34, 200, 18);
         float fill = totalTasks > 0 ? (float) tasksCompleted / totalTasks : 0f;
         shapes.setColor(Color.GREEN);
-        shapes.rect(10, Gdx.graphics.getHeight() - 34, 200 * fill, 18);
+        shapes.rect(10, H - 34, 200 * fill, 18);
 
 
         shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
-        shapes.rect(10, 10, 160, 16);
+        shapes.rect(10, 10, 160, 20);
         shapes.setColor(Color.CYAN);
-        shapes.rect(10, 10, resMaxHp > 0 ? 160f * resHp / resMaxHp : 0, 16);
+        shapes.rect(10, 10, resMaxHp > 0 ? 160f * resHp / resMaxHp : 0, 20);
 
 
-        staminaBar.render(shapes, 10, 30, 160, 10, stamina, maxStamina);
+        if (!isMonsterView) staminaBar.render(shapes, 10, 34, 160, 10, stamina, maxStamina);
 
 
         float barX = W - 170f;
         shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
-        shapes.rect(barX, 10, 160, 16);
+        shapes.rect(barX, 10, 160, 20);
         shapes.setColor(Color.RED);
-        shapes.rect(barX, 10, monMaxHp > 0 ? 160f * monHp / monMaxHp : 0, 16);
+        shapes.rect(barX, 10, monMaxHp > 0 ? 160f * monHp / monMaxHp : 0, 20);
 
         shapes.end();
 
@@ -134,12 +164,23 @@ public class HudOverlay {
         font.setColor(Color.WHITE);
         font.draw(hudBatch,
             "PERSIAPAN  " + tasksCompleted + "/" + totalTasks + " task selesai",
-            10, Gdx.graphics.getHeight() - 10);
+            10, H - 10);
         font.draw(hudBatch, "[E] interaksi  [RMB] tembak  [Shift] sprint",
-            10, Gdx.graphics.getHeight() - 44);
-        font.draw(hudBatch, "Peneliti  " + resHp + "/" + resMaxHp, 10, 44);
-        staminaBar.renderLabel(hudBatch, font, 10, 62, stamina, maxStamina);
-        font.draw(hudBatch, "Monster  " + monHp + "/" + monMaxHp, barX, 44);
+            10, H - 44);
+
+
+        font.setColor(Color.LIGHT_GRAY);
+        font.draw(hudBatch, "Peneliti", 10, 80);
+
+
+        float monsterLabelY = isMonsterView ? 92f : 50f;
+        font.draw(hudBatch, "Monster", barX, monsterLabelY);
+
+
+        font.setColor(Color.WHITE);
+        font.draw(hudBatch, resHp + "/" + resMaxHp, 14, 25);
+        font.draw(hudBatch, monHp + "/" + monMaxHp, barX + 4, 25);
+        if (!isMonsterView) staminaBar.renderLabel(hudBatch, font, 10, 60, stamina, maxStamina);
         hudBatch.end();
     }
 
@@ -152,15 +193,12 @@ public class HudOverlay {
         shapes.setProjectionMatrix(hudCamera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
 
-
         shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
         shapes.rect(10, 10, 160, 16);
         shapes.setColor(Color.CYAN);
         shapes.rect(10, 10, resMaxHp > 0 ? 160f * resHp / resMaxHp : 0, 16);
 
-
         staminaBar.render(shapes, 10, 30, 160, 10, stamina, maxStamina);
-
 
         float barX = W - 170f;
         shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
@@ -181,10 +219,178 @@ public class HudOverlay {
         hudBatch.end();
     }
 
+
+    public void renderXpBar(int xp, int level, int maxLevel, int threshold) {
+        int W = Gdx.graphics.getWidth();
+        int H = Gdx.graphics.getHeight();
+        float barX = W - 210f;
+        float barY = H - 34f;
+        hudCamera.update();
+        shapes.setProjectionMatrix(hudCamera.combined);
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
+        shapes.rect(barX, barY, 200, 18);
+        float fill = (level < maxLevel && threshold > 0) ? Math.min(1f, (float) xp / threshold) : 1f;
+        shapes.setColor(Color.YELLOW);
+        shapes.rect(barX, barY, 200 * fill, 18);
+        shapes.end();
+        hudBatch.setProjectionMatrix(hudCamera.combined);
+        hudBatch.begin();
+        font.setColor(Color.YELLOW);
+        String label = level >= maxLevel
+            ? "EVOLUSI  Lv MAX"
+            : "EVOLUSI  Lv " + level + "  " + xp + "/" + threshold;
+        font.draw(hudBatch, label, barX, H - 10);
+        hudBatch.end();
+    }
+
+
+    public void renderDashCooldown(float cooldownTimer, float maxCooldown, Texture dashIcon) {
+        int W = Gdx.graphics.getWidth();
+        float barX = W - 170f;
+        float barY = 50f;
+        hudCamera.update();
+        shapes.setProjectionMatrix(hudCamera.combined);
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
+        shapes.rect(barX + 44, barY, 116, 10);
+        float ready = maxCooldown > 0 ? 1f - Math.min(1f, cooldownTimer / maxCooldown) : 1f;
+        shapes.setColor(cooldownTimer <= 0 ? Color.ORANGE : new Color(0.5f, 0.3f, 0f, 1f));
+        shapes.rect(barX + 44, barY, 116 * ready, 10);
+        shapes.end();
+        hudBatch.setProjectionMatrix(hudCamera.combined);
+        hudBatch.begin();
+        if (dashIcon != null) {
+            hudBatch.draw(dashIcon, barX, barY - 15, 40, 40);
+        }
+        font.setColor(cooldownTimer <= 0 ? Color.ORANGE : Color.GRAY);
+        String label = cooldownTimer <= 0 ? "DASH" : String.format("%.1fs", cooldownTimer);
+        font.draw(hudBatch, label, barX + 46, barY + 22);
+        hudBatch.end();
+    }
+
+
+    public void renderGenePanel(List<String> activeGenes,
+                                float echoloCd, float echoloMax,
+                                float phaseCd,  float phaseMax) {
+        if (activeGenes == null || activeGenes.isEmpty()) return;
+        ensureGeneTex();
+
+        int W = Gdx.graphics.getWidth();
+        int H = Gdx.graphics.getHeight();
+
+        final float ICON = 40f;
+        final float GAP  = 6f;
+
+        float iconX  = W - 52f;
+        float firstY = H - 110f;
+
+        hudCamera.update();
+
+
+        hudBatch.setProjectionMatrix(hudCamera.combined);
+        hudBatch.begin();
+        for (int i = 0; i < activeGenes.size(); i++) {
+            String  code  = activeGenes.get(i);
+            float   iconY = firstY - i * (ICON + GAP);
+            Texture tex   = geneTex.get(code);
+            if (tex == null) continue;
+            float cd  = cooldownFor(code, echoloCd, phaseCd);
+            float max = maxCooldownFor(code, echoloMax, phaseMax);
+            if (max > 0 && cd > 0) {
+                hudBatch.setColor(0.35f, 0.35f, 0.35f, 1f);
+            } else {
+                hudBatch.setColor(Color.WHITE);
+            }
+            hudBatch.draw(tex, iconX, iconY, ICON, ICON);
+        }
+        hudBatch.setColor(Color.WHITE);
+        hudBatch.end();
+
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapes.setProjectionMatrix(hudCamera.combined);
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        for (int i = 0; i < activeGenes.size(); i++) {
+            String code = activeGenes.get(i);
+            float  cd   = cooldownFor(code, echoloCd, phaseCd);
+            float  max  = maxCooldownFor(code, echoloMax, phaseMax);
+            if (max <= 0 || cd <= 0) continue;
+            float fraction = Math.min(1f, cd / max);
+            float iconY = firstY - i * (ICON + GAP);
+            float cx = iconX + ICON / 2f;
+            float cy = iconY + ICON / 2f;
+            float r  = ICON / 2f - 1f;
+            shapes.setColor(0f, 0f, 0f, 0.70f);
+            if (fraction >= 0.999f) {
+                shapes.circle(cx, cy, r, 32);
+            } else {
+
+                shapes.arc(cx, cy, r, 90f - fraction * 360f, fraction * 360f, 32);
+            }
+        }
+        shapes.end();
+
+
+        hudBatch.setProjectionMatrix(hudCamera.combined);
+        hudBatch.begin();
+        for (int i = 0; i < activeGenes.size(); i++) {
+            String code = activeGenes.get(i);
+            float  cd   = cooldownFor(code, echoloCd, phaseCd);
+            float  max  = maxCooldownFor(code, echoloMax, phaseMax);
+            if (max <= 0 || cd <= 0) continue;
+            float iconY = firstY - i * (ICON + GAP);
+            font.setColor(Color.WHITE);
+            String text = (int) Math.ceil(cd) + "s";
+            font.draw(hudBatch, text, iconX + 10, iconY + ICON / 2f + 6);
+        }
+        hudBatch.setColor(Color.WHITE);
+        hudBatch.end();
+    }
+
+    private static float cooldownFor(String code, float echoloCd, float phaseCd) {
+        if ("ECHOLOCATION".equals(code)) return echoloCd;
+        if ("PHASE_SHIFT".equals(code))  return phaseCd;
+        return 0f;
+    }
+
+    private static float maxCooldownFor(String code, float echoloMax, float phaseMax) {
+        if ("ECHOLOCATION".equals(code)) return echoloMax;
+        if ("PHASE_SHIFT".equals(code))  return phaseMax;
+        return 0f;
+    }
+
+    public void renderLightsOut() {
+        int W = Gdx.graphics.getWidth(), H = Gdx.graphics.getHeight();
+        hudCamera.update();
+        shapes.setProjectionMatrix(hudCamera.combined);
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(0f, 0f, 0f, 0.87f);
+        shapes.rect(0, 0, W, H);
+        shapes.end();
+        hudBatch.setProjectionMatrix(hudCamera.combined);
+        hudBatch.begin();
+        font.setColor(Color.ORANGE);
+        font.draw(hudBatch, "LIGHTS OUT!", W / 2f - 40, H / 2f);
+        hudBatch.end();
+    }
+
+    public void renderNotification(String msg) {
+        int W = Gdx.graphics.getWidth(), H = Gdx.graphics.getHeight();
+        hudCamera.update();
+        hudBatch.setProjectionMatrix(hudCamera.combined);
+        hudBatch.begin();
+        font.setColor(Color.YELLOW);
+        font.draw(hudBatch, msg, W / 2f - 80, H - 60);
+        hudBatch.end();
+    }
+
     public void dispose() {
         shapes.dispose();
         font.dispose();
         hudBatch.dispose();
-        for (Texture t : itemIcons) { if (t != null) t.dispose(); }
+        for (Texture t : itemIcons)          { if (t != null) t.dispose(); }
+        for (Texture t : geneTex.values())   { if (t != null) t.dispose(); }
     }
 }

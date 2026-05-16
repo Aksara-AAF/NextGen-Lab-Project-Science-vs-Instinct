@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="48" height="36" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="156">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="48" height="36" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="157">
  <tileset firstgid="1" name="tileset_lab" tilewidth="32" tileheight="32" tilecount="128" columns="8">
   <image source="tileset_lab.png" width="256" height="512"/>
  </tileset>
@@ -130,7 +130,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1006,12 +1006,12 @@
     <property name="role" value="biometric"/>
    </properties>
   </object>
-  <object id="148" name="sabotage_a" x="736" y="544" width="32" height="32">
+  <object id="148" name="sabotage_slow" x="736" y="544" width="32" height="32">
    <properties>
     <property name="kind" value="sabotageZone"/>
    </properties>
   </object>
-  <object id="149" name="sabotage_b" x="1120" y="960" width="32" height="32">
+  <object id="149" name="sabotage_lights" x="1120" y="960" width="32" height="32">
    <properties>
     <property name="kind" value="sabotageZone"/>
    </properties>
@@ -1020,6 +1020,11 @@
    <properties>
     <property name="kind" value="playerSpawn"/>
     <property name="role" value="MONSTER"/>
+   </properties>
+  </object>
+  <object id="156" name="sabotage_drain" x="608.667" y="160" width="32" height="32">
+   <properties>
+    <property name="kind" value="sabotageZone"/>
    </properties>
   </object>
  </objectgroup>

@@ -74,6 +74,8 @@ public class Researcher {
     private static final float REGEN_DELAY      = 1f;
     private static final float SPRINT_SPEED_MULT = 1.5f;
 
+    private float slowTimer = 0f;
+
     public Researcher(float startX, float startY, TiledMap map) {
         this.x   = startX;
         this.y   = startY;
@@ -128,7 +130,7 @@ public class Researcher {
         stateTime += delta;
         moving = true;
 
-        float effectiveSpeed = sprinting ? speed * SPRINT_SPEED_MULT : speed;
+        float effectiveSpeed = (sprinting ? speed * SPRINT_SPEED_MULT : speed) * getSpeedFactor();
         float vx = rawVx, vy = rawVy;
         if (vx != 0 && vy != 0) {
             float len = (float) Math.sqrt(vx * vx + vy * vy);
@@ -194,6 +196,12 @@ public class Researcher {
             for (int f = 0; f < ATTACK_FRAMES; f++) { if (attackTex[d][f] != null) attackTex[d][f].dispose(); }
         }
     }
+
+
+    public void applySlow(float duration)       { slowTimer = Math.max(slowTimer, duration); }
+    public void updateSlowTimer(float delta)    { if (slowTimer > 0) slowTimer = Math.max(0, slowTimer - delta); }
+    public float getSpeedFactor()               { return slowTimer > 0 ? 0.5f : 1.0f; }
+    public boolean isSlowed()                   { return slowTimer > 0; }
 
 
     public void takeDamage()              { if (hp > 0) hp--; }

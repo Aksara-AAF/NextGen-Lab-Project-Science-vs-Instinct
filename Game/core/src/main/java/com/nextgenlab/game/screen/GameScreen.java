@@ -19,6 +19,7 @@ import com.nextgenlab.game.entity.DecoyObject;
 import com.nextgenlab.game.entity.Guard;
 import com.nextgenlab.game.entity.Monster;
 import com.nextgenlab.game.entity.Researcher;
+import com.nextgenlab.game.entity.SabotagePanel;
 import com.nextgenlab.game.entity.TrapObject;
 import com.nextgenlab.game.factory.EntityFactory;
 import com.nextgenlab.game.state.GameStateHandler;
@@ -50,9 +51,10 @@ public class GameScreen extends ScreenAdapter {
     private float[] chestSpawnX, chestSpawnY;
 
 
-    public List<Chest>       chests  = new ArrayList<>();
-    public List<TrapObject>  traps   = new ArrayList<>();
-    public List<DecoyObject> decoys  = new ArrayList<>();
+    public List<Chest>         chests         = new ArrayList<>();
+    public List<TrapObject>    traps          = new ArrayList<>();
+    public List<DecoyObject>   decoys         = new ArrayList<>();
+    public List<SabotagePanel> sabotagePanels = new ArrayList<>();
 
 
     public float workshopX = 400f;
@@ -98,6 +100,10 @@ public class GameScreen extends ScreenAdapter {
 
         spawnInitialGuards();
         spawnChests();
+        loadSabotagePanels();
+
+
+        for (int i = 0; i < map.getLayers().getCount(); i++) map.getLayers().get(i).setVisible(true);
 
         bgLayerIndices = findLayerIndices("Background", "Dekorasi Non-Solid");
         fgLayerIndices = findLayerIndices("Foreground", "Interact Object");
@@ -222,6 +228,23 @@ public class GameScreen extends ScreenAdapter {
             Guard g = EntityFactory.createGuard(guardSpawnX[idx], guardSpawnY[idx], map);
             g.show();
             guards.add(g);
+        }
+    }
+
+    private void loadSabotagePanels() {
+        MapLayer layer = map.getLayers().get("Spawn");
+        if (layer == null) return;
+        for (MapObject obj : layer.getObjects()) {
+            if (!(obj instanceof RectangleMapObject)) continue;
+            String name = obj.getName() == null ? "" : obj.getName();
+            Rectangle rect = ((RectangleMapObject) obj).getRectangle();
+            float cx = rect.x + rect.width / 2f;
+            float cy = rect.y + rect.height / 2f;
+            SabotagePanel.Type type = null;
+            if      ("sabotage_lights".equals(name)) type = SabotagePanel.Type.LIGHTS_OUT;
+            else if ("sabotage_slow".equals(name))   type = SabotagePanel.Type.SLOW_FIELD;
+            else if ("sabotage_drain".equals(name))  type = SabotagePanel.Type.SERUM_DRAIN;
+            if (type != null) sabotagePanels.add(EntityFactory.createSabotagePanel(cx, cy, type));
         }
     }
 

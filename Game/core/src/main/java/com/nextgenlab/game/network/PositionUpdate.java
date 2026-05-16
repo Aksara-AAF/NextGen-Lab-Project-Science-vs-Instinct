@@ -23,4 +23,11 @@ public class PositionUpdate {
 
 
     public int equippedItemOrdinal = -1;
+
+
+    public int maxHp = 5;
+
+
+    public int monsterXp    = 0;
+    public int monsterLevel = 0;
 }

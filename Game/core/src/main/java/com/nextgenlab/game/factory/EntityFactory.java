@@ -5,6 +5,7 @@ import com.nextgenlab.game.entity.Chest;
 import com.nextgenlab.game.entity.Guard;
 import com.nextgenlab.game.entity.Monster;
 import com.nextgenlab.game.entity.Researcher;
+import com.nextgenlab.game.entity.SabotagePanel;
 
 import java.util.Random;
 
@@ -24,5 +25,9 @@ public class EntityFactory {
 
     public static Chest createChest(float x, float y, Random rng) {
         return new Chest(x, y, rng);
+    }
+
+    public static SabotagePanel createSabotagePanel(float x, float y, SabotagePanel.Type type) {
+        return new SabotagePanel(x, y, type);
     }
 }

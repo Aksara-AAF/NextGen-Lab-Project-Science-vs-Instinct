@@ -11,10 +11,13 @@ import com.nextgenlab.game.network.PositionUpdate;
 import com.nextgenlab.game.strategy.MovementStrategy;
 import com.nextgenlab.game.strategy.PatrolStrategy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Monster {
 
     private float x, y;
-    private final float speed = 130f;
+    private float speed = 130f;
     private final TiledMap map;
 
     private static final float SIZE            = 68f;
@@ -64,10 +67,55 @@ public class Monster {
     private float stunTimer = 0f;
     private float slowTimer = 0f;
 
+
+    private int xp    = 0;
+    private int level = 0;
+    private static final int   MAX_LEVEL = 5;
+    private static final int[] LEVEL_XP  = {100, 150, 225, 337, 506};
+    private final List<String> activeGenes = new ArrayList<>();
+
+
+    private boolean predatorClaws   = false;
+    private float   speedMult       = 1.0f;
+    private boolean hasFrenzy       = false;
+    private boolean hasEcholocation = false;
+    private boolean hasAcidicBlood  = false;
+    private boolean hasRegeneration = false;
+    private boolean hasToxicAura    = false;
+    private boolean hasPhaseShift   = false;
+    private boolean hasBerserker    = false;
+
+
+    private float regenTimer  = 0f;
+    private float combatTimer = 0f;
+
+
+    private float   dashCooldownTimer = 0f;
+    private boolean isDashing         = false;
+    private float   dashRemaining     = 0f;
+    private float   dashDirX          = 0f;
+    private float   dashDirY          = 0f;
+    private static final float DASH_SPEED    = 600f;
+    private static final float DASH_DURATION = 0.16f;
+    private static final float DASH_COOLDOWN = 4f;
+
+
+    private float   phaseShiftCooldownTimer = 0f;
+    private boolean phaseShiftActive        = false;
+    private float   phaseShiftRemaining     = 0f;
+    private static final float PHASE_SHIFT_COOLDOWN = 20f;
+    private static final float PHASE_SHIFT_DURATION = 0.4f;
+
+
+    private float echolocationCooldownTimer = 0f;
+    private float echolocationActiveTimer   = 0f;
+    private static final float ECHOLOCATION_COOLDOWN = 30f;
+    private static final float ECHOLOCATION_DURATION = 3f;
+
     public Monster(float startX, float startY, TiledMap map) {
-        this.x   = startX;
-        this.y   = startY;
-        this.map = map;
+        this.x        = startX;
+        this.y        = startY;
+        this.map      = map;
         this.strategy = new PatrolStrategy(
             new float[]{startX - 100, startX + 100},
             new float[]{startY,        startY}
@@ -101,16 +149,15 @@ public class Monster {
         currentAnimation = idleAnims[Direction.S.ordinal()];
     }
 
-
     public void update(float delta, float targetX, float targetY) {
         attackCooldownTimer = Math.max(0, attackCooldownTimer - delta);
         if (meleeAnimTimer > 0) meleeAnimTimer = Math.max(0, meleeAnimTimer - delta);
         updateStatusEffects(delta);
+        updateGeneTimers(delta);
         moving = false;
         if (!isStunned() && strategy != null) strategy.move(this, targetX, targetY, delta);
         if (!moving) applyIdle();
     }
-
 
     public void applyMovement(float rawVx, float rawVy, Direction dir, float delta) {
         lastDirection    = dir;
@@ -118,7 +165,20 @@ public class Monster {
         stateTime += delta;
         moving = true;
 
-        float effectiveSpeed = speed * getSlowFactor();
+        if (isDashing) {
+            float dashVx = dashDirX * DASH_SPEED;
+            float dashVy = dashDirY * DASH_SPEED;
+            if (phaseShiftActive) {
+                x += dashVx * delta;
+                y += dashVy * delta;
+            } else {
+                if (dashVx != 0) { float nx = x + dashVx * delta; if (!isCollision(nx, y)) x = nx; }
+                if (dashVy != 0) { float ny = y + dashVy * delta; if (!isCollision(x, ny)) y = ny; }
+            }
+            return;
+        }
+
+        float effectiveSpeed = speed * speedMult * getSlowFactor();
         float vx = rawVx, vy = rawVy;
         if (vx != 0 && vy != 0) {
             float len = (float) Math.sqrt(vx * vx + vy * vy);
@@ -128,10 +188,14 @@ public class Monster {
             vx *= effectiveSpeed;
             vy *= effectiveSpeed;
         }
-        if (vx != 0) { float nx = x + vx * delta; if (!isCollision(nx, y)) x = nx; }
-        if (vy != 0) { float ny = y + vy * delta; if (!isCollision(x, ny)) y = ny; }
+        if (phaseShiftActive) {
+            if (vx != 0) x += vx * delta;
+            if (vy != 0) y += vy * delta;
+        } else {
+            if (vx != 0) { float nx = x + vx * delta; if (!isCollision(nx, y)) x = nx; }
+            if (vy != 0) { float ny = y + vy * delta; if (!isCollision(x, ny)) y = ny; }
+        }
     }
-
 
     public void applyVelocity(float normVx, float normVy, float delta) {
         Direction dir    = directionFrom(normVx, normVy);
@@ -140,8 +204,8 @@ public class Monster {
         stateTime += delta;
         moving = true;
 
-        float vx = normVx * speed * getSlowFactor();
-        float vy = normVy * speed * getSlowFactor();
+        float vx = normVx * speed * speedMult * getSlowFactor();
+        float vy = normVy * speed * speedMult * getSlowFactor();
         if (vx != 0) { float nx = x + vx * delta; if (!isCollision(nx, y)) x = nx; }
         if (vy != 0) { float ny = y + vy * delta; if (!isCollision(x, ny)) y = ny; }
     }
@@ -161,6 +225,7 @@ public class Monster {
         moving     = u.moving;
         actionFlag = u.actionFlag;
         hp         = u.hp;
+        if (u.maxHp > 0) maxHp = u.maxHp;
     }
 
     public void tickRemoteAnimation(float delta) {
@@ -197,34 +262,27 @@ public class Monster {
     }
 
 
-    public void takeDamage() { if (hp > 0) hp--; }
+    public void takeDamage() {
+        if (hp > 0) hp--;
+        combatTimer = 3f;
+    }
+
     public void fullHeal()   { hp = maxHp; }
     public boolean isAlive() { return hp > 0; }
 
-
-    public void applyStun(float duration) { stunTimer = Math.max(stunTimer, duration); }
-    public void applySlow(float duration) { slowTimer = Math.max(slowTimer, duration); }
-    public boolean isStunned() { return stunTimer > 0; }
-    public boolean isSlowed()  { return slowTimer > 0; }
-    public float getSlowFactor() { return slowTimer > 0 ? 0.5f : 1f; }
-
-    public void updateStatusEffects(float delta) {
-        stunTimer = Math.max(0, stunTimer - delta);
-        slowTimer = Math.max(0, slowTimer - delta);
+    public int getMeleeDamage() {
+        int base = 1;
+        if (predatorClaws) base++;
+        if (hasBerserker && hp < 2) base = (int)(base * 1.3f + 0.5f);
+        return base;
     }
-
-    public void updateCooldownTimer(float delta) {
-        attackCooldownTimer = Math.max(0, attackCooldownTimer - delta);
-        if (meleeAnimTimer > 0) meleeAnimTimer = Math.max(0, meleeAnimTimer - delta);
-    }
-
 
     public boolean attackMelee(Researcher target) {
         if (attackCooldownTimer > 0) return false;
         float dx = target.getX() - x;
         float dy = target.getY() - y;
         if (dx * dx + dy * dy <= ATTACK_RANGE * ATTACK_RANGE) {
-            target.damage(1);
+            target.damage(getMeleeDamage());
             attackCooldownTimer = ATTACK_COOLDOWN;
             meleeAnimTimer = MELEE_ANIM_DURATION;
             stateTime = 0f;
@@ -232,7 +290,6 @@ public class Monster {
         }
         return false;
     }
-
 
     public boolean attackMelee(Guard target) {
         if (attackCooldownTimer > 0) return false;
@@ -249,15 +306,137 @@ public class Monster {
     }
 
 
+    public void applyStun(float duration) { stunTimer = Math.max(stunTimer, duration); }
+    public void applySlow(float duration) { slowTimer = Math.max(slowTimer, duration); }
+    public boolean isStunned() { return stunTimer > 0; }
+    public boolean isSlowed()  { return slowTimer > 0; }
+    public float getSlowFactor() { return slowTimer > 0 ? 0.5f : 1f; }
+
+    public void updateStatusEffects(float delta) {
+        stunTimer = Math.max(0, stunTimer - delta);
+        slowTimer = Math.max(0, slowTimer - delta);
+    }
+
+
+    public void updateGeneTimers(float delta) {
+        if (dashCooldownTimer > 0) dashCooldownTimer -= delta;
+        if (isDashing) {
+            dashRemaining -= delta;
+            if (dashRemaining <= 0) isDashing = false;
+        }
+        if (phaseShiftRemaining > 0) {
+            phaseShiftRemaining -= delta;
+            if (phaseShiftRemaining <= 0) phaseShiftActive = false;
+        }
+        if (phaseShiftCooldownTimer > 0) phaseShiftCooldownTimer -= delta;
+        if (echolocationActiveTimer   > 0) echolocationActiveTimer   -= delta;
+        if (echolocationCooldownTimer > 0) echolocationCooldownTimer -= delta;
+        if (combatTimer > 0) combatTimer -= delta;
+
+        if (hasRegeneration && combatTimer <= 0 && hp < maxHp) {
+            regenTimer += delta;
+            if (regenTimer >= 2f) {
+                hp = Math.min(hp + 1, maxHp);
+                regenTimer = 0f;
+            }
+        } else {
+            regenTimer = 0f;
+        }
+    }
+
+
+    public boolean addXp(int amount) {
+        if (level >= MAX_LEVEL) return false;
+        xp += amount;
+        if (xp >= LEVEL_XP[level]) {
+            xp -= LEVEL_XP[level];
+            level++;
+            return true;
+        }
+        return false;
+    }
+
+    public void applyGene(String code) {
+        if (activeGenes.contains(code)) return;
+        activeGenes.add(code);
+        switch (code) {
+            case "PREDATOR_CLAWS": predatorClaws   = true;                                  break;
+            case "ADRENAL_SURGE":  speedMult       *= 1.2f;                                 break;
+            case "THICK_HIDE":     maxHp++;         hp = Math.min(hp + 1, maxHp);           break;
+            case "FRENZY":         hasFrenzy       = true;                                  break;
+            case "ECHOLOCATION":   hasEcholocation = true;                                  break;
+            case "ACIDIC_BLOOD":   hasAcidicBlood  = true;                                  break;
+            case "REGENERATION":   hasRegeneration = true;                                  break;
+            case "TOXIC_AURA":     hasToxicAura    = true;                                  break;
+            case "PHASE_SHIFT":    hasPhaseShift   = true;                                  break;
+            case "BERSERKER":      hasBerserker    = true;                                  break;
+            default: break;
+        }
+    }
+
+
+    public boolean canDash() { return dashCooldownTimer <= 0 && !isDashing; }
+
+    public void startDash(float dirX, float dirY) {
+        if (!canDash()) return;
+        float len = (float) Math.sqrt(dirX * dirX + dirY * dirY);
+        if (len < 0.01f) { dirX = 0; dirY = -1; len = 1; }
+        dashDirX      = dirX / len;
+        dashDirY      = dirY / len;
+        isDashing     = true;
+        dashRemaining = DASH_DURATION;
+        float cd = DASH_COOLDOWN - (hasFrenzy ? 1f : 0f);
+        dashCooldownTimer = Math.max(0.5f, cd);
+    }
+
+
+    public boolean canEcholocate() { return hasEcholocation && echolocationCooldownTimer <= 0; }
+
+    public void activateEcholocation() {
+        echolocationCooldownTimer = ECHOLOCATION_COOLDOWN;
+        echolocationActiveTimer   = ECHOLOCATION_DURATION;
+    }
+
+
+    public boolean canPhaseShift() { return hasPhaseShift && phaseShiftCooldownTimer <= 0; }
+
+    public void activatePhaseShift() {
+        phaseShiftActive        = true;
+        phaseShiftRemaining     = PHASE_SHIFT_DURATION;
+        phaseShiftCooldownTimer = PHASE_SHIFT_COOLDOWN;
+    }
+
+
     public float     getX()             { return x; }
     public float     getY()             { return y; }
     public int       getHp()            { return hp; }
     public int       getMaxHp()         { return maxHp; }
+    public int       getXp()            { return xp; }
+    public int       getLevel()         { return level; }
+    public int[]     getLevelXpTable()  { return LEVEL_XP; }
+    public int       getMaxLevel()      { return MAX_LEVEL; }
+    public List<String> getActiveGenes() { return activeGenes; }
     public Direction getLastDirection() { return lastDirection; }
     public boolean   isMoving()         { return moving; }
     public int       getActionFlag()    { return actionFlag; }
+    public boolean   isDashing()              { return isDashing; }
+    public float     getDashCooldownTimer()   { return dashCooldownTimer; }
+    public float     getDashMaxCooldown()     { return DASH_COOLDOWN; }
+    public boolean   isEcholocationActive()         { return echolocationActiveTimer > 0; }
+    public float     getEcholocationCooldownTimer() { return echolocationCooldownTimer; }
+    public float     getEcholocationMaxCooldown()   { return ECHOLOCATION_COOLDOWN; }
+    public boolean   isPhaseShiftActive()           { return phaseShiftActive; }
+    public float     getPhaseShiftCooldownTimer()   { return phaseShiftCooldownTimer; }
+    public float     getPhaseShiftMaxCooldown()     { return PHASE_SHIFT_COOLDOWN; }
+    public boolean   hasToxicAura()         { return hasToxicAura; }
+    public boolean   hasAcidicBlood()       { return hasAcidicBlood; }
 
     public void setActionFlag(int flag) { actionFlag = flag; }
+
+    public void updateCooldownTimer(float delta) {
+        attackCooldownTimer = Math.max(0, attackCooldownTimer - delta);
+        if (meleeAnimTimer > 0) meleeAnimTimer = Math.max(0, meleeAnimTimer - delta);
+    }
 
     public boolean overlaps(float px, float py, float radius) {
         float dx = x - px, dy = y - py;
