@@ -11,9 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class TaskUiTheme {
 
-    public static final Color CYAN = new Color(0f, 0.96f, 0.83f, 1f);
-    public static final Color PINK = new Color(1f, 0f, 0.43f, 1f);
-    public static final Color GOLD = new Color(0.83f, 0.63f, 0.09f, 1f);
+    public static final Color CYAN  = new Color(0f,    0.96f, 0.83f, 1f);
+    public static final Color PINK  = new Color(1f,    0f,    0.43f, 1f);
+    public static final Color GOLD  = new Color(0.83f, 0.63f, 0.09f, 1f);
     public static final Color PANEL = new Color(0.08f, 0.10f, 0.16f, 0.62f);
     public static final Color MUTED = new Color(0.60f, 0.55f, 0.60f, 1f);
     public static final Color GREEN = new Color(0.10f, 0.80f, 0.20f, 1f);
@@ -22,10 +22,10 @@ public class TaskUiTheme {
     private static Texture panelTex, btnUpTex, btnDownTex, btnDisabledTex;
 
     public static void init() {
-        font = new BitmapFont();
-        panelTex = solidTex(400, 300, PANEL);
-        btnUpTex = solidTex(280, 44, new Color(0.18f, 0.20f, 0.30f, 1f));
-        btnDownTex = solidTex(280, 44, new Color(0.08f, 0.10f, 0.16f, 1f));
+        font         = new BitmapFont();
+        panelTex     = solidTex(400, 300, PANEL);
+        btnUpTex     = solidTex(280, 44, new Color(0.18f, 0.20f, 0.30f, 1f));
+        btnDownTex   = solidTex(280, 44, new Color(0.08f, 0.10f, 0.16f, 1f));
         btnDisabledTex = solidTex(280, 44, new Color(0.12f, 0.14f, 0.20f, 0.6f));
     }
 
@@ -35,16 +35,10 @@ public class TaskUiTheme {
         if (btnUpTex != null) btnUpTex.dispose();
         if (btnDownTex != null) btnDownTex.dispose();
         if (btnDisabledTex != null) btnDisabledTex.dispose();
-        font = null;
-        panelTex = null;
-        btnUpTex = null;
-        btnDownTex = null;
-        btnDisabledTex = null;
+        font = null; panelTex = null; btnUpTex = null; btnDownTex = null; btnDisabledTex = null;
     }
 
-    public static BitmapFont font() {
-        return font;
-    }
+    public static BitmapFont font() { return font; }
 
     public static Label.LabelStyle titleStyle() {
         return new Label.LabelStyle(font, CYAN);
@@ -64,17 +58,15 @@ public class TaskUiTheme {
 
     public static TextButton.TextButtonStyle buttonStyle(Color fontColor) {
         TextButton.TextButtonStyle s = new TextButton.TextButtonStyle();
-        s.font = font;
+        s.font     = font;
         s.fontColor = fontColor;
-        s.up = wrap(btnUpTex);
-        s.down = wrap(btnDownTex);
+        s.up       = wrap(btnUpTex);
+        s.down     = wrap(btnDownTex);
         s.disabled = wrap(btnDisabledTex);
         return s;
     }
 
-    public static TextureRegionDrawable panelBg() {
-        return wrap(panelTex);
-    }
+    public static TextureRegionDrawable panelBg() { return wrap(panelTex); }
 
     public static Texture solidTex(int w, int h, Color c) {
         Pixmap p = new Pixmap(w, h, Pixmap.Format.RGBA8888);

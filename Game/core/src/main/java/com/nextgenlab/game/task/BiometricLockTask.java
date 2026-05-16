@@ -17,13 +17,13 @@ import java.util.Random;
 
 public class BiometricLockTask extends LabTask {
 
-    private static final int LAYER_COUNT = 3;
-    private static final int TEX_SIZE = 96;
-    private static final float ALIGN_TOL = 6f;
+    private static final int   LAYER_COUNT = 3;
+    private static final int   TEX_SIZE    = 96;
+    private static final float ALIGN_TOL   = 6f;
     private static final float[] TARGET_ANGLE = {0f, 45f, 315f};
     private static final Color[] LAYER_COLORS = {
-        new Color(0f, 0.96f, 0.83f, 0.75f),
-        new Color(1f, 0f, 0.43f, 0.75f),
+        new Color(0f,    0.96f, 0.83f, 0.75f),
+        new Color(1f,    0f,    0.43f, 0.75f),
         new Color(0.83f, 0.63f, 0.09f, 0.75f)
     };
 
@@ -31,10 +31,7 @@ public class BiometricLockTask extends LabTask {
     private Label alignLabel;
     private Texture[] layerTextures;
 
-    public BiometricLockTask() {
-        super();
-        init();
-    }
+    public BiometricLockTask() { super(); init(); }
 
     @Override
     protected void buildUI() {
@@ -47,8 +44,8 @@ public class BiometricLockTask extends LabTask {
 
 
             int targetStep = Math.round(TARGET_ANGLE[i] / 15f);
-            int offset = 1 + MathUtils.random(22);
-            int startStep = (targetStep + offset) % 24;
+            int offset     = 1 + MathUtils.random(22);
+            int startStep  = (targetStep + offset) % 24;
             layers[i] = new FingerprintLayerActor(layerTextures[i], startStep * 15f);
         }
 
@@ -57,7 +54,7 @@ public class BiometricLockTask extends LabTask {
         panel.setFillParent(true);
 
         panel.add(new Label("BIOMETRIC ANALYSIS", TaskUiTheme.titleStyle()))
-            .colspan(LAYER_COUNT).padBottom(8).row();
+             .colspan(LAYER_COUNT).padBottom(8).row();
         panel.add(new Label("Putar setiap layer agar sidik jari tersinkronisasi",
             TaskUiTheme.mutedStyle())).colspan(LAYER_COUNT).padBottom(12).row();
 
@@ -84,15 +81,13 @@ public class BiometricLockTask extends LabTask {
         TextButton btnR = new TextButton(" >", TaskUiTheme.buttonStyle(Color.WHITE));
         final int i = idx;
         btnL.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent e, float x, float y) {
+            @Override public void clicked(InputEvent e, float x, float y) {
                 layers[i].rotate(-15f);
                 checkAlignment();
             }
         });
         btnR.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent e, float x, float y) {
+            @Override public void clicked(InputEvent e, float x, float y) {
                 layers[i].rotate(15f);
                 checkAlignment();
             }
@@ -124,7 +119,7 @@ public class BiometricLockTask extends LabTask {
         pm.fill();
         pm.setColor(c.r, c.g, c.b, 0.85f);
         for (int r = 8; r < 46; r += 6) pm.drawCircle(TEX_SIZE / 2, TEX_SIZE / 2, r);
-        Random rng = new Random(seed * 0x1234L + (long) (c.r * 100));
+        Random rng = new Random(seed * 0x1234L + (long)(c.r * 100));
         for (int i = 0; i < 7; i++) {
             int y = 10 + rng.nextInt(76);
             int x1 = 14 + rng.nextInt(8), x2 = 70 + rng.nextInt(12);
@@ -147,29 +142,20 @@ public class BiometricLockTask extends LabTask {
         private final Texture tex;
 
         FingerprintLayerActor(Texture tex, float startAngle) {
-            this.tex = tex;
+            this.tex   = tex;
             this.angle = startAngle;
         }
 
-        void rotate(float deg) {
-            angle = (angle + deg + 360f) % 360f;
-        }
+        void  rotate(float deg)   { angle = (angle + deg + 360f) % 360f; }
+        float getAngle()          { return angle; }
 
-        float getAngle() {
-            return angle;
-        }
-
-        @Override
-        public void draw(Batch batch, float parentAlpha) {
+        @Override public void draw(Batch batch, float parentAlpha) {
             float w = getWidth(), h = getHeight();
             batch.draw(new TextureRegion(tex),
                 getX(), getY(), w / 2f, h / 2f, w, h,
                 1f, 1f, angle);
         }
 
-        @Override
-        public Actor hit(float x, float y, boolean t) {
-            return null;
-        }
+        @Override public Actor hit(float x, float y, boolean t) { return null; }
     }
 }

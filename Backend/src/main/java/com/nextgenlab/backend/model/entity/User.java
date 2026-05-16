@@ -25,39 +25,15 @@ public class User {
     private Instant createdAt;
 
     @PrePersist
-    void onCreate() {
-        createdAt = Instant.now();
-    }
+    void onCreate() { createdAt = Instant.now(); }
 
-    public Long getId() {
-        return id;
-    }
+    public Long    getId()           { return id; }
+    public String  getEmail()        { return email; }
+    public String  getUsername()     { return username; }
+    public String  getPasswordHash() { return passwordHash; }
+    public Instant getCreatedAt()    { return createdAt; }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
+    public void setEmail(String email)               { this.email = email; }
+    public void setUsername(String username)         { this.username = username; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 }

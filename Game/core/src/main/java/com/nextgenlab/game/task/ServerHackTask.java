@@ -17,16 +17,13 @@ public class ServerHackTask extends LabTask {
     private static final int TARGET_COUNT = 3;
 
     private String[][] matrix;
-    private String[] target;
-    private int nextTarget = 0;
-    private Label statusLabel;
+    private String[]   target;
+    private int    nextTarget = 0;
+    private Label  statusLabel;
     private Label[] targetLabels;
     private ShapeRenderer sr;
 
-    public ServerHackTask() {
-        super();
-        init();
-    }
+    public ServerHackTask() { super(); init(); }
 
     @Override
     protected void buildUI() {
@@ -40,7 +37,7 @@ public class ServerHackTask extends LabTask {
         panel.setFillParent(true);
 
         panel.add(new Label("HEXADECIMAL MEMORY DUMP", TaskUiTheme.titleStyle()))
-            .padBottom(6).row();
+             .padBottom(6).row();
 
         Table targetRow = new Table();
         targetLabels = new Label[TARGET_COUNT];
@@ -55,10 +52,9 @@ public class ServerHackTask extends LabTask {
         HexMatrixActor matrixActor = new HexMatrixActor();
         matrixActor.setSize(COLS * CELL_W, ROWS * CELL_H);
         matrixActor.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent e, float lx, float ly) {
-                int col = (int) (lx / CELL_W);
-                int row = ROWS - 1 - (int) (ly / CELL_H);
+            @Override public void clicked(InputEvent e, float lx, float ly) {
+                int col = (int)(lx / CELL_W);
+                int row = ROWS - 1 - (int)(ly / CELL_H);
                 if (row >= 0 && row < ROWS && col >= 0 && col < COLS)
                     onCellClick(row, col, matrixActor);
             }
@@ -114,18 +110,14 @@ public class ServerHackTask extends LabTask {
     class HexMatrixActor extends Actor {
         private float flashTimer = 0f;
 
-        void flash() {
-            flashTimer = 0.4f;
-        }
+        void flash() { flashTimer = 0.4f; }
 
-        @Override
-        public void act(float delta) {
+        @Override public void act(float delta) {
             super.act(delta);
             if (flashTimer > 0) flashTimer -= delta;
         }
 
-        @Override
-        public void draw(Batch batch, float parentAlpha) {
+        @Override public void draw(Batch batch, float parentAlpha) {
             batch.end();
             sr.setProjectionMatrix(batch.getProjectionMatrix());
             sr.begin(ShapeRenderer.ShapeType.Filled);
@@ -150,8 +142,7 @@ public class ServerHackTask extends LabTask {
             font.setColor(Color.WHITE);
         }
 
-        @Override
-        public Actor hit(float x, float y, boolean touchable) {
+        @Override public Actor hit(float x, float y, boolean touchable) {
             return (x >= 0 && x < getWidth() && y >= 0 && y < getHeight()) ? this : null;
         }
     }

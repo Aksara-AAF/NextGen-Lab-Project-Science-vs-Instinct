@@ -7,7 +7,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.nextgenlab.game.crafting.Item;
+import com.nextgenlab.game.crafting.ItemType;
+import com.nextgenlab.game.crafting.Resource;
 import com.nextgenlab.game.network.PositionUpdate;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 public class Researcher {
 
@@ -16,47 +22,61 @@ public class Researcher {
     private final TiledMap map;
 
     private static final float FRAME_SIZE = 68f;
-    private static final float HIT_WIDTH = 20f;
+    private static final float HIT_WIDTH  = 20f;
     private static final float HIT_HEIGHT = 13f;
-    private static final int TILE_SIZE = 32;
+    private static final int   TILE_SIZE  = 32;
 
-    private static final String RUN_PREFIX = "researcher/animations/Running-3086b209/";
+    private static final String RUN_PREFIX    = "researcher/animations/Running-3086b209/";
     private static final String ATTACK_PREFIX = "researcher/animations/Basic_Ranged_Attack-7127fbe1/";
-    private static final String IDLE_PREFIX = "researcher/rotations/";
-    private static final int RUN_FRAMES = 4;
-    private static final int ATTACK_FRAMES = 8;
-    private static final float ATTACK_ANIM_DURATION = ATTACK_FRAMES * 0.1f;
+    private static final String IDLE_PREFIX   = "researcher/rotations/";
+    private static final int    RUN_FRAMES    = 4;
+    private static final int    ATTACK_FRAMES = 8;
+    private static final float  ATTACK_ANIM_DURATION = ATTACK_FRAMES * 0.1f;
 
     private static final String[] DIR_NAMES = {
         "north", "south", "east", "west",
         "north-east", "north-west", "south-east", "south-west"
     };
 
-    private final Texture[] idleTex = new Texture[8];
-    private final Texture[][] runTex = new Texture[8][RUN_FRAMES];
-    private final Texture[][] attackTex = new Texture[8][ATTACK_FRAMES];
+    private final Texture[]   idleTex    = new Texture[8];
+    private final Texture[][] runTex     = new Texture[8][RUN_FRAMES];
+    private final Texture[][] attackTex  = new Texture[8][ATTACK_FRAMES];
 
     @SuppressWarnings("unchecked")
-    private final Animation<TextureRegion>[] idleAnims = new Animation[8];
+    private final Animation<TextureRegion>[] idleAnims   = new Animation[8];
     @SuppressWarnings("unchecked")
-    private final Animation<TextureRegion>[] runAnims = new Animation[8];
+    private final Animation<TextureRegion>[] runAnims    = new Animation[8];
     @SuppressWarnings("unchecked")
     private final Animation<TextureRegion>[] attackAnims = new Animation[8];
 
     private Animation<TextureRegion> currentAnimation;
-    private float stateTime = 0f;
+    private float stateTime       = 0f;
     private float attackAnimTimer = 0f;
 
     private Direction lastDirection = Direction.S;
-    private boolean moving = false;
-    private int actionFlag = 0;
+    private boolean   moving        = false;
+    private int       actionFlag    = 0;
 
-    private int hp = 3;
+    private int hp    = 3;
     private int maxHp = 3;
 
+    private final EnumMap<Resource, Integer> inventory = new EnumMap<>(Resource.class);
+    private Item  equippedWeapon   = null;
+    private Item  equippedUtility  = null;
+    private float railGunCharge    = 0f;
+
+    private float   stamina          = 100f;
+    private float   maxStamina       = 100f;
+    private boolean sprinting        = false;
+    private float   staminaRegenTimer = 0f;
+    private static final float DRAIN_RATE       = 30f;
+    private static final float REGEN_RATE       = 15f;
+    private static final float REGEN_DELAY      = 1f;
+    private static final float SPRINT_SPEED_MULT = 1.5f;
+
     public Researcher(float startX, float startY, TiledMap map) {
-        this.x = startX;
-        this.y = startY;
+        this.x   = startX;
+        this.y   = startY;
         this.map = map;
     }
 
@@ -87,30 +107,40 @@ public class Researcher {
         currentAnimation = idleAnims[Direction.S.ordinal()];
     }
 
+
+    public void tick(float delta, boolean sprintInput) {
+        sprinting = sprintInput && stamina > 0;
+        if (sprinting) {
+            stamina = Math.max(0, stamina - DRAIN_RATE * delta);
+            staminaRegenTimer = REGEN_DELAY;
+        } else {
+            if (staminaRegenTimer > 0) {
+                staminaRegenTimer -= delta;
+            } else {
+                stamina = Math.min(maxStamina, stamina + REGEN_RATE * delta);
+            }
+        }
+    }
+
     public void applyMovement(float rawVx, float rawVy, Direction dir, float delta) {
-        lastDirection = dir;
+        lastDirection    = dir;
         currentAnimation = runAnims[dir.ordinal()];
         stateTime += delta;
         moving = true;
 
+        float effectiveSpeed = sprinting ? speed * SPRINT_SPEED_MULT : speed;
         float vx = rawVx, vy = rawVy;
         if (vx != 0 && vy != 0) {
             float len = (float) Math.sqrt(vx * vx + vy * vy);
-            vx = vx / len * speed;
-            vy = vy / len * speed;
+            vx = vx / len * effectiveSpeed;
+            vy = vy / len * effectiveSpeed;
         } else {
-            vx *= speed;
-            vy *= speed;
+            vx *= effectiveSpeed;
+            vy *= effectiveSpeed;
         }
 
-        if (vx != 0) {
-            float nx = x + vx * delta;
-            if (!isCollision(nx, y)) x = nx;
-        }
-        if (vy != 0) {
-            float ny = y + vy * delta;
-            if (!isCollision(x, ny)) y = ny;
-        }
+        if (vx != 0) { float nx = x + vx * delta; if (!isCollision(nx, y)) x = nx; }
+        if (vy != 0) { float ny = y + vy * delta; if (!isCollision(x, ny)) y = ny; }
     }
 
     public void applyIdle() {
@@ -130,7 +160,7 @@ public class Researcher {
         if (u.direction >= 0 && u.direction < Direction.values().length) {
             lastDirection = Direction.values()[u.direction];
         }
-        moving = u.moving;
+        moving     = u.moving;
         actionFlag = u.actionFlag;
         if (u.hp > 0) hp = u.hp;
     }
@@ -160,69 +190,58 @@ public class Researcher {
     public void dispose() {
         for (int d = 0; d < 8; d++) {
             if (idleTex[d] != null) idleTex[d].dispose();
-            for (int f = 0; f < RUN_FRAMES; f++) {
-                if (runTex[d][f] != null) runTex[d][f].dispose();
-            }
-            for (int f = 0; f < ATTACK_FRAMES; f++) {
-                if (attackTex[d][f] != null) attackTex[d][f].dispose();
-            }
+            for (int f = 0; f < RUN_FRAMES;    f++) { if (runTex[d][f]    != null) runTex[d][f].dispose(); }
+            for (int f = 0; f < ATTACK_FRAMES; f++) { if (attackTex[d][f] != null) attackTex[d][f].dispose(); }
         }
     }
 
 
-    public void takeDamage() {
-        if (hp > 0) hp--;
-    }
-
-    public void damage(int amount) {
-        hp = Math.max(0, hp - amount);
-    }
-
-    public void fullHeal() {
-        hp = maxHp;
-    }
-
-    public boolean isAlive() {
-        return hp > 0;
-    }
+    public void takeDamage()              { if (hp > 0) hp--; }
+    public void damage(int amount)        { hp = Math.max(0, hp - amount); }
+    public void heal(int amount)          { hp = Math.min(maxHp, hp + amount); }
+    public void fullHeal()                { hp = maxHp; }
+    public boolean isAlive()              { return hp > 0; }
 
 
-    public float getX() {
-        return x;
+    public void addResource(Resource r, int amount) {
+        inventory.merge(r, amount, Integer::sum);
     }
 
-    public float getY() {
-        return y;
+    public boolean consumeIngredients(Map<Resource, Integer> cost) {
+        for (Map.Entry<Resource, Integer> e : cost.entrySet()) {
+            if (inventory.getOrDefault(e.getKey(), 0) < e.getValue()) return false;
+        }
+        for (Map.Entry<Resource, Integer> e : cost.entrySet()) {
+            inventory.merge(e.getKey(), -e.getValue(), Integer::sum);
+        }
+        return true;
     }
 
-    public int getHp() {
-        return hp;
+    public void equipItem(Item item) {
+        if (item.type.isWeapon) equippedWeapon  = item;
+        else                    equippedUtility = item;
     }
 
-    public int getMaxHp() {
-        return maxHp;
-    }
+    public EnumMap<Resource, Integer> getInventory()  { return inventory; }
+    public Item  getEquippedWeapon()                  { return equippedWeapon; }
+    public Item  getEquippedUtility()                 { return equippedUtility; }
+    public float getRailGunCharge()                   { return railGunCharge; }
+    public void  setRailGunCharge(float v)            { railGunCharge = v; }
 
-    public Direction getLastDirection() {
-        return lastDirection;
-    }
 
-    public boolean isMoving() {
-        return moving;
-    }
+    public float     getX()             { return x; }
+    public float     getY()             { return y; }
+    public int       getHp()            { return hp; }
+    public int       getMaxHp()         { return maxHp; }
+    public float     getStamina()       { return stamina; }
+    public float     getMaxStamina()    { return maxStamina; }
+    public boolean   isSprinting()      { return sprinting; }
+    public Direction getLastDirection() { return lastDirection; }
+    public boolean   isMoving()         { return moving; }
+    public int       getActionFlag()    { return actionFlag; }
 
-    public int getActionFlag() {
-        return actionFlag;
-    }
-
-    public void setActionFlag(int flag) {
-        actionFlag = flag;
-    }
-
-    public void setPosition(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
+    public void setActionFlag(int flag) { actionFlag = flag; }
+    public void setPosition(float x, float y) { this.x = x; this.y = y; }
 
     public boolean overlaps(float px, float py, float radius) {
         float dx = x - px, dy = y - py;

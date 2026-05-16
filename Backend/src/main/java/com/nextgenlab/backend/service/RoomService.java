@@ -11,12 +11,12 @@ import java.util.UUID;
 @Service
 public class RoomService {
 
-    private final GameRoomRepository roomRepository;
+    private final GameRoomRepository    roomRepository;
     private final MatchSessionRepository matchRepository;
 
     public RoomService(GameRoomRepository roomRepository,
                        MatchSessionRepository matchRepository) {
-        this.roomRepository = roomRepository;
+        this.roomRepository  = roomRepository;
         this.matchRepository = matchRepository;
     }
 
@@ -34,7 +34,7 @@ public class RoomService {
 
     public GameRoom joinRoom(String roomCode, String role) {
         GameRoom room = roomRepository.findByRoomCode(roomCode)
-                .orElseThrow(() -> new RuntimeException("Room not found: " + roomCode));
+            .orElseThrow(() -> new RuntimeException("Room not found: " + roomCode));
 
         applyRole(room, role);
 
@@ -47,7 +47,7 @@ public class RoomService {
 
     public GameRoom getRoom(String roomCode) {
         return roomRepository.findByRoomCode(roomCode)
-                .orElseThrow(() -> new RuntimeException("Room not found: " + roomCode));
+            .orElseThrow(() -> new RuntimeException("Room not found: " + roomCode));
     }
 
     private void applyRole(GameRoom room, String role) {

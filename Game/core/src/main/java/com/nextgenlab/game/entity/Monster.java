@@ -17,57 +17,60 @@ public class Monster {
     private final float speed = 130f;
     private final TiledMap map;
 
-    private static final float SIZE = 68f;
-    private static final float HIT_WIDTH = 24f;
-    private static final float HIT_HEIGHT = 16f;
-    private static final int TILE_SIZE = 32;
-    private static final float ATTACK_RANGE = 48f;
+    private static final float SIZE            = 68f;
+    private static final float HIT_WIDTH       = 24f;
+    private static final float HIT_HEIGHT      = 16f;
+    private static final int   TILE_SIZE       = 32;
+    private static final float ATTACK_RANGE    = 48f;
     private static final float ATTACK_COOLDOWN = 1.0f;
 
-    private static final String WALK_PREFIX = "monster/animations/animation-b0394ebc/";
+    private static final String WALK_PREFIX  = "monster/animations/animation-b0394ebc/";
     private static final String MELEE_PREFIX = "monster/animations/Basic_Melee_Attack-3524e0a3/";
-    private static final String IDLE_PREFIX = "monster/rotations/";
-    private static final int WALK_FRAMES = 6;
-    private static final int MELEE_FRAMES = 8;
-    private static final float MELEE_ANIM_DURATION = MELEE_FRAMES * 0.1f;
+    private static final String IDLE_PREFIX  = "monster/rotations/";
+    private static final int    WALK_FRAMES  = 6;
+    private static final int    MELEE_FRAMES = 8;
+    private static final float  MELEE_ANIM_DURATION = MELEE_FRAMES * 0.1f;
 
     private static final String[] DIR_NAMES = {
         "north", "south", "east", "west",
         "north-east", "north-west", "south-east", "south-west"
     };
 
-    private final Texture[] idleTex = new Texture[8];
-    private final Texture[][] walkTex = new Texture[8][WALK_FRAMES];
+    private final Texture[]   idleTex  = new Texture[8];
+    private final Texture[][] walkTex  = new Texture[8][WALK_FRAMES];
     private final Texture[][] meleeTex = new Texture[8][MELEE_FRAMES];
 
     @SuppressWarnings("unchecked")
-    private final Animation<TextureRegion>[] idleAnims = new Animation[8];
+    private final Animation<TextureRegion>[] idleAnims  = new Animation[8];
     @SuppressWarnings("unchecked")
-    private final Animation<TextureRegion>[] walkAnims = new Animation[8];
+    private final Animation<TextureRegion>[] walkAnims  = new Animation[8];
     @SuppressWarnings("unchecked")
     private final Animation<TextureRegion>[] meleeAnims = new Animation[8];
 
     private Animation<TextureRegion> currentAnimation;
-    private float stateTime = 0f;
+    private float stateTime      = 0f;
     private float meleeAnimTimer = 0f;
-    private boolean moving = false;
+    private boolean moving       = false;
 
     private float attackCooldownTimer = 0f;
 
     private MovementStrategy strategy;
     private Direction lastDirection = Direction.S;
-    private int actionFlag = 0;
+    private int       actionFlag    = 0;
 
-    private int hp = 5;
+    private int hp    = 5;
     private int maxHp = 5;
 
+    private float stunTimer = 0f;
+    private float slowTimer = 0f;
+
     public Monster(float startX, float startY, TiledMap map) {
-        this.x = startX;
-        this.y = startY;
+        this.x   = startX;
+        this.y   = startY;
         this.map = map;
         this.strategy = new PatrolStrategy(
             new float[]{startX - 100, startX + 100},
-            new float[]{startY, startY}
+            new float[]{startY,        startY}
         );
     }
 
@@ -102,55 +105,45 @@ public class Monster {
     public void update(float delta, float targetX, float targetY) {
         attackCooldownTimer = Math.max(0, attackCooldownTimer - delta);
         if (meleeAnimTimer > 0) meleeAnimTimer = Math.max(0, meleeAnimTimer - delta);
+        updateStatusEffects(delta);
         moving = false;
-        if (strategy != null) strategy.move(this, targetX, targetY, delta);
+        if (!isStunned() && strategy != null) strategy.move(this, targetX, targetY, delta);
         if (!moving) applyIdle();
     }
 
 
     public void applyMovement(float rawVx, float rawVy, Direction dir, float delta) {
-        lastDirection = dir;
+        lastDirection    = dir;
         currentAnimation = walkAnims[dir.ordinal()];
         stateTime += delta;
         moving = true;
 
+        float effectiveSpeed = speed * getSlowFactor();
         float vx = rawVx, vy = rawVy;
         if (vx != 0 && vy != 0) {
             float len = (float) Math.sqrt(vx * vx + vy * vy);
-            vx = vx / len * speed;
-            vy = vy / len * speed;
+            vx = vx / len * effectiveSpeed;
+            vy = vy / len * effectiveSpeed;
         } else {
-            vx *= speed;
-            vy *= speed;
+            vx *= effectiveSpeed;
+            vy *= effectiveSpeed;
         }
-        if (vx != 0) {
-            float nx = x + vx * delta;
-            if (!isCollision(nx, y)) x = nx;
-        }
-        if (vy != 0) {
-            float ny = y + vy * delta;
-            if (!isCollision(x, ny)) y = ny;
-        }
+        if (vx != 0) { float nx = x + vx * delta; if (!isCollision(nx, y)) x = nx; }
+        if (vy != 0) { float ny = y + vy * delta; if (!isCollision(x, ny)) y = ny; }
     }
 
 
     public void applyVelocity(float normVx, float normVy, float delta) {
-        Direction dir = directionFrom(normVx, normVy);
-        lastDirection = dir;
+        Direction dir    = directionFrom(normVx, normVy);
+        lastDirection    = dir;
         currentAnimation = walkAnims[dir.ordinal()];
         stateTime += delta;
         moving = true;
 
-        float vx = normVx * speed;
-        float vy = normVy * speed;
-        if (vx != 0) {
-            float nx = x + vx * delta;
-            if (!isCollision(nx, y)) x = nx;
-        }
-        if (vy != 0) {
-            float ny = y + vy * delta;
-            if (!isCollision(x, ny)) y = ny;
-        }
+        float vx = normVx * speed * getSlowFactor();
+        float vy = normVy * speed * getSlowFactor();
+        if (vx != 0) { float nx = x + vx * delta; if (!isCollision(nx, y)) x = nx; }
+        if (vy != 0) { float ny = y + vy * delta; if (!isCollision(x, ny)) y = ny; }
     }
 
     public void applyIdle() {
@@ -165,9 +158,9 @@ public class Monster {
         if (u.direction >= 0 && u.direction < Direction.values().length) {
             lastDirection = Direction.values()[u.direction];
         }
-        moving = u.moving;
+        moving     = u.moving;
         actionFlag = u.actionFlag;
-        if (u.hp > 0) hp = u.hp;
+        hp         = u.hp;
     }
 
     public void tickRemoteAnimation(float delta) {
@@ -179,14 +172,8 @@ public class Monster {
         }
     }
 
-    public void setStrategy(MovementStrategy strategy) {
-        this.strategy = strategy;
-    }
-
-    public void setPosition(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
+    public void setStrategy(MovementStrategy strategy) { this.strategy = strategy; }
+    public void setPosition(float x, float y)          { this.x = x; this.y = y; }
 
     public void render(SpriteBatch batch) {
         float dt = Gdx.graphics.getDeltaTime();
@@ -204,26 +191,26 @@ public class Monster {
     public void dispose() {
         for (int d = 0; d < 8; d++) {
             if (idleTex[d] != null) idleTex[d].dispose();
-            for (int f = 0; f < WALK_FRAMES; f++) {
-                if (walkTex[d][f] != null) walkTex[d][f].dispose();
-            }
-            for (int f = 0; f < MELEE_FRAMES; f++) {
-                if (meleeTex[d][f] != null) meleeTex[d][f].dispose();
-            }
+            for (int f = 0; f < WALK_FRAMES;  f++) { if (walkTex[d][f]  != null) walkTex[d][f].dispose(); }
+            for (int f = 0; f < MELEE_FRAMES; f++) { if (meleeTex[d][f] != null) meleeTex[d][f].dispose(); }
         }
     }
 
 
-    public void takeDamage() {
-        if (hp > 0) hp--;
-    }
+    public void takeDamage() { if (hp > 0) hp--; }
+    public void fullHeal()   { hp = maxHp; }
+    public boolean isAlive() { return hp > 0; }
 
-    public void fullHeal() {
-        hp = maxHp;
-    }
 
-    public boolean isAlive() {
-        return hp > 0;
+    public void applyStun(float duration) { stunTimer = Math.max(stunTimer, duration); }
+    public void applySlow(float duration) { slowTimer = Math.max(slowTimer, duration); }
+    public boolean isStunned() { return stunTimer > 0; }
+    public boolean isSlowed()  { return slowTimer > 0; }
+    public float getSlowFactor() { return slowTimer > 0 ? 0.5f : 1f; }
+
+    public void updateStatusEffects(float delta) {
+        stunTimer = Math.max(0, stunTimer - delta);
+        slowTimer = Math.max(0, slowTimer - delta);
     }
 
     public void updateCooldownTimer(float delta) {
@@ -247,37 +234,30 @@ public class Monster {
     }
 
 
-    public float getX() {
-        return x;
+    public boolean attackMelee(Guard target) {
+        if (attackCooldownTimer > 0) return false;
+        float dx = target.getX() - x;
+        float dy = target.getY() - y;
+        if (dx * dx + dy * dy <= ATTACK_RANGE * ATTACK_RANGE) {
+            target.takeDamage();
+            attackCooldownTimer = ATTACK_COOLDOWN;
+            meleeAnimTimer = MELEE_ANIM_DURATION;
+            stateTime = 0f;
+            return true;
+        }
+        return false;
     }
 
-    public float getY() {
-        return y;
-    }
 
-    public int getHp() {
-        return hp;
-    }
+    public float     getX()             { return x; }
+    public float     getY()             { return y; }
+    public int       getHp()            { return hp; }
+    public int       getMaxHp()         { return maxHp; }
+    public Direction getLastDirection() { return lastDirection; }
+    public boolean   isMoving()         { return moving; }
+    public int       getActionFlag()    { return actionFlag; }
 
-    public int getMaxHp() {
-        return maxHp;
-    }
-
-    public Direction getLastDirection() {
-        return lastDirection;
-    }
-
-    public boolean isMoving() {
-        return moving;
-    }
-
-    public int getActionFlag() {
-        return actionFlag;
-    }
-
-    public void setActionFlag(int flag) {
-        actionFlag = flag;
-    }
+    public void setActionFlag(int flag) { actionFlag = flag; }
 
     public boolean overlaps(float px, float py, float radius) {
         float dx = x - px, dy = y - py;
@@ -292,10 +272,10 @@ public class Monster {
         if (goN && goW) return Direction.NW;
         if (goS && goE) return Direction.SE;
         if (goS && goW) return Direction.SW;
-        if (goN) return Direction.N;
-        if (goS) return Direction.S;
-        if (goE) return Direction.E;
-        if (goW) return Direction.W;
+        if (goN)        return Direction.N;
+        if (goS)        return Direction.S;
+        if (goE)        return Direction.E;
+        if (goW)        return Direction.W;
         return lastDirection;
     }
 

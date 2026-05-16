@@ -4,8 +4,7 @@ public class ProgressUpdateRequest {
     private String role;
     private int amount;
 
-    public ProgressUpdateRequest() {
-    }
+    public ProgressUpdateRequest() {}
 
     public String getRole() {
         return role;

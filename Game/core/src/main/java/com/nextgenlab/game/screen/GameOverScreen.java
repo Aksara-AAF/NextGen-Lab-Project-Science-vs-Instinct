@@ -14,11 +14,11 @@ import com.nextgenlab.game.NextGenLabGame;
 public class GameOverScreen extends ScreenAdapter {
 
     private final NextGenLabGame game;
-    private final String winner;
-    private Stage stage;
+    private final String         winner;
+    private Stage                stage;
 
     public GameOverScreen(NextGenLabGame game, String winner) {
-        this.game = game;
+        this.game   = game;
         this.winner = winner;
     }
 
@@ -29,7 +29,7 @@ public class GameOverScreen extends ScreenAdapter {
 
         BitmapFont font = new BitmapFont();
         Label.LabelStyle white = new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE);
-        Label.LabelStyle gold = new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.GOLD);
+        Label.LabelStyle gold  = new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.GOLD);
 
         Table table = new Table();
         table.setFillParent(true);

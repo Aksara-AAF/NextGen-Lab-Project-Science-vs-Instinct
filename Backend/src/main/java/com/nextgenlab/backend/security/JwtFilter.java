@@ -30,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 Long userId = jwtUtil.extractUserId(token);
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                    new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception ignored) {
                 SecurityContextHolder.clearContext();

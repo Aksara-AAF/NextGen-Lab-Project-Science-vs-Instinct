@@ -10,97 +10,66 @@ public class BackendFacade {
 
     private final String baseUrl;
 
-    private String authToken = null;
-    private Long currentUserId = null;
+    private String authToken       = null;
+    private Long   currentUserId   = null;
     private String currentUsername = null;
-    private String currentEmail = null;
+    private String currentEmail    = null;
 
-    public interface MatchStartCallback {
-        void onSuccess(Long matchId);
-    }
-
-    public interface StatusCallback {
-        void onStatus(String status);
-    }
-
-    public interface RoomCallback {
-        void onResult(String roomCode, Long matchSessionId, String status);
-    }
-
-    public interface AuthCallback {
-        void onSuccess(Long userId, String username, String email);
-
-        void onFailure(String errorMessage);
-    }
+    public interface MatchStartCallback { void onSuccess(Long matchId); }
+    public interface StatusCallback     { void onStatus(String status); }
+    public interface RoomCallback       { void onResult(String roomCode, Long matchSessionId, String status); }
+    public interface AuthCallback       { void onSuccess(Long userId, String username, String email); void onFailure(String errorMessage); }
 
     public BackendFacade(String url) {
         this.baseUrl = url;
     }
 
 
-    public boolean isLoggedIn() {
-        return authToken != null;
-    }
-
-    public String getAuthToken() {
-        return authToken;
-    }
-
-    public Long getCurrentUserId() {
-        return currentUserId;
-    }
-
-    public String getCurrentUsername() {
-        return currentUsername;
-    }
-
-    public String getCurrentEmail() {
-        return currentEmail;
-    }
+    public boolean isLoggedIn()        { return authToken != null; }
+    public String  getAuthToken()      { return authToken; }
+    public Long    getCurrentUserId()  { return currentUserId; }
+    public String  getCurrentUsername(){ return currentUsername; }
+    public String  getCurrentEmail()   { return currentEmail; }
 
     public void logout() {
-        authToken = null;
-        currentUserId = null;
+        authToken       = null;
+        currentUserId   = null;
         currentUsername = null;
-        currentEmail = null;
+        currentEmail    = null;
     }
 
 
     public void register(String email, String username, String password, AuthCallback callback) {
         String body = "{\"email\":\"" + esc(email) + "\",\"username\":\"" + esc(username)
-            + "\",\"password\":\"" + esc(password) + "\"}";
+                    + "\",\"password\":\"" + esc(password) + "\"}";
         post("/api/auth/register", body, response -> handleAuthResponse(response, callback),
-            t -> {
-                if (callback != null) callback.onFailure("Network error: " + t.getMessage());
-            });
+            t -> { if (callback != null) callback.onFailure("Network error: " + t.getMessage()); });
     }
 
     public void login(String email, String password, AuthCallback callback) {
         String body = "{\"email\":\"" + esc(email) + "\",\"password\":\"" + esc(password) + "\"}";
         post("/api/auth/login", body, response -> handleAuthResponse(response, callback),
-            t -> {
-                if (callback != null) callback.onFailure("Network error: " + t.getMessage());
-            });
+            t -> { if (callback != null) callback.onFailure("Network error: " + t.getMessage()); });
     }
 
     private void handleAuthResponse(String response, AuthCallback callback) {
         try {
             JsonValue root = new JsonReader().parse(response);
-            JsonValue err = root.get("error");
+            JsonValue err  = root.get("error");
             if (err != null) {
                 if (callback != null) callback.onFailure(err.asString());
                 return;
             }
-            String token = root.getString("token");
-            JsonValue u = root.get("user");
-            Long id = u.getLong("id");
-            String name = u.getString("username");
-            String email = u.getString("email");
+            String  token = root.getString("token");
+            JsonValue u   = root.get("user");
+            Long   id     = u.getLong("id");
+            String name   = u.getString("username");
+            String email  = u.getString("email");
 
-            authToken = token;
-            currentUserId = id;
+            authToken       = token;
+            currentUserId   = id;
             currentUsername = name;
-            currentEmail = email;
+            currentEmail    = email;
 
             if (callback != null) callback.onSuccess(id, name, email);
         } catch (Exception e) {
@@ -185,31 +154,21 @@ public class BackendFacade {
     }
 
     private Net.HttpResponseListener listener(java.util.function.Consumer<String> onSuccess,
-                                              java.util.function.Consumer<Throwable> onFail) {
+                                               java.util.function.Consumer<Throwable> onFail) {
         return new Net.HttpResponseListener() {
-            @Override
-            public void handleHttpResponse(Net.HttpResponse r) {
-                onSuccess.accept(r.getResultAsString());
-            }
-
-            @Override
-            public void failed(Throwable t) {
-                onFail.accept(t);
-            }
-
-            @Override
-            public void cancelled() {
-            }
+            @Override public void handleHttpResponse(Net.HttpResponse r) { onSuccess.accept(r.getResultAsString()); }
+            @Override public void failed(Throwable t)                    { onFail.accept(t); }
+            @Override public void cancelled()                            {}
         };
     }
 
     private void parseRoom(String response, RoomCallback callback) {
         if (callback == null) return;
         try {
-            JsonValue root = new JsonReader().parse(response);
-            String roomCode = root.getString("roomCode");
-            long matchSessId = root.getLong("matchSessionId");
-            String status = root.getString("status");
+            JsonValue root      = new JsonReader().parse(response);
+            String roomCode     = root.getString("roomCode");
+            long   matchSessId  = root.getLong("matchSessionId");
+            String status       = root.getString("status");
             callback.onResult(roomCode, matchSessId, status);
         } catch (Exception e) {
             Gdx.app.error("BACKEND", "parseRoom: " + e.getMessage());

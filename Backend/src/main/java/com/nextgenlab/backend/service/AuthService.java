@@ -13,16 +13,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private final UserRepository userRepository;
+    private final UserRepository  userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtUtil         jwtUtil;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
+        this.userRepository  = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
+        this.jwtUtil         = jwtUtil;
     }
 
     public AuthResponse register(RegisterRequest req) {
@@ -30,9 +30,8 @@ public class AuthService {
                 || req.getEmail().isBlank() || req.getUsername().isBlank() || req.getPassword().length() < 6) {
             throw new IllegalArgumentException("Field tidak valid (password minimal 6 karakter)");
         }
-        if (userRepository.existsByEmail(req.getEmail())) throw new IllegalArgumentException("Email sudah terdaftar");
-        if (userRepository.existsByUsername(req.getUsername()))
-            throw new IllegalArgumentException("Username sudah dipakai");
+        if (userRepository.existsByEmail(req.getEmail()))    throw new IllegalArgumentException("Email sudah terdaftar");
+        if (userRepository.existsByUsername(req.getUsername())) throw new IllegalArgumentException("Username sudah dipakai");
 
         User u = new User();
         u.setEmail(req.getEmail());
@@ -45,7 +44,7 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest req) {
         User u = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Email atau password salah"));
+            .orElseThrow(() -> new IllegalArgumentException("Email atau password salah"));
         if (!passwordEncoder.matches(req.getPassword(), u.getPasswordHash())) {
             throw new IllegalArgumentException("Email atau password salah");
         }
@@ -54,7 +53,7 @@ public class AuthService {
 
     public UserDTO getById(Long userId) {
         User u = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User tidak ditemukan"));
+            .orElseThrow(() -> new IllegalArgumentException("User tidak ditemukan"));
         return new UserDTO(u.getId(), u.getEmail(), u.getUsername());
     }
 

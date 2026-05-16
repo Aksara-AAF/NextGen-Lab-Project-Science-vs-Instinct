@@ -25,21 +25,21 @@ public class JwtUtil {
     public String generate(Long userId, String username, String email) {
         Date now = new Date();
         return Jwts.builder()
-                .subject(String.valueOf(userId))
-                .claim("username", username)
-                .claim("email", email)
-                .issuedAt(now)
-                .expiration(new Date(now.getTime() + expirationMs))
-                .signWith(key)
-                .compact();
+            .subject(String.valueOf(userId))
+            .claim("username", username)
+            .claim("email", email)
+            .issuedAt(now)
+            .expiration(new Date(now.getTime() + expirationMs))
+            .signWith(key)
+            .compact();
     }
 
     public Claims parse(String token) {
         return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
     }
 
     public Long extractUserId(String token) {

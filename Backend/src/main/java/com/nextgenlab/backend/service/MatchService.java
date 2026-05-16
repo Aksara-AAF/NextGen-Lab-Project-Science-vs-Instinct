@@ -20,23 +20,23 @@ public class MatchService {
     public MatchStartResponse startMatch() {
         MatchSession session = matchRepository.save(new MatchSession());
         return new MatchStartResponse(
-                session.getId(),
-                session.getStatus(),
-                session.getResearcherProgress(),
-                session.getMonsterProgress()
+            session.getId(),
+            session.getStatus(),
+            session.getResearcherProgress(),
+            session.getMonsterProgress()
         );
     }
 
     public MatchSession updateProgress(Long id, ProgressUpdateRequest cmd) {
         MatchSession match = matchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Match not found: " + id));
+            .orElseThrow(() -> new RuntimeException("Match not found: " + id));
 
         if ("RESEARCHER".equalsIgnoreCase(cmd.getRole())) {
             match.setResearcherProgress(
-                    Math.min(100, match.getResearcherProgress() + cmd.getAmount()));
+                Math.min(100, match.getResearcherProgress() + cmd.getAmount()));
         } else if ("MONSTER".equalsIgnoreCase(cmd.getRole())) {
             match.setMonsterProgress(
-                    Math.min(100, match.getMonsterProgress() + cmd.getAmount()));
+                Math.min(100, match.getMonsterProgress() + cmd.getAmount()));
         }
 
         if (match.getResearcherProgress() >= 100 || match.getMonsterProgress() >= 100) {
@@ -48,7 +48,7 @@ public class MatchService {
 
     public Map<String, String> getStatus(Long id) {
         MatchSession match = matchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Match not found: " + id));
+            .orElseThrow(() -> new RuntimeException("Match not found: " + id));
         return Map.of("status", match.getStatus());
     }
 }

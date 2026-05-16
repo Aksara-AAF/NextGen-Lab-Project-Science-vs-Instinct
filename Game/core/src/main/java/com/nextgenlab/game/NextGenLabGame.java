@@ -9,17 +9,17 @@ import com.nextgenlab.game.screen.MenuScreen;
 
 public class NextGenLabGame extends Game {
 
-    public SpriteBatch batch;
-    public BackendFacade backend;
-    public NetworkTransport transport;
+    public SpriteBatch       batch;
+    public BackendFacade     backend;
+    public NetworkTransport  transport;
 
-    public Long currentMatchId = null;
-    public String playerRole = "RESEARCHER";
-    public String serverHost = "localhost";
+    public Long   currentMatchId = null;
+    public String playerRole     = "RESEARCHER";
+    public String serverHost     = "localhost";
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
+        batch   = new SpriteBatch();
         backend = new BackendFacade("http://localhost:8080");
         AssetFacade.getInstance().loadAssets();
 
@@ -32,7 +32,7 @@ public class NextGenLabGame extends Game {
             transport = null;
         }
         currentMatchId = null;
-        playerRole = "RESEARCHER";
+        playerRole     = "RESEARCHER";
     }
 
     @Override

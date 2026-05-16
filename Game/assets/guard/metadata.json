@@ -1,0 +1,163 @@
+{
+  "character": {
+    "id": "65a4b26a-78d9-463f-b02b-21595781e605",
+    "name": "Guard",
+    "prompt": "Clean, readable 2D pixel art style. Sci-fi horror aesthetic, flat lighting. A sci-fi laboratory security guard in a heavy tactical containment suit. Wearing dark grey tactical body armor over a dull yellow hazmat suit. The helmet is fully enclosed with a glowing orange opaque visor. Wearing sturdy combat boots and heavily padded gloves. Clean, readable 2D pixel art style. Sci-fi horror aesthetic, flat lighting.",
+    "size": {
+      "width": 68,
+      "height": 68
+    },
+    "template_id": "mannequin",
+    "directions": 8,
+    "view": "low top-down",
+    "created_at": "2026-05-09T16:39:06.503761+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "south-east": "rotations/south-east.png",
+      "east": "rotations/east.png",
+      "north-east": "rotations/north-east.png",
+      "north": "rotations/north.png",
+      "north-west": "rotations/north-west.png",
+      "west": "rotations/west.png",
+      "south-west": "rotations/south-west.png"
+    },
+    "animations": {
+      "Walk": {
+        "south-east": [
+          "animations/Walk/south-east/frame_000.png",
+          "animations/Walk/south-east/frame_001.png",
+          "animations/Walk/south-east/frame_002.png",
+          "animations/Walk/south-east/frame_003.png",
+          "animations/Walk/south-east/frame_004.png",
+          "animations/Walk/south-east/frame_005.png"
+        ],
+        "north-east": [
+          "animations/Walk/north-east/frame_000.png",
+          "animations/Walk/north-east/frame_001.png",
+          "animations/Walk/north-east/frame_002.png",
+          "animations/Walk/north-east/frame_003.png",
+          "animations/Walk/north-east/frame_004.png",
+          "animations/Walk/north-east/frame_005.png"
+        ],
+        "south": [
+          "animations/Walk/south/frame_000.png",
+          "animations/Walk/south/frame_001.png",
+          "animations/Walk/south/frame_002.png",
+          "animations/Walk/south/frame_003.png",
+          "animations/Walk/south/frame_004.png",
+          "animations/Walk/south/frame_005.png"
+        ],
+        "north-west": [
+          "animations/Walk/north-west/frame_000.png",
+          "animations/Walk/north-west/frame_001.png",
+          "animations/Walk/north-west/frame_002.png",
+          "animations/Walk/north-west/frame_003.png",
+          "animations/Walk/north-west/frame_004.png",
+          "animations/Walk/north-west/frame_005.png"
+        ],
+        "north": [
+          "animations/Walk/north/frame_000.png",
+          "animations/Walk/north/frame_001.png",
+          "animations/Walk/north/frame_002.png",
+          "animations/Walk/north/frame_003.png",
+          "animations/Walk/north/frame_004.png",
+          "animations/Walk/north/frame_005.png"
+        ],
+        "west": [
+          "animations/Walk/west/frame_000.png",
+          "animations/Walk/west/frame_001.png",
+          "animations/Walk/west/frame_002.png",
+          "animations/Walk/west/frame_003.png",
+          "animations/Walk/west/frame_004.png",
+          "animations/Walk/west/frame_005.png"
+        ],
+        "east": [
+          "animations/Walk/east/frame_000.png",
+          "animations/Walk/east/frame_001.png",
+          "animations/Walk/east/frame_002.png",
+          "animations/Walk/east/frame_003.png",
+          "animations/Walk/east/frame_004.png",
+          "animations/Walk/east/frame_005.png"
+        ],
+        "south-west": [
+          "animations/Walk/south-west/frame_000.png",
+          "animations/Walk/south-west/frame_001.png",
+          "animations/Walk/south-west/frame_002.png",
+          "animations/Walk/south-west/frame_003.png",
+          "animations/Walk/south-west/frame_004.png",
+          "animations/Walk/south-west/frame_005.png"
+        ]
+      },
+      "Basic_Ranged_Attack_Rifle-9d75b78e": {
+        "south": [
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south/frame_000.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south/frame_001.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south/frame_002.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south/frame_003.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south/frame_004.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south/frame_005.png"
+        ],
+        "east": [
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/east/frame_000.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/east/frame_001.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/east/frame_002.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/east/frame_003.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/east/frame_004.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/east/frame_005.png"
+        ],
+        "north": [
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north/frame_000.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north/frame_001.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north/frame_002.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north/frame_003.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north/frame_004.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north/frame_005.png"
+        ],
+        "south-west": [
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-west/frame_000.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-west/frame_001.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-west/frame_002.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-west/frame_003.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-west/frame_004.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-west/frame_005.png"
+        ],
+        "north-east": [
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-east/frame_000.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-east/frame_001.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-east/frame_002.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-east/frame_003.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-east/frame_004.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-east/frame_005.png"
+        ],
+        "north-west": [
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-west/frame_000.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-west/frame_001.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-west/frame_002.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-west/frame_003.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-west/frame_004.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/north-west/frame_005.png"
+        ],
+        "south-east": [
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-east/frame_000.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-east/frame_001.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-east/frame_002.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-east/frame_003.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-east/frame_004.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/south-east/frame_005.png"
+        ],
+        "west": [
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/west/frame_000.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/west/frame_001.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/west/frame_002.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/west/frame_003.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/west/frame_004.png",
+          "animations/Basic_Ranged_Attack_Rifle-9d75b78e/west/frame_005.png"
+        ]
+      }
+    }
+  },
+  "export_version": "2.0",
+  "export_date": "2026-05-11T01:36:19.586194"
+}

@@ -17,13 +17,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class GameWebSocketHandler extends TextWebSocketHandler {
 
     private final ConcurrentHashMap<Long, CopyOnWriteArrayList<WebSocketSession>> matchSessions
-            = new ConcurrentHashMap<>();
+        = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         Map<String, String> params = parseQuery(session.getUri());
         String matchIdStr = params.get("matchId");
-        String role = params.get("role");
+        String role       = params.get("role");
         if (matchIdStr == null) {
             close(session, CloseStatus.BAD_DATA);
             return;
@@ -49,8 +49,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             if (peer == session || !peer.isOpen()) continue;
             try {
                 peer.sendMessage(message);
-            } catch (IOException ignored) {
-            }
+            } catch (IOException ignored) { }
         }
     }
 
@@ -76,9 +75,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void close(WebSocketSession session, CloseStatus status) {
-        try {
-            session.close(status);
-        } catch (IOException ignored) {
-        }
+        try { session.close(status); } catch (IOException ignored) { }
     }
 }

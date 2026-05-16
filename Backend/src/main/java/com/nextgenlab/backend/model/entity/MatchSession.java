@@ -19,38 +19,17 @@ public class MatchSession {
     @Column(name = "status")
     private String status = "PREPARATION";
 
-    public MatchSession() {
-    }
+    public MatchSession() {}
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public int getResearcherProgress() { return researcherProgress; }
+    public void setResearcherProgress(int researcherProgress) { this.researcherProgress = researcherProgress; }
 
-    public int getResearcherProgress() {
-        return researcherProgress;
-    }
+    public int getMonsterProgress() { return monsterProgress; }
+    public void setMonsterProgress(int monsterProgress) { this.monsterProgress = monsterProgress; }
 
-    public void setResearcherProgress(int researcherProgress) {
-        this.researcherProgress = researcherProgress;
-    }
-
-    public int getMonsterProgress() {
-        return monsterProgress;
-    }
-
-    public void setMonsterProgress(int monsterProgress) {
-        this.monsterProgress = monsterProgress;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

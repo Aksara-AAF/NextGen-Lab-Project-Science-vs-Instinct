@@ -15,20 +15,17 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 public class ChemicalMixTask extends LabTask {
 
 
-    private static final int BLUE_NEEDED = 2;
+    private static final int BLUE_NEEDED  = 2;
     private static final int GREEN_NEEDED = 1;
     private static final float SWEET_HALF = 0.12f;
 
-    private int blueDrops = 0;
+    private int blueDrops  = 0;
     private int greenDrops = 0;
     private SwingCursorActor cursor;
     private Label statusLabel, blueLabel, greenLabel;
     private ShapeRenderer sr;
 
-    public ChemicalMixTask() {
-        super();
-        init();
-    }
+    public ChemicalMixTask() { super(); init(); }
 
     @Override
     protected void buildUI() {
@@ -39,10 +36,10 @@ public class ChemicalMixTask extends LabTask {
         panel.setFillParent(true);
 
         panel.add(new Label("SERUM TITRATION", TaskUiTheme.titleStyle()))
-            .colspan(2).padBottom(8).row();
+             .colspan(2).padBottom(8).row();
 
         Table recipe = new Table();
-        blueLabel = new Label("BIRU: 0/" + BLUE_NEEDED, TaskUiTheme.colorStyle(new Color(0.2f, 0.5f, 1f, 1f)));
+        blueLabel  = new Label("BIRU: 0/" + BLUE_NEEDED,  TaskUiTheme.colorStyle(new Color(0.2f, 0.5f, 1f, 1f)));
         greenLabel = new Label("HIJAU: 0/" + GREEN_NEEDED, TaskUiTheme.colorStyle(TaskUiTheme.GREEN));
         recipe.add(blueLabel).padRight(20);
         recipe.add(greenLabel);
@@ -56,12 +53,11 @@ public class ChemicalMixTask extends LabTask {
             TaskUiTheme.mutedStyle())).colspan(2).padBottom(10).row();
 
         Table buttons = new Table();
-        TextButton btnBlue = new TextButton("DROP BIRU", TaskUiTheme.buttonStyle(new Color(0.3f, 0.6f, 1f, 1f)));
+        TextButton btnBlue  = new TextButton("DROP BIRU",  TaskUiTheme.buttonStyle(new Color(0.3f, 0.6f, 1f, 1f)));
         TextButton btnGreen = new TextButton("DROP HIJAU", TaskUiTheme.buttonStyle(TaskUiTheme.GREEN));
 
         btnBlue.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent e, float x, float y) {
+            @Override public void clicked(InputEvent e, float x, float y) {
                 if (blueDrops >= BLUE_NEEDED || isCompleted) return;
                 if (cursor.inSweetSpot()) {
                     blueDrops++;
@@ -73,8 +69,7 @@ public class ChemicalMixTask extends LabTask {
             }
         });
         btnGreen.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent e, float x, float y) {
+            @Override public void clicked(InputEvent e, float x, float y) {
                 if (greenDrops >= GREEN_NEEDED || isCompleted) return;
                 if (cursor.inSweetSpot()) {
                     greenDrops++;
@@ -110,7 +105,7 @@ public class ChemicalMixTask extends LabTask {
 
     private void resetAll() {
         blueDrops = greenDrops = 0;
-        blueLabel.setText("BIRU: 0/" + BLUE_NEEDED);
+        blueLabel.setText("BIRU: 0/"  + BLUE_NEEDED);
         greenLabel.setText("HIJAU: 0/" + GREEN_NEEDED);
         blueLabel.setColor(new Color(0.2f, 0.5f, 1f, 1f));
         greenLabel.setColor(TaskUiTheme.GREEN);
@@ -131,36 +126,25 @@ public class ChemicalMixTask extends LabTask {
         private float speed = 2.2f;
         private final ShapeRenderer sr;
 
-        SwingCursorActor(ShapeRenderer sr) {
-            this.sr = sr;
-        }
+        SwingCursorActor(ShapeRenderer sr) { this.sr = sr; }
 
-        float getSpeed() {
-            return speed;
-        }
-
-        void setSpeed(float s) {
-            speed = Math.min(s, 3.5f);
-        }
+        float getSpeed() { return speed; }
+        void  setSpeed(float s) { speed = Math.min(s, 3.5f); }
 
 
-        float cursorPct() {
-            return 0.5f + 0.45f * MathUtils.sin(angle);
-        }
+        float cursorPct() { return 0.5f + 0.45f * MathUtils.sin(angle); }
 
         boolean inSweetSpot() {
             float p = cursorPct();
             return p >= 0.5f - SWEET_HALF && p <= 0.5f + SWEET_HALF;
         }
 
-        @Override
-        public void act(float delta) {
+        @Override public void act(float delta) {
             super.act(delta);
             angle += speed * delta;
         }
 
-        @Override
-        public void draw(Batch batch, float parentAlpha) {
+        @Override public void draw(Batch batch, float parentAlpha) {
             batch.end();
             sr.setProjectionMatrix(batch.getProjectionMatrix());
             float x = getX(), y = getY(), w = getWidth(), h = getHeight();
@@ -183,9 +167,6 @@ public class ChemicalMixTask extends LabTask {
             batch.begin();
         }
 
-        @Override
-        public Actor hit(float x, float y, boolean t) {
-            return null;
-        }
+        @Override public Actor hit(float x, float y, boolean t) { return null; }
     }
 }

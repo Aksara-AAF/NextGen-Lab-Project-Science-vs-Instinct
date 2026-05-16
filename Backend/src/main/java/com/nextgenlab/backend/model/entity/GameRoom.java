@@ -25,50 +25,18 @@ public class GameRoom {
     @Column(name = "status")
     private String status = "WAITING";
 
-    public GameRoom() {
-    }
+    public GameRoom() {}
 
-    public Long getId() {
-        return id;
-    }
+    public Long   getId()               { return id; }
+    public String getRoomCode()         { return roomCode; }
+    public Long   getMatchSessionId()   { return matchSessionId; }
+    public boolean isResearcherJoined() { return researcherJoined; }
+    public boolean isMonsterJoined()    { return monsterJoined; }
+    public String getStatus()           { return status; }
 
-    public String getRoomCode() {
-        return roomCode;
-    }
-
-    public Long getMatchSessionId() {
-        return matchSessionId;
-    }
-
-    public boolean isResearcherJoined() {
-        return researcherJoined;
-    }
-
-    public boolean isMonsterJoined() {
-        return monsterJoined;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setRoomCode(String roomCode) {
-        this.roomCode = roomCode;
-    }
-
-    public void setMatchSessionId(Long matchSessionId) {
-        this.matchSessionId = matchSessionId;
-    }
-
-    public void setResearcherJoined(boolean v) {
-        this.researcherJoined = v;
-    }
-
-    public void setMonsterJoined(boolean v) {
-        this.monsterJoined = v;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public void setRoomCode(String roomCode)              { this.roomCode = roomCode; }
+    public void setMatchSessionId(Long matchSessionId)    { this.matchSessionId = matchSessionId; }
+    public void setResearcherJoined(boolean v)            { this.researcherJoined = v; }
+    public void setMonsterJoined(boolean v)               { this.monsterJoined = v; }
+    public void setStatus(String status)                  { this.status = status; }
 }

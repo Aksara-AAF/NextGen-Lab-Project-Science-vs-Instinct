@@ -20,7 +20,7 @@ public class MenuScreen extends ScreenAdapter {
     private Label loginLabel, hintLabel;
 
     public MenuScreen(NextGenLabGame game) {
-        this.game = game;
+        this.game  = game;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class MenuScreen extends ScreenAdapter {
         titleLabel.setFontScale(2f);
 
         loginLabel = new Label("", new Label.LabelStyle(font, Color.CYAN));
-        hintLabel = new Label("", style);
+        hintLabel  = new Label("", style);
 
         table.add(titleLabel).padBottom(40).row();
         table.add(loginLabel).padBottom(8).row();
@@ -96,6 +96,6 @@ public class MenuScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         if (stage != null) stage.dispose();
-        if (font != null) font.dispose();
+        if (font  != null) font.dispose();
     }
 }

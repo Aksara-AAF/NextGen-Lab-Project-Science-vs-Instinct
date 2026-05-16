@@ -2,13 +2,8 @@ package com.nextgenlab.game.network;
 
 public interface NetworkTransport {
 
-    interface PositionListener {
-        void onUpdate(PositionUpdate update);
-    }
-
-    interface ProjectileListener {
-        void onSpawn(ProjectileSpawn spawn);
-    }
+    interface PositionListener  { void onUpdate(PositionUpdate update); }
+    interface ProjectileListener { void onSpawn(ProjectileSpawn spawn); }
 
     void connect();
 

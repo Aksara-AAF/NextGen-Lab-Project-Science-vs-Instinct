@@ -9,19 +9,19 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public abstract class LabTask {
 
-    protected Stage stage;
+    protected Stage         stage;
     protected ShapeRenderer shapeRenderer;
-    protected boolean isCompleted = false;
-    protected float stateTime = 0f;
+    protected boolean       isCompleted = false;
+    protected float         stateTime   = 0f;
 
 
     private static final float BORDER_X = 100f;
-    private static final float BORDER_Y = 75f;
+    private static final float BORDER_Y =  75f;
     private static final float BORDER_W = 400f;
     private static final float BORDER_H = 300f;
 
     public LabTask() {
-        this.stage = new Stage();
+        this.stage         = new Stage();
         this.shapeRenderer = new ShapeRenderer();
 
 
@@ -33,9 +33,7 @@ public abstract class LabTask {
 
     protected abstract void buildUI();
 
-    protected void finishTask() {
-        this.isCompleted = true;
-    }
+    protected void finishTask() { this.isCompleted = true; }
 
     public void render() {
         stateTime += Gdx.graphics.getDeltaTime();
@@ -63,13 +61,8 @@ public abstract class LabTask {
         return Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE);
     }
 
-    public Stage getStage() {
-        return stage;
-    }
-
-    public boolean isCompleted() {
-        return isCompleted;
-    }
+    public Stage   getStage()     { return stage; }
+    public boolean isCompleted()  { return isCompleted; }
 
     public void dispose() {
         stage.dispose();

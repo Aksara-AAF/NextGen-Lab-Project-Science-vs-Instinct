@@ -21,31 +21,38 @@ public class InputHandler {
         Direction dir;
 
         if (w && d) {
-            vy = 1;
-            vx = 1;
+            vy =  1;
+            vx =  1;
             dir = Direction.NE;
-        } else if (w && a) {
-            vy = 1;
+        }
+        else if (w && a) {
+            vy =  1;
             vx = -1;
             dir = Direction.NW;
-        } else if (s && d) {
+        }
+        else if (s && d) {
             vy = -1;
-            vx = 1;
+            vx =  1;
             dir = Direction.SE;
-        } else if (s && a) {
+        }
+        else if (s && a) {
             vy = -1;
             vx = -1;
             dir = Direction.SW;
-        } else if (w) {
-            vy = 1;
+        }
+        else if (w) {
+            vy =  1;
             dir = Direction.N;
-        } else if (s) {
+        }
+        else if (s) {
             vy = -1;
             dir = Direction.S;
-        } else if (d) {
-            vx = 1;
+        }
+        else if (d) {
+            vx =  1;
             dir = Direction.E;
-        } else {
+        }
+        else {
             vx = -1;
             dir = Direction.W;
         }
@@ -61,5 +68,10 @@ public class InputHandler {
 
     public boolean isInteractPressed() {
         return Gdx.input.isKeyJustPressed(Input.Keys.E);
+    }
+
+    public boolean isSprintHeld() {
+        return Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+            || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
     }
 }

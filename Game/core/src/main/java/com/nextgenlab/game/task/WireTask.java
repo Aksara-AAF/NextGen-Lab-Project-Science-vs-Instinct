@@ -9,12 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-
 import java.util.Random;
 
 public class WireTask extends LabTask {
 
-    private static final int GRID = 3;
+    private static final int GRID      = 3;
     private static final int NODE_SIZE = 64;
 
 
@@ -25,26 +24,23 @@ public class WireTask extends LabTask {
     };
 
     private static final int[][] SOLUTION_ROT = {
-        {0, 0, 180},
-        {90, 0, 270},
-        {0, 0, 0}
+        {0,   0,   180},
+        {90,  0,   270},
+        {0,   0,   0}
     };
 
     private CircuitNodeActor[][] nodes;
-    private int[][] initRot;
-    private Label statusLabel;
-    private ShapeRenderer sr;
-    private EndpointActor sourceActor, sinkActor;
+    private int[][]              initRot;
+    private Label                statusLabel;
+    private ShapeRenderer        sr;
+    private EndpointActor        sourceActor, sinkActor;
 
-    public WireTask() {
-        super();
-        init();
-    }
+    public WireTask() { super(); init(); }
 
     @Override
     protected void buildUI() {
-        sr = new ShapeRenderer();
-        nodes = new CircuitNodeActor[GRID][GRID];
+        sr      = new ShapeRenderer();
+        nodes   = new CircuitNodeActor[GRID][GRID];
         initRot = new int[GRID][GRID];
 
 
@@ -62,7 +58,7 @@ public class WireTask extends LabTask {
         panel.setFillParent(true);
 
         panel.add(new Label("FIBER OPTIC REROUTING", TaskUiTheme.titleStyle()))
-            .colspan(3).padBottom(10).row();
+             .colspan(3).padBottom(10).row();
 
         statusLabel = new Label("ARUS TERPUTUS", TaskUiTheme.colorStyle(Color.RED));
         panel.add(statusLabel).colspan(3).padBottom(8).row();
@@ -74,8 +70,7 @@ public class WireTask extends LabTask {
                 CircuitNodeActor node = new CircuitNodeActor(
                     INIT_TYPES[row][col], initRot[row][col], sr);
                 node.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent e, float x, float y) {
+                    @Override public void clicked(InputEvent e, float x, float y) {
                         nodes[r][c].rotate();
                         checkFlow();
                     }
@@ -88,14 +83,14 @@ public class WireTask extends LabTask {
 
         int gridH = GRID * (NODE_SIZE + 4);
         sourceActor = new EndpointActor(sr, true);
-        sinkActor = new EndpointActor(sr, false);
+        sinkActor   = new EndpointActor(sr, false);
 
         panel.add(sourceActor).width(84).height(gridH);
         panel.add(gridTable);
         panel.add(sinkActor).width(84).height(gridH).row();
 
         panel.add(new Label("Klik node untuk putar 90°", TaskUiTheme.mutedStyle()))
-            .colspan(3).padTop(8);
+             .colspan(3).padTop(8);
 
         stage.addActor(panel);
     }
@@ -109,7 +104,7 @@ public class WireTask extends LabTask {
         boolean solved = true;
         for (int r = 0; r < GRID && solved; r++)
             for (int c = 0; c < GRID && solved; c++) {
-                int actual = normalizedRot(INIT_TYPES[r][c], nodes[r][c].getPipeRotation());
+                int actual   = normalizedRot(INIT_TYPES[r][c], nodes[r][c].getPipeRotation());
                 int expected = normalizedRot(INIT_TYPES[r][c], SOLUTION_ROT[r][c]);
                 if (actual != expected) solved = false;
             }
@@ -132,17 +127,14 @@ public class WireTask extends LabTask {
 
     static class EndpointActor extends Actor {
         private final ShapeRenderer sr;
-        private final boolean isSource;
-        private boolean lit;
+        private final boolean       isSource;
+        private boolean             lit;
 
         EndpointActor(ShapeRenderer sr, boolean isSource) {
-            this.sr = sr;
-            this.isSource = isSource;
+            this.sr = sr; this.isSource = isSource;
         }
 
-        void setLit(boolean b) {
-            lit = b;
-        }
+        void setLit(boolean b) { lit = b; }
 
         @Override
         public void draw(Batch batch, float parentAlpha) {
@@ -153,15 +145,15 @@ public class WireTask extends LabTask {
 
 
             float midY = isSource ? y + h * (1f - 1f / (2f * GRID))
-                : y + h / (2f * GRID);
+                                  : y + h / (2f * GRID);
             float boxW = 42f, boxH = 36f;
 
 
-            float boxX = isSource ? x : x + w - boxW;
-            float stubX = isSource ? x + boxW : x;
+            float boxX  = isSource ? x          : x + w - boxW;
+            float stubX = isSource ? x + boxW   : x;
             float stubW = w - boxW;
 
-            Color accent = isSource ? TaskUiTheme.GREEN : TaskUiTheme.GOLD;
+            Color accent    = isSource ? TaskUiTheme.GREEN : TaskUiTheme.GOLD;
             Color wireColor = lit ? TaskUiTheme.CYAN : new Color(0.20f, 0.35f, 0.20f, 1f);
             Color borderCol = lit ? TaskUiTheme.CYAN : accent;
 
@@ -172,10 +164,10 @@ public class WireTask extends LabTask {
             sr.rect(boxX, midY - boxH / 2f, boxW, boxH);
 
             sr.setColor(borderCol);
-            sr.rect(boxX, midY - boxH / 2f, boxW, 2);
-            sr.rect(boxX, midY + boxH / 2f - 2, boxW, 2);
-            sr.rect(boxX, midY - boxH / 2f, 2, boxH);
-            sr.rect(boxX + boxW - 2, midY - boxH / 2f, 2, boxH);
+            sr.rect(boxX,            midY - boxH / 2f,     boxW, 2);
+            sr.rect(boxX,            midY + boxH / 2f - 2, boxW, 2);
+            sr.rect(boxX,            midY - boxH / 2f,     2,    boxH);
+            sr.rect(boxX + boxW - 2, midY - boxH / 2f,     2,    boxH);
 
             sr.setColor(wireColor);
             sr.rect(stubX, midY - 3f, stubW, 6f);
@@ -198,36 +190,26 @@ public class WireTask extends LabTask {
             font.setColor(Color.WHITE);
         }
 
-        @Override
-        public Actor hit(float x, float y, boolean t) {
-            return null;
-        }
+        @Override public Actor hit(float x, float y, boolean t) { return null; }
     }
 
     static class CircuitNodeActor extends Actor {
         private final int type;
-        private int rotation;
+        private int       rotation;
         private final ShapeRenderer sr;
 
         CircuitNodeActor(int type, int rotation, ShapeRenderer sr) {
-            this.type = type;
-            this.rotation = rotation;
-            this.sr = sr;
+            this.type = type; this.rotation = rotation; this.sr = sr;
         }
 
-        void rotate() {
-            rotation = (rotation + 90) % 360;
-        }
-
-        int getPipeRotation() {
-            return rotation;
-        }
+        void rotate()          { rotation = (rotation + 90) % 360; }
+        int  getPipeRotation() { return rotation; }
 
         @Override
         public void draw(Batch batch, float parentAlpha) {
             batch.end();
-            float cx = getX() + getWidth() / 2f;
-            float cy = getY() + getHeight() / 2f;
+            float cx   = getX() + getWidth()  / 2f;
+            float cy   = getY() + getHeight() / 2f;
             float half = getWidth() / 2f;
             float thick = 6f;
 
@@ -257,14 +239,10 @@ public class WireTask extends LabTask {
         private boolean[] basePortsForType(int t) {
 
             switch (t) {
-                case 0:
-                    return new boolean[]{true, true, false, false};
-                case 1:
-                    return new boolean[]{true, false, true, false};
-                case 2:
-                    return new boolean[]{true, true, true, false};
-                default:
-                    return new boolean[]{true, true, false, false};
+                case 0:  return new boolean[]{true,  true,  false, false};
+                case 1:  return new boolean[]{true,  false, true,  false};
+                case 2:  return new boolean[]{true,  true,  true,  false};
+                default: return new boolean[]{true,  true,  false, false};
             }
         }
 
@@ -274,10 +252,7 @@ public class WireTask extends LabTask {
             int steps = (deg / 90) % 4;
             for (int i = 0; i < steps; i++) {
                 boolean e = r[0], w = r[1], n = r[2], s = r[3];
-                r[0] = n;
-                r[3] = e;
-                r[1] = s;
-                r[2] = w;
+                r[0] = n; r[3] = e; r[1] = s; r[2] = w;
             }
             return r;
         }
@@ -285,7 +260,6 @@ public class WireTask extends LabTask {
         private void hline(ShapeRenderer sr, float x1, float cy, float x2, float t) {
             sr.rect(x1, cy - t / 2f, x2 - x1, t);
         }
-
         private void vline(ShapeRenderer sr, float cx, float y1, float y2, float t) {
             sr.rect(cx - t / 2f, y1, t, y2 - y1);
         }

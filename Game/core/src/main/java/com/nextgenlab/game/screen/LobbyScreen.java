@@ -24,19 +24,19 @@ import com.nextgenlab.game.network.WebSocketTransport;
 
 public class LobbyScreen extends ScreenAdapter {
 
-    private enum Phase {MAIN, CREATE_ROLE, WAITING, JOIN_INPUT}
+    private enum Phase { MAIN, CREATE_ROLE, WAITING, JOIN_INPUT }
 
     private final NextGenLabGame game;
-    private Stage stage;
-    private Phase phase = Phase.MAIN;
+    private Stage  stage;
+    private Phase  phase = Phase.MAIN;
 
 
-    private String selectedRole = "RESEARCHER";
-    private String myRoomCode = null;
-    private Label waitingLabel;
-    private float pollTimer = 0f;
-    private float dotTimer = 0f;
-    private int dotCount = 0;
+    private String selectedRole  = "RESEARCHER";
+    private String myRoomCode    = null;
+    private Label  waitingLabel;
+    private float  pollTimer     = 0f;
+    private float  dotTimer      = 0f;
+    private int    dotCount      = 0;
 
 
     private Texture btnTex, btnSelTex, tfBgTex, cursorTex, tfCursorTex;
@@ -67,9 +67,9 @@ public class LobbyScreen extends ScreenAdapter {
             : "Belum login (multiplayer wajib login)";
         t.add(label(authLine, game.backend.isLoggedIn() ? Color.CYAN : Color.GRAY)).padBottom(16).row();
 
-        addBtn(t, "BUAT ROOM BARU", Color.GREEN, this::onCreateRoom);
-        addBtn(t, "MASUK KE ROOM", Color.YELLOW, this::onJoinRoom);
-        addBtn(t, "SOLO (OFFLINE)", Color.GRAY, this::startOffline);
+        addBtn(t, "BUAT ROOM BARU",  Color.GREEN,  this::onCreateRoom);
+        addBtn(t, "MASUK KE ROOM",   Color.YELLOW, this::onJoinRoom);
+        addBtn(t, "SOLO (OFFLINE)",  Color.GRAY,   this::startOffline);
         addBtn(t,
             game.backend.isLoggedIn() ? "LOGOUT" : "LOGIN / REGISTER",
             Color.WHITE,
@@ -107,15 +107,15 @@ public class LobbyScreen extends ScreenAdapter {
         Table t = mainTable();
 
         addTitle(t, "PILIH PERANMU", 1.8f, Color.CYAN);
-        addBtn(t, "PENELITI (Researcher)", Color.CYAN, () -> doCreateRoom("RESEARCHER"));
-        addBtn(t, "MONSTER", Color.PURPLE, () -> doCreateRoom("MONSTER"));
-        addBtn(t, "KEMBALI", Color.GRAY, () -> buildMainUI());
+        addBtn(t, "PENELITI (Researcher)", Color.CYAN,   () -> doCreateRoom("RESEARCHER"));
+        addBtn(t, "MONSTER",               Color.PURPLE, () -> doCreateRoom("MONSTER"));
+        addBtn(t, "KEMBALI",               Color.GRAY,   () -> buildMainUI());
     }
 
     private void buildWaitingUI(String code) {
-        phase = Phase.WAITING;
+        phase      = Phase.WAITING;
         myRoomCode = code;
-        pollTimer = 1.9f;
+        pollTimer  = 1.9f;
 
         rebuildStage();
         Table t = mainTable();
@@ -143,8 +143,8 @@ public class LobbyScreen extends ScreenAdapter {
 
         t.add(label("Peranmu:", Color.WHITE)).padBottom(6).row();
         Table roleRow = new Table();
-        TextButton resBtn = makeBtn("PENELITI", Color.CYAN, () -> selectedRole = "RESEARCHER");
-        TextButton monBtn = makeBtn("MONSTER", Color.PURPLE, () -> selectedRole = "MONSTER");
+        TextButton resBtn = makeBtn("PENELITI", Color.CYAN,   () -> selectedRole = "RESEARCHER");
+        TextButton monBtn = makeBtn("MONSTER",  Color.PURPLE, () -> selectedRole = "MONSTER");
         roleRow.add(resBtn).width(130).height(36).padRight(10);
         roleRow.add(monBtn).width(130).height(36);
         t.add(roleRow).padBottom(16).row();
@@ -159,7 +159,7 @@ public class LobbyScreen extends ScreenAdapter {
         t.add(codeField).width(200).height(36).padBottom(16).row();
 
         addBtn(t, "BERGABUNG", Color.GREEN, () -> doJoinRoom(codeField.getText().trim().toUpperCase()));
-        addBtn(t, "KEMBALI", Color.GRAY, () -> buildMainUI());
+        addBtn(t, "KEMBALI",   Color.GRAY,  () -> buildMainUI());
     }
 
 
@@ -207,7 +207,7 @@ public class LobbyScreen extends ScreenAdapter {
 
     private void startOffline() {
         game.currentMatchId = null;
-        game.playerRole = "RESEARCHER";
+        game.playerRole     = "RESEARCHER";
         game.setScreen(new GameScreen(game));
     }
 
@@ -220,7 +220,7 @@ public class LobbyScreen extends ScreenAdapter {
         stage.draw();
 
         if (phase == Phase.WAITING) {
-            dotTimer += delta;
+            dotTimer  += delta;
             pollTimer += delta;
 
 
@@ -252,13 +252,13 @@ public class LobbyScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        if (stage != null) stage.dispose();
-        if (btnTex != null) btnTex.dispose();
+        if (stage    != null) stage.dispose();
+        if (btnTex   != null) btnTex.dispose();
         if (btnSelTex != null) btnSelTex.dispose();
-        if (tfBgTex != null) tfBgTex.dispose();
+        if (tfBgTex  != null) tfBgTex.dispose();
         if (cursorTex != null) cursorTex.dispose();
         if (tfCursorTex != null) tfCursorTex.dispose();
-        if (font != null) font.dispose();
+        if (font     != null) font.dispose();
     }
 
 
@@ -287,16 +287,12 @@ public class LobbyScreen extends ScreenAdapter {
 
     private TextButton makeBtn(String text, Color color, Runnable action) {
         TextButton.TextButtonStyle s = new TextButton.TextButtonStyle();
-        s.font = font;
-        s.fontColor = color;
+        s.font = font; s.fontColor = color;
         s.up = new TextureRegionDrawable(new TextureRegion(btnTex));
         s.down = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         TextButton btn = new TextButton(text, s);
         btn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent e, float x, float y) {
-                action.run();
-            }
+            @Override public void clicked(InputEvent e, float x, float y) { action.run(); }
         });
         return btn;
     }
@@ -307,33 +303,30 @@ public class LobbyScreen extends ScreenAdapter {
 
     private TextField.TextFieldStyle makeTfStyle() {
         TextField.TextFieldStyle s = new TextField.TextFieldStyle();
-        s.font = font;
-        s.fontColor = Color.WHITE;
-        s.background = new TextureRegionDrawable(new TextureRegion(tfBgTex));
-        s.cursor = new TextureRegionDrawable(new TextureRegion(tfCursorTex));
+        s.font            = font;
+        s.fontColor       = Color.WHITE;
+        s.background      = new TextureRegionDrawable(new TextureRegion(tfBgTex));
+        s.cursor          = new TextureRegionDrawable(new TextureRegion(tfCursorTex));
         s.messageFontColor = Color.GRAY;
-        s.messageFont = font;
+        s.messageFont     = font;
         return s;
     }
 
     private void buildTextures() {
-        btnTex = solid(260, 44, 0.15f, 0.15f, 0.20f, 1f);
+        btnTex    = solid(260, 44, 0.15f, 0.15f, 0.20f, 1f);
         btnSelTex = solid(260, 44, 0.08f, 0.08f, 0.12f, 1f);
-        tfBgTex = solid(200, 36, 0.10f, 0.10f, 0.14f, 1f);
+        tfBgTex   = solid(200, 36, 0.10f, 0.10f, 0.14f, 1f);
 
         Pixmap cur = new Pixmap(2, 28, Pixmap.Format.RGBA8888);
-        cur.setColor(Color.WHITE);
-        cur.fill();
+        cur.setColor(Color.WHITE); cur.fill();
         tfCursorTex = new Texture(cur);
         cur.dispose();
     }
 
     private Texture solid(int w, int h, float r, float g, float b, float a) {
         Pixmap p = new Pixmap(w, h, Pixmap.Format.RGBA8888);
-        p.setColor(r, g, b, a);
-        p.fill();
-        Texture t = new Texture(p);
-        p.dispose();
+        p.setColor(r, g, b, a); p.fill();
+        Texture t = new Texture(p); p.dispose();
         return t;
     }
 }

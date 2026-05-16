@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Projectile {
 
     private static final float SPEED = 420f;
-    private static final float SIZE = 10f;
+    private static final float SIZE  = 10f;
     private static final float MAP_BOUND = 1280f;
 
     public float x, y;
@@ -27,14 +27,18 @@ public class Projectile {
     }
 
     public void init(float startX, float startY, float dirX, float dirY, String shooter) {
-        this.x = startX;
-        this.y = startY;
+        init(startX, startY, dirX, dirY, shooter, SPEED);
+    }
+
+    public void init(float startX, float startY, float dirX, float dirY, String shooter, float speed) {
+        this.x       = startX;
+        this.y       = startY;
         this.shooter = shooter;
-        this.active = true;
+        this.active  = true;
 
         float len = (float) Math.sqrt(dirX * dirX + dirY * dirY);
-        velX = (len > 0 ? dirX / len : 0) * SPEED;
-        velY = (len > 0 ? dirY / len : 0) * SPEED;
+        velX = (len > 0 ? dirX / len : 0) * speed;
+        velY = (len > 0 ? dirY / len : 0) * speed;
     }
 
     public void update(float delta) {
@@ -55,9 +59,7 @@ public class Projectile {
         shooter = null;
     }
 
-    public float getRadius() {
-        return SIZE / 2f;
-    }
+    public float getRadius() { return SIZE / 2f; }
 
     public void dispose() {
         texture.dispose();

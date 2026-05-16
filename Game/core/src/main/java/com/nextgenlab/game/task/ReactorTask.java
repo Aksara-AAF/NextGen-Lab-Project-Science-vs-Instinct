@@ -12,21 +12,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 public class ReactorTask extends LabTask {
 
-    private static final float DRIFT_R21 = 8f;
-    private static final float DRIFT_R22 = 13f;
+    private static final float DRIFT_R21     = 8f;
+    private static final float DRIFT_R22     = 13f;
     private static final float HOLD_REQUIRED = 3f;
-    private static final float GREEN_MIN = 40f;
-    private static final float GREEN_MAX = 60f;
+    private static final float GREEN_MIN     = 40f;
+    private static final float GREEN_MAX     = 60f;
 
     private SliderActor r21, r22;
-    private Label holdLabel;
-    private float holdTimer = 0f;
+    private Label       holdLabel;
+    private float       holdTimer = 0f;
     private ShapeRenderer sr;
 
-    public ReactorTask() {
-        super();
-        init();
-    }
+    public ReactorTask() { super(); init(); }
 
     @Override
     protected void buildUI() {
@@ -37,7 +34,7 @@ public class ReactorTask extends LabTask {
         panel.setFillParent(true);
 
         panel.add(new Label("CALIBRATE REACTOR CORE", TaskUiTheme.titleStyle()))
-            .colspan(3).padBottom(10).row();
+             .colspan(3).padBottom(10).row();
         panel.add(new Label("Tahan kedua slider di zona hijau (40–60) selama 3 detik",
             TaskUiTheme.mutedStyle())).colspan(3).padBottom(12).row();
 
@@ -104,7 +101,7 @@ public class ReactorTask extends LabTask {
             this.drift = drift;
             this.color = color;
             this.label = label;
-            this.sr = sr;
+            this.sr    = sr;
         }
 
         void handleInput() {
@@ -122,18 +119,14 @@ public class ReactorTask extends LabTask {
             dragging = false;
         }
 
-        @Override
-        public void act(float delta) {
+        @Override public void act(float delta) {
             super.act(delta);
             if (!dragging) value = Math.max(0f, value - drift * delta);
         }
 
-        boolean inGreenZone() {
-            return value >= GREEN_MIN && value <= GREEN_MAX;
-        }
+        boolean inGreenZone() { return value >= GREEN_MIN && value <= GREEN_MAX; }
 
-        @Override
-        public void draw(Batch batch, float parentAlpha) {
+        @Override public void draw(Batch batch, float parentAlpha) {
             batch.end();
             sr.setProjectionMatrix(batch.getProjectionMatrix());
             float x = getX(), y = getY(), w = getWidth(), h = getHeight();
@@ -164,8 +157,7 @@ public class ReactorTask extends LabTask {
             TaskUiTheme.font().setColor(Color.WHITE);
         }
 
-        @Override
-        public Actor hit(float x, float y, boolean touchable) {
+        @Override public Actor hit(float x, float y, boolean touchable) {
             return (x >= -10 && x < getWidth() + 10 && y >= 0 && y < getHeight()) ? this : null;
         }
     }

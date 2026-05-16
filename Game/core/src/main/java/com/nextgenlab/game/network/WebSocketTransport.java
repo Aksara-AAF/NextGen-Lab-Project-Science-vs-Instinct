@@ -12,11 +12,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WebSocketTransport implements NetworkTransport {
 
-    private final long matchId;
+    private final long   matchId;
     private final String myRole;
     private final String wsUrl;
 
-    private final ConcurrentLinkedQueue<PositionUpdate> positionQueue = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<PositionUpdate>  positionQueue   = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<ProjectileSpawn> projectileQueue = new ConcurrentLinkedQueue<>();
 
     private WebSocketClient client;
@@ -24,8 +24,8 @@ public class WebSocketTransport implements NetworkTransport {
 
     public WebSocketTransport(long matchId, String myRole, String hostPort) {
         this.matchId = matchId;
-        this.myRole = myRole;
-        this.wsUrl = "ws://" + hostPort + "/ws/game?matchId=" + matchId + "&role=" + myRole;
+        this.myRole  = myRole;
+        this.wsUrl   = "ws://" + hostPort + "/ws/game?matchId=" + matchId + "&role=" + myRole;
     }
 
     @Override
@@ -70,27 +70,31 @@ public class WebSocketTransport implements NetworkTransport {
 
         if ("POSITION".equals(type)) {
             PositionUpdate u = new PositionUpdate();
-            u.matchId = data.getLong("matchId", 0);
-            u.role = data.getString("role", "");
-            u.x = data.getFloat("x", 0);
-            u.y = data.getFloat("y", 0);
-            u.direction = data.getInt("direction", 0);
-            u.moving = data.getBoolean("moving", false);
+            u.matchId    = data.getLong("matchId", 0);
+            u.role       = data.getString("role", "");
+            u.x          = data.getFloat("x", 0);
+            u.y          = data.getFloat("y", 0);
+            u.direction  = data.getInt("direction", 0);
+            u.moving     = data.getBoolean("moving", false);
             u.actionFlag = data.getInt("actionFlag", 0);
-            u.hp = data.getInt("hp", 0);
-            u.taskProgress = data.getInt("taskProgress", 0);
-            u.timestamp = data.getLong("timestamp", 0);
+            u.hp         = data.getInt("hp", 0);
+            u.taskProgress       = data.getInt("taskProgress", 0);
+            u.guardAliveMask      = data.getInt("guardAliveMask", 0);
+            u.guardRespawnEvent   = data.getInt("guardRespawnEvent", 0);
+            u.equippedItemOrdinal = data.getInt("equippedItemOrdinal", -1);
+            u.timestamp  = data.getLong("timestamp", 0);
             if (myRole.equals(u.role)) return;
             positionQueue.offer(u);
         } else if ("PROJECTILE".equals(type)) {
             ProjectileSpawn s = new ProjectileSpawn();
-            s.matchId = data.getLong("matchId", 0);
-            s.shooter = data.getString("shooter", "");
-            s.x = data.getFloat("x", 0);
-            s.y = data.getFloat("y", 0);
-            s.dirX = data.getFloat("dirX", 0);
-            s.dirY = data.getFloat("dirY", 0);
-            s.timestamp = data.getLong("timestamp", 0);
+            s.matchId    = data.getLong("matchId", 0);
+            s.shooter    = data.getString("shooter", "");
+            s.weaponType = data.getString("weaponType", "");
+            s.x          = data.getFloat("x", 0);
+            s.y          = data.getFloat("y", 0);
+            s.dirX       = data.getFloat("dirX", 0);
+            s.dirY       = data.getFloat("dirY", 0);
+            s.timestamp  = data.getLong("timestamp", 0);
             if (myRole.equals(s.shooter)) return;
             projectileQueue.offer(s);
         }
@@ -110,7 +114,7 @@ public class WebSocketTransport implements NetworkTransport {
     public void sendPosition(PositionUpdate update) {
         if (!isConnected()) return;
         update.matchId = matchId;
-        update.role = myRole;
+        update.role    = myRole;
         StringBuilder sb = new StringBuilder();
         sb.append("{\"type\":\"POSITION\",\"data\":{");
         sb.append("\"matchId\":").append(update.matchId).append(',');
@@ -122,6 +126,9 @@ public class WebSocketTransport implements NetworkTransport {
         sb.append("\"actionFlag\":").append(update.actionFlag).append(',');
         sb.append("\"hp\":").append(update.hp).append(',');
         sb.append("\"taskProgress\":").append(update.taskProgress).append(',');
+        sb.append("\"guardAliveMask\":").append(update.guardAliveMask).append(',');
+        sb.append("\"guardRespawnEvent\":").append(update.guardRespawnEvent).append(',');
+        sb.append("\"equippedItemOrdinal\":").append(update.equippedItemOrdinal).append(',');
         sb.append("\"timestamp\":").append(update.timestamp);
         sb.append("}}");
         client.send(sb.toString());
@@ -136,6 +143,7 @@ public class WebSocketTransport implements NetworkTransport {
         sb.append("{\"type\":\"PROJECTILE\",\"data\":{");
         sb.append("\"matchId\":").append(spawn.matchId).append(',');
         sb.append("\"shooter\":\"").append(spawn.shooter).append("\",");
+        sb.append("\"weaponType\":\"").append(spawn.weaponType != null ? spawn.weaponType : "").append("\",");
         sb.append("\"x\":").append(spawn.x).append(',');
         sb.append("\"y\":").append(spawn.y).append(',');
         sb.append("\"dirX\":").append(spawn.dirX).append(',');
