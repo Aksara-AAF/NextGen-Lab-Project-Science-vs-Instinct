@@ -99,6 +99,16 @@ public class PreparationState implements GameStateHandler {
     private int syncedMonsterXp    = 0;
     private int syncedMonsterLevel = 0;
 
+
+    private float   prepTimerLocal = 360f;
+    private boolean prepEnded      = false;
+
+
+    private static final float RELOAD_TIME = 2f;
+    private int   ammo        = 6;
+    private int   maxAmmo     = 6;
+    private float reloadTimer = 0f;
+
     private ProjectilePool monsterProjectilePool;
     private com.badlogic.gdx.graphics.glutils.ShapeRenderer worldShapes;
     private com.badlogic.gdx.graphics.Texture dashIconTex;
@@ -124,11 +134,45 @@ public class PreparationState implements GameStateHandler {
         if (Gdx.files.internal("evolution/dash_icon.png").exists())
             dashIconTex = new com.badlogic.gdx.graphics.Texture("evolution/dash_icon.png");
         loadTaskZones(screen.map);
+        prepTimerLocal = 360f;
+        prepEnded      = false;
+        screen.prepWinner = null;
+
+        Item w0 = screen.researcher != null ? screen.researcher.getEquippedWeapon() : null;
+        maxAmmo = maxAmmoFor(w0) + (screen.researcher != null ? screen.researcher.getBonusAmmo() : 0);
+        ammo    = maxAmmo;
+        reloadTimer = 0f;
     }
 
     @Override
     public void update(float delta, GameScreen screen) {
-        if (phaseComplete) { screen.transitionTo(new DuelState()); return; }
+
+        if (prepTimerLocal > 0) prepTimerLocal -= delta;
+
+
+        if (screen.prepWinner == null && screen.monster != null) {
+            boolean isResearcher = "RESEARCHER".equals(screen.game.playerRole);
+            int mLevel = isResearcher ? syncedMonsterLevel : screen.monster.getLevel();
+            if (mLevel >= screen.monster.getMaxLevel()) {
+                screen.prepWinner = "MONSTER";
+            }
+        }
+        if (screen.prepWinner == null && phaseComplete) {
+            screen.prepWinner = "RESEARCHER";
+        }
+
+
+        if (phaseComplete && !prepEnded) {
+            prepEnded = true;
+            screen.transitionTo(new DuelState());
+            return;
+        }
+
+        if (prepTimerLocal <= 0 && !prepEnded) {
+            prepEnded = true;
+            screen.transitionTo(new DuelState());
+            return;
+        }
 
 
         if (!screen.researcher.isAlive()) {
@@ -287,9 +331,20 @@ public class PreparationState implements GameStateHandler {
             }
 
 
+            Item curWep = screen.researcher.getEquippedWeapon();
+            int newMax = maxAmmoFor(curWep) + screen.researcher.getBonusAmmo();
+            if (newMax != maxAmmo) { maxAmmo = newMax; ammo = newMax; }
+
+            if (reloadTimer > 0) { reloadTimer -= delta; if (reloadTimer <= 0) ammo = maxAmmo; }
+
+            if (ammo <= 0 && reloadTimer <= 0) reloadTimer = RELOAD_TIME;
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.R) && reloadTimer <= 0 && ammo < maxAmmo)
+                reloadTimer = RELOAD_TIME;
+
+
             if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
                 inventoryPanel.toggle(screen.researcher);
-                if (inventoryPanel.isOpen()) Gdx.input.setInputProcessor(inventoryPanel.getStage());
             }
 
 
@@ -304,8 +359,11 @@ public class PreparationState implements GameStateHandler {
                     float charge = screen.researcher.getRailGunCharge() + delta;
                     screen.researcher.setRailGunCharge(charge);
                     if (charge >= RAIL_CHARGE_TIME && charge - delta < RAIL_CHARGE_TIME) {
-                        fireResearcherProjectile(screen, isMultiplayer, transport,
-                                                 "RES_RAIL", RAIL_SPEED);
+                        if (ammo > 0 && reloadTimer <= 0) {
+                            ammo--;
+                            fireResearcherProjectile(screen, isMultiplayer, transport,
+                                                     "RES_RAIL", RAIL_SPEED);
+                        }
                         screen.researcher.setRailGunCharge(0f);
                     }
                 } else {
@@ -517,16 +575,16 @@ public class PreparationState implements GameStateHandler {
 
         switch (weapon.type) {
             case PISTOL:
-                fireResearcherProjectile(screen, isMultiplayer, transport, "RES_PISTOL", RES_BULLET_SPEED);
+                if (ammo > 0 && reloadTimer <= 0) { ammo--; fireResearcherProjectile(screen, isMultiplayer, transport, "RES_PISTOL", RES_BULLET_SPEED); }
                 break;
             case STUN_GUN:
-                fireResearcherProjectile(screen, isMultiplayer, transport, "RES_STUN", STUN_BULLET_SPEED);
+                if (ammo > 0 && reloadTimer <= 0) { ammo--; fireResearcherProjectile(screen, isMultiplayer, transport, "RES_STUN", STUN_BULLET_SPEED); }
                 break;
             case ACID_GRENADE:
-                fireResearcherProjectile(screen, isMultiplayer, transport, "RES_GRENADE", GRENADE_SPEED);
+                if (ammo > 0 && reloadTimer <= 0) { ammo--; fireResearcherProjectile(screen, isMultiplayer, transport, "RES_GRENADE", GRENADE_SPEED); }
                 break;
             case TASER:
-                handleTaser(screen, isMultiplayer, transport);
+                if (ammo > 0 && reloadTimer <= 0) { ammo--; handleTaser(screen, isMultiplayer, transport); }
                 break;
             case RAIL_GUN:
 
@@ -581,12 +639,12 @@ public class PreparationState implements GameStateHandler {
 
     private void handleUtilityUse(GameScreen screen, boolean isMultiplayer, NetworkTransport transport) {
         Item utility = screen.researcher.getEquippedUtility();
-        if (utility == null || utility.consumed) return;
+        if (utility == null) return;
 
         switch (utility.type) {
             case HEAL_KIT:
                 screen.researcher.heal(1);
-                utility.consumed = true;
+                screen.researcher.consumeEquippedUtility();
                 break;
             case TRAP:
                 if (screen.traps.size() < MAX_TRAPS) {
@@ -594,7 +652,7 @@ public class PreparationState implements GameStateHandler {
                     TrapObject trap = new TrapObject(tx, ty);
                     trap.show();
                     screen.traps.add(trap);
-                    utility.consumed = true;
+                    screen.researcher.consumeEquippedUtility();
                     if (isMultiplayer) {
                         ProjectileSpawn ev = new ProjectileSpawn();
                         ev.x = tx; ev.y = ty; ev.dirX = 0; ev.dirY = 0;
@@ -610,7 +668,7 @@ public class PreparationState implements GameStateHandler {
                 DecoyObject decoy = new DecoyObject(mouse.x, mouse.y);
                 decoy.show();
                 screen.decoys.add(decoy);
-                utility.consumed = true;
+                screen.researcher.consumeEquippedUtility();
                 if (isMultiplayer) {
                     ProjectileSpawn ev = new ProjectileSpawn();
                     ev.x = mouse.x; ev.y = mouse.y; ev.dirX = 0; ev.dirY = 0;
@@ -621,6 +679,18 @@ public class PreparationState implements GameStateHandler {
                 break;
             default:
                 break;
+        }
+    }
+
+    private int maxAmmoFor(Item weapon) {
+        if (weapon == null || weapon.consumed) return 0;
+        switch (weapon.type) {
+            case PISTOL:       return 12;
+            case STUN_GUN:     return 8;
+            case TASER:        return 5;
+            case RAIL_GUN:     return 4;
+            case ACID_GRENADE: return 3;
+            default:           return 6;
         }
     }
 
@@ -782,10 +852,14 @@ public class PreparationState implements GameStateHandler {
             hud.renderXpBar(displayXp, displayLvl, maxLvl, threshold);
         }
 
+
+        hud.renderMatchTimer(Math.max(0f, prepTimerLocal));
+
         if (isResearcher) {
             hud.renderWeaponSlots(
                 screen.researcher.getEquippedWeapon(),
                 screen.researcher.getEquippedUtility());
+            hud.renderAmmo(ammo, maxAmmo, reloadTimer > 0, reloadTimer);
             if (showLevelUpNotification) {
                 hud.renderNotification("Monster sedang berevolusi...");
             }
@@ -873,6 +947,12 @@ public class PreparationState implements GameStateHandler {
                 break;
             case GameEvent.TOXIC_SLOW:
                 if (isResearcher) screen.researcher.applySlow(1.5f);
+                break;
+            case GameEvent.MATCH_TIMEOUT:
+                if (!prepEnded) {
+                    prepEnded = true;
+                    screen.transitionTo(new DuelState());
+                }
                 break;
             default:
                 break;

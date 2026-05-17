@@ -74,6 +74,17 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         return map;
     }
 
+    public void broadcastToMatch(long matchId, String json) {
+        CopyOnWriteArrayList<WebSocketSession> peers = matchSessions.get(matchId);
+        if (peers == null) return;
+        TextMessage msg = new TextMessage(json);
+        for (WebSocketSession s : peers) {
+            try {
+                if (s.isOpen()) s.sendMessage(msg);
+            } catch (IOException ignored) {}
+        }
+    }
+
     private void close(WebSocketSession session, CloseStatus status) {
         try { session.close(status); } catch (IOException ignored) { }
     }

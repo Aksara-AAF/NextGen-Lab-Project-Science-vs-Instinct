@@ -8,7 +8,8 @@ public enum ItemType {
     RAIL_GUN     ("Rail Gun",     true,  "items/icon_rail_gun.png"),
     HEAL_KIT     ("Heal Kit",     false, "items/icon_heal_kit.png"),
     TRAP         ("Trap",         false, "items/icon_trap.png"),
-    DECOY        ("Decoy",        false, "items/icon_decoy.png");
+    DECOY        ("Decoy",        false, "items/icon_decoy.png"),
+    AMMO_PACK    ("Ammo Pack",   false, "items/icon_ammo_pack.png");
 
     public final String displayName;
     public final boolean isWeapon;

@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.nextgenlab.game.crafting.Item;
+import com.nextgenlab.game.crafting.ItemType;
 import com.nextgenlab.game.crafting.Recipe;
 import com.nextgenlab.game.crafting.RecipeLibrary;
 import com.nextgenlab.game.crafting.Resource;
@@ -30,6 +32,7 @@ public class CraftingPanel {
     private final Texture bgTex;
     private final Texture btnUpTex;
     private final Texture btnOverTex;
+    private final Texture[] itemIcons;
     private boolean open = false;
 
     private Researcher researcher;
@@ -41,6 +44,13 @@ public class CraftingPanel {
         bgTex    = solidTex(0f,    0f,    0f,    0.88f);
         btnUpTex = solidTex(0.25f, 0.25f, 0.25f, 1f);
         btnOverTex = solidTex(0.45f, 0.45f, 0.45f, 1f);
+
+        ItemType[] types = ItemType.values();
+        itemIcons = new Texture[types.length];
+        for (int i = 0; i < types.length; i++) {
+            itemIcons[i] = Gdx.files.internal(types[i].iconPath).exists()
+                ? new Texture(types[i].iconPath) : null;
+        }
     }
 
     public void open(Researcher researcher) {
@@ -72,10 +82,20 @@ public class CraftingPanel {
         root.pad(20).top();
 
         Label title = new Label("CRAFTING  [ESC / E to close]", cyan);
-        root.add(title).colspan(3).left().padBottom(14).row();
+        root.add(title).colspan(4).left().padBottom(14).row();
 
         for (Recipe recipe : RecipeLibrary.getAll()) {
             boolean canCraft = recipe.canCraft(researcher.getInventory());
+
+
+            int idx = recipe.output.ordinal();
+            Texture iconTex = (idx < itemIcons.length) ? itemIcons[idx] : null;
+            if (iconTex != null) {
+                Image iconImg = new Image(new TextureRegionDrawable(new TextureRegion(iconTex)));
+                root.add(iconImg).size(24, 24).padRight(4);
+            } else {
+                root.add().size(24, 24).padRight(4);
+            }
 
             Label nameLabel = new Label(recipe.output.displayName, white);
             Label ingredientsLabel = new Label(ingredientsText(recipe), canCraft ? green : red);
@@ -142,6 +162,7 @@ public class CraftingPanel {
         bgTex.dispose();
         btnUpTex.dispose();
         btnOverTex.dispose();
+        for (Texture t : itemIcons) if (t != null) t.dispose();
     }
 
     private static Texture solidTex(float r, float g, float b, float a) {

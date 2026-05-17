@@ -4,6 +4,7 @@ import com.nextgenlab.backend.model.dto.MatchStartResponse;
 import com.nextgenlab.backend.model.dto.ProgressUpdateRequest;
 import com.nextgenlab.backend.model.entity.MatchSession;
 import com.nextgenlab.backend.service.MatchService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -32,5 +33,11 @@ public class MatchController {
     @GetMapping("/{id}/status")
     public Map<String, String> getMatchStatus(@PathVariable Long id) {
         return matchService.getStatus(id);
+    }
+
+    @PostMapping("/{id}/duel-start")
+    public ResponseEntity<Void> duelStart(@PathVariable Long id) {
+        matchService.startDuel(id);
+        return ResponseEntity.ok().build();
     }
 }

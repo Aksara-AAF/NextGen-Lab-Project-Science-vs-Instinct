@@ -19,7 +19,7 @@ public class Researcher {
 
     private float x, y;
     private final float speed = 250f;
-    private final TiledMap map;
+    private TiledMap map;
 
     private static final float FRAME_SIZE = 68f;
     private static final float HIT_WIDTH  = 20f;
@@ -61,9 +61,11 @@ public class Researcher {
     private int maxHp = 3;
 
     private final EnumMap<Resource, Integer> inventory = new EnumMap<>(Resource.class);
-    private Item  equippedWeapon   = null;
-    private Item  equippedUtility  = null;
-    private float railGunCharge    = 0f;
+    private Item    equippedWeapon      = null;
+    private final Map<ItemType, Integer> utilityStock = new EnumMap<>(ItemType.class);
+    private ItemType selectedUtilityType = null;
+    private float   railGunCharge       = 0f;
+    private int     bonusAmmo           = 0;
 
     private float   stamina          = 100f;
     private float   maxStamina       = 100f;
@@ -226,15 +228,48 @@ public class Researcher {
     }
 
     public void equipItem(Item item) {
-        if (item.type.isWeapon) equippedWeapon  = item;
-        else                    equippedUtility = item;
+        if (item.type == ItemType.AMMO_PACK) { bonusAmmo += 6; return; }
+        if (item.type.isWeapon) {
+            equippedWeapon = item;
+        } else {
+            utilityStock.merge(item.type, 1, Integer::sum);
+            if (selectedUtilityType == null) selectedUtilityType = item.type;
+        }
     }
 
-    public EnumMap<Resource, Integer> getInventory()  { return inventory; }
-    public Item  getEquippedWeapon()                  { return equippedWeapon; }
-    public Item  getEquippedUtility()                 { return equippedUtility; }
-    public float getRailGunCharge()                   { return railGunCharge; }
-    public void  setRailGunCharge(float v)            { railGunCharge = v; }
+    public int getBonusAmmo() { return bonusAmmo; }
+
+    public Item getEquippedUtility() {
+        if (selectedUtilityType == null) return null;
+        Integer cnt = utilityStock.get(selectedUtilityType);
+        return (cnt != null && cnt > 0) ? new Item(selectedUtilityType) : null;
+    }
+
+    public Map<ItemType, Integer> getUtilityStock()   { return utilityStock; }
+    public ItemType getSelectedUtilityType()           { return selectedUtilityType; }
+
+    public void setSelectedUtilityType(ItemType type) {
+        if (utilityStock.getOrDefault(type, 0) > 0) selectedUtilityType = type;
+    }
+
+    public boolean consumeEquippedUtility() {
+        if (selectedUtilityType == null) return false;
+        int cnt = utilityStock.getOrDefault(selectedUtilityType, 0);
+        if (cnt <= 0) return false;
+        if (cnt == 1) {
+            utilityStock.remove(selectedUtilityType);
+            selectedUtilityType = utilityStock.isEmpty() ? null
+                : utilityStock.keySet().iterator().next();
+        } else {
+            utilityStock.put(selectedUtilityType, cnt - 1);
+        }
+        return true;
+    }
+
+    public EnumMap<Resource, Integer> getInventory() { return inventory; }
+    public Item  getEquippedWeapon()                 { return equippedWeapon; }
+    public float getRailGunCharge()                  { return railGunCharge; }
+    public void  setRailGunCharge(float v)           { railGunCharge = v; }
 
 
     public float     getX()             { return x; }
@@ -250,6 +285,7 @@ public class Researcher {
 
     public void setActionFlag(int flag) { actionFlag = flag; }
     public void setPosition(float x, float y) { this.x = x; this.y = y; }
+    public void setMap(TiledMap map)          { this.map = map; }
 
     public boolean overlaps(float px, float py, float radius) {
         float dx = x - px, dy = y - py;

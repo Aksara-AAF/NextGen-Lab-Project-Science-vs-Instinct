@@ -72,9 +72,16 @@ public class ServerHackTask extends LabTask {
             for (int c = 0; c < COLS; c++)
                 matrix[r][c] = String.format("%02X", MathUtils.random(0, 255));
 
+        java.util.Set<String> usedPos = new java.util.HashSet<>();
         for (int i = 0; i < TARGET_COUNT; i++) {
             target[i] = String.format("%02X", MathUtils.random(10, 240));
-            matrix[MathUtils.random(0, ROWS - 1)][MathUtils.random(0, COLS - 1)] = target[i];
+            int row, col;
+            do {
+                row = MathUtils.random(0, ROWS - 1);
+                col = MathUtils.random(0, COLS - 1);
+            } while (usedPos.contains(row + "," + col));
+            usedPos.add(row + "," + col);
+            matrix[row][col] = target[i];
         }
     }
 
@@ -93,6 +100,8 @@ public class ServerHackTask extends LabTask {
             }
         } else {
             generateMatrix();
+            for (int i = 0; i < TARGET_COUNT; i++)
+                targetLabels[i].setText("[" + target[i] + "]");
             for (Label l : targetLabels) l.setColor(TaskUiTheme.GOLD);
             nextTarget = 0;
             actor.flash();

@@ -16,7 +16,8 @@ public class RecipeLibrary {
         make(ItemType.RAIL_GUN,     Resource.BIOPLASMA,1, Resource.CIRCUIT,   2),
         make(ItemType.HEAL_KIT,     Resource.BIOPLASMA,1, Resource.CHEMICAL,  1),
         make(ItemType.TRAP,         Resource.SCRAP,    1, Resource.BATTERY,   1),
-        make(ItemType.DECOY,        Resource.CIRCUIT,  1, Resource.CHEMICAL,  1)
+        make(ItemType.DECOY,        Resource.CIRCUIT,  1, Resource.CHEMICAL,  1),
+        make(ItemType.AMMO_PACK,    Resource.SCRAP,    2)
     ));
 
     public static List<Recipe> getAll() { return RECIPES; }

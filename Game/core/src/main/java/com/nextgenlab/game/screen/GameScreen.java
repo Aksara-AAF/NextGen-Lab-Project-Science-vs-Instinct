@@ -67,6 +67,9 @@ public class GameScreen extends ScreenAdapter {
     public Long matchId;
 
 
+    public String prepWinner = null;
+
+
     private int[] bgLayerIndices;
     private int[] fgLayerIndices;
 
@@ -148,6 +151,32 @@ public class GameScreen extends ScreenAdapter {
 
     public void transitionTo(GameStateHandler newState) {
         pendingState = newState;
+    }
+
+    public void switchMap(String mapPath) {
+        if (mapRenderer != null) mapRenderer.dispose();
+        if (map != null) map.dispose();
+        map = new TmxMapLoader().load(mapPath);
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
+        for (int i = 0; i < map.getLayers().getCount(); i++) map.getLayers().get(i).setVisible(true);
+        bgLayerIndices = findLayerIndices("Background", "Dekorasi Non-Solid");
+        fgLayerIndices = findLayerIndices("Foreground", "Interact Object");
+        loadSpawnPoints();
+        guards.clear();
+        sabotagePanels.clear();
+        chests.clear();
+        traps.clear();
+        decoys.clear();
+        int ri = MathUtils.random(Math.max(0, resSpawnX.length - 1));
+        int mi = MathUtils.random(Math.max(0, monSpawnX.length - 1));
+        if (researcher != null) {
+            researcher.setPosition(resSpawnX[ri], resSpawnY[ri]);
+            researcher.setMap(map);
+        }
+        if (monster != null) {
+            monster.setPosition(monSpawnX[mi], monSpawnY[mi]);
+            monster.setMap(map);
+        }
     }
 
     private void loadSpawnPoints() {

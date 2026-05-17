@@ -186,7 +186,8 @@ public class HudOverlay {
 
     public void renderDuel(int resHp, int resMaxHp,
                            float stamina, float maxStamina,
-                           int monHp, int monMaxHp) {
+                           int monHp, int monMaxHp,
+                           boolean isResearcher) {
         int W = Gdx.graphics.getWidth();
         hudCamera.update();
 
@@ -211,11 +212,14 @@ public class HudOverlay {
         hudBatch.setProjectionMatrix(hudCamera.combined);
         hudBatch.begin();
         font.setColor(Color.WHITE);
-        font.draw(hudBatch, "FASE: DUEL", W / 2f - 36, Gdx.graphics.getHeight() - 8);
         font.draw(hudBatch, "Peneliti  " + resHp + "/" + resMaxHp, 10, 44);
         staminaBar.renderLabel(hudBatch, font, 10, 62, stamina, maxStamina);
         font.draw(hudBatch, "Monster  "  + monHp + "/" + monMaxHp, barX, 44);
-        font.draw(hudBatch, "[RMB] tembak  [LMB] serang  [Shift] sprint", W / 2f - 90, 44);
+        font.setColor(Color.LIGHT_GRAY);
+        String hint = isResearcher ? "[LMB] tembak  [Shift] sprint"
+                                   : "[RMB] ranged  [LMB] serang  [Shift] dash";
+        font.draw(hudBatch, hint, 10, 64);
+        font.setColor(Color.WHITE);
         hudBatch.end();
     }
 
@@ -373,6 +377,40 @@ public class HudOverlay {
         hudBatch.begin();
         font.setColor(Color.ORANGE);
         font.draw(hudBatch, "LIGHTS OUT!", W / 2f - 40, H / 2f);
+        hudBatch.end();
+    }
+
+    public void renderMatchTimer(float secondsLeft) {
+        int W = Gdx.graphics.getWidth(), H = Gdx.graphics.getHeight();
+        int min = (int)(secondsLeft / 60);
+        int sec = (int)(secondsLeft % 60);
+        String text = min + ":" + String.format("%02d", sec);
+        hudCamera.update();
+        hudBatch.setProjectionMatrix(hudCamera.combined);
+        hudBatch.begin();
+        font.setColor(secondsLeft < 30f ? Color.RED : Color.WHITE);
+        com.badlogic.gdx.graphics.g2d.GlyphLayout layout =
+            new com.badlogic.gdx.graphics.g2d.GlyphLayout(font, text);
+        font.draw(hudBatch, text, (W - layout.width) / 2f, H - 20f);
+        font.setColor(Color.WHITE);
+        hudBatch.end();
+    }
+
+    public void renderAmmo(int ammo, int maxAmmo, boolean reloading, float reloadTimer) {
+        int W = Gdx.graphics.getWidth();
+        float slotY  = SLOT_PAD + 80f + SLOT_SIZE + 6f;
+        float slot1X = W - 2 * (SLOT_SIZE + SLOT_PAD) - SLOT_PAD;
+        hudCamera.update();
+        hudBatch.setProjectionMatrix(hudCamera.combined);
+        hudBatch.begin();
+        if (reloading) {
+            font.setColor(Color.YELLOW);
+            font.draw(hudBatch, String.format("RELOAD %.1fs", reloadTimer), slot1X, slotY);
+        } else {
+            font.setColor(ammo == 0 ? Color.RED : Color.LIGHT_GRAY);
+            font.draw(hudBatch, "AMMO " + ammo + "/" + maxAmmo, slot1X, slotY);
+        }
+        font.setColor(Color.WHITE);
         hudBatch.end();
     }
 

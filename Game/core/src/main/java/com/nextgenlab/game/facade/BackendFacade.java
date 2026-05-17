@@ -101,6 +101,12 @@ public class BackendFacade {
             t -> Gdx.app.error("BACKEND", "progress gagal: " + t.getMessage()));
     }
 
+    public void notifyDuelStart(long matchId) {
+        post("/api/match/" + matchId + "/duel-start", "{}",
+            r -> Gdx.app.log("BACKEND", "duel-start notified"),
+            t -> Gdx.app.error("BACKEND", "duel-start failed: " + t.getMessage()));
+    }
+
     public void getMatchStatus(Long matchId, StatusCallback callback) {
         get("/api/match/" + matchId + "/status", response -> {
             try {

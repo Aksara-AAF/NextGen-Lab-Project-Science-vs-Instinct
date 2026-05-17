@@ -18,7 +18,7 @@ public class Monster {
 
     private float x, y;
     private float speed = 130f;
-    private final TiledMap map;
+    private TiledMap map;
 
     private static final float SIZE            = 68f;
     private static final float HIT_WIDTH       = 24f;
@@ -71,7 +71,7 @@ public class Monster {
     private int xp    = 0;
     private int level = 0;
     private static final int   MAX_LEVEL = 5;
-    private static final int[] LEVEL_XP  = {100, 150, 225, 337, 506};
+    private static final int[] LEVEL_XP  = {100, 100, 100, 100, 100};
     private final List<String> activeGenes = new ArrayList<>();
 
 
@@ -239,6 +239,8 @@ public class Monster {
 
     public void setStrategy(MovementStrategy strategy) { this.strategy = strategy; }
     public void setPosition(float x, float y)          { this.x = x; this.y = y; }
+    public void setMap(TiledMap map)                   { this.map = map; }
+    public void heal(int amount)                       { hp = Math.min(maxHp, hp + amount); }
 
     public void render(SpriteBatch batch) {
         float dt = Gdx.graphics.getDeltaTime();

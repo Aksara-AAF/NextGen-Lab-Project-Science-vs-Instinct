@@ -3,9 +3,16 @@ package com.nextgenlab.game.state;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector3;
+import com.nextgenlab.game.crafting.Item;
+import com.nextgenlab.game.crafting.ItemType;
+import com.nextgenlab.game.entity.DecoyObject;
 import com.nextgenlab.game.entity.Direction;
 import com.nextgenlab.game.entity.Monster;
 import com.nextgenlab.game.entity.Researcher;
+import com.nextgenlab.game.entity.TrapObject;
+import com.nextgenlab.game.network.GameEvent;
 import com.nextgenlab.game.network.NetworkTransport;
 import com.nextgenlab.game.network.PositionUpdate;
 import com.nextgenlab.game.network.ProjectileSpawn;
@@ -18,18 +25,56 @@ import com.nextgenlab.game.ui.HudOverlay;
 
 public class DuelState implements GameStateHandler {
 
-    private static final float MONSTER_SHOOT_INTERVAL = 2.5f;
-    private static final float NET_SEND_RATE          = 0.05f;
+    private static final float MONSTER_SHOOT_INTERVAL  = 2.5f;
+    private static final float NET_SEND_RATE           = 0.05f;
+    private static final float RELOAD_TIME             = 2f;
+    private static final float MONSTER_RANGED_COOLDOWN = 1.5f;
+    private static final float TOXIC_AURA_RADIUS       = 64f;
 
     private ProjectilePool projectilePool;
     private HudOverlay     hud;
-    private float          monsterShootTimer = 0f;
-    private float          netSendTimer      = 0f;
+    private Texture        dashIconTex;
+    private float          monsterShootTimer  = 0f;
+    private float          monsterRangedTimer = 0f;
+    private float          toxicSlowSendTimer = 0f;
+    private float          netSendTimer       = 0f;
+    private float          duelTimerLocal     = 180f;
+    private boolean        duelEnded          = false;
+    private int            ammo               = 6;
+    private int            maxAmmo            = 6;
+    private float          reloadTimer        = 0f;
 
     @Override
     public void enter(GameScreen screen) {
+
+        screen.switchMap("arena.tmx");
+
+
+        boolean isResearcher = "RESEARCHER".equals(screen.game.playerRole);
+        if ("RESEARCHER".equals(screen.prepWinner) && isResearcher && screen.researcher != null) {
+            screen.researcher.heal(3);
+        } else if ("MONSTER".equals(screen.prepWinner) && !isResearcher && screen.monster != null) {
+            screen.monster.heal(2);
+        }
+
+
+        if (screen.game.transport != null && screen.matchId != null) {
+            screen.game.backend.notifyDuelStart(screen.matchId);
+        }
+
+        if (Gdx.files.internal("evolution/dash_icon.png").exists())
+            dashIconTex = new Texture("evolution/dash_icon.png");
+
         projectilePool = new ProjectilePool(20);
         hud            = new HudOverlay();
+        duelTimerLocal = 180f;
+        duelEnded      = false;
+
+        Item w = screen.researcher != null ? screen.researcher.getEquippedWeapon() : null;
+        maxAmmo = maxAmmoFor(w) + (screen.researcher != null ? screen.researcher.getBonusAmmo() : 0);
+        ammo    = maxAmmo;
+        reloadTimer = 0f;
+
         if (screen.monster != null && screen.game.transport == null) {
             screen.monster.setStrategy(new ChasePlayerStrategy());
         }
@@ -80,21 +125,70 @@ public class DuelState implements GameStateHandler {
             if (!isMultiplayer && screen.monster != null)
                 screen.monster.update(delta, screen.researcher.getX(), screen.researcher.getY());
         } else {
-            applyMonsterInput(screen, delta);
+            if (screen.monster != null) {
+                screen.monster.updateStatusEffects(delta);
+                screen.monster.updateGeneTimers(delta);
+                if (screen.monster.hasToxicAura() && screen.researcher != null) {
+                    toxicSlowSendTimer += delta;
+                    if (toxicSlowSendTimer >= 1f) {
+                        toxicSlowSendTimer = 0f;
+                        float tdx = screen.researcher.getX() - screen.monster.getX();
+                        float tdy = screen.researcher.getY() - screen.monster.getY();
+                        if (tdx * tdx + tdy * tdy <= TOXIC_AURA_RADIUS * TOXIC_AURA_RADIUS) {
+                            if (isMultiplayer) {
+                                GameEvent tge = new GameEvent();
+                                tge.eventType = GameEvent.TOXIC_SLOW;
+                                transport.sendGameEvent(tge);
+                            } else {
+                                screen.researcher.applySlow(1.5f);
+                            }
+                        }
+                    }
+                }
+            }
+            if (screen.monster != null && !screen.monster.isStunned())
+                applyMonsterInput(screen, delta);
         }
 
 
-        if (isResearcher && screen.inputHandler.isShootPressed()) {
-            float[] dir = dirVec(screen.researcher.getLastDirection());
-            fireFrom(screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
-            screen.researcher.startAttackAnim();
-            if (isMultiplayer) broadcastSpawn(transport, screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
+        if (isResearcher && reloadTimer > 0) {
+            reloadTimer -= delta;
+            if (reloadTimer <= 0) ammo = maxAmmo;
         }
+
+        if (isResearcher && ammo <= 0 && reloadTimer <= 0) reloadTimer = RELOAD_TIME;
+
+        if (isResearcher && Gdx.input.isKeyJustPressed(Input.Keys.R)
+                && reloadTimer <= 0 && ammo < maxAmmo) {
+            reloadTimer = RELOAD_TIME;
+        }
+
+        if (!isResearcher && monsterRangedTimer > 0) monsterRangedTimer -= delta;
+
+
+        if (isResearcher && Gdx.input.isButtonJustPressed(Buttons.LEFT)) {
+            if (ammo > 0 && reloadTimer <= 0) {
+                ammo--;
+                Vector3 mouse = screen.camera.unproject(
+                    new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+                float[] dir = { mouse.x - screen.researcher.getX(),
+                                mouse.y - screen.researcher.getY() };
+                fireFrom(screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
+                screen.researcher.startAttackAnim();
+                if (isMultiplayer) broadcastSpawn(transport, screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
+            }
+        }
+
+        if (isResearcher && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            handleUtilityUseDuel(screen, isMultiplayer, transport);
+        }
+
 
         if (!isResearcher) {
-            if (Gdx.input.isButtonJustPressed(Buttons.RIGHT)) {
+            if (Gdx.input.isButtonJustPressed(Buttons.RIGHT) && monsterRangedTimer <= 0) {
                 float[] dir = dirVec(screen.monster.getLastDirection());
                 fireFrom(screen.monster.getX(), screen.monster.getY(), dir, "MONSTER");
+                monsterRangedTimer = MONSTER_RANGED_COOLDOWN;
                 if (isMultiplayer) broadcastSpawn(transport, screen.monster.getX(), screen.monster.getY(), dir, "MONSTER");
             }
             if (Gdx.input.isButtonJustPressed(Buttons.LEFT) && screen.researcher != null) {
@@ -124,6 +218,13 @@ public class DuelState implements GameStateHandler {
             }
         }
 
+
+        for (DecoyObject d : screen.decoys) d.update(delta);
+        screen.decoys.removeIf(d -> !d.isActive());
+        if (screen.monster != null) {
+            screen.traps.removeIf(t -> t.checkTrigger(screen.monster));
+        }
+
         projectilePool.updateAll(delta);
 
         for (Projectile p : projectilePool.getAll()) {
@@ -143,20 +244,69 @@ public class DuelState implements GameStateHandler {
             screen.game.setScreen(new GameOverScreen(screen.game, "MONSTER"));
         else if (screen.monster != null && !screen.monster.isAlive())
             screen.game.setScreen(new GameOverScreen(screen.game, "RESEARCHER"));
+
+
+        if (!duelEnded) {
+            if (duelTimerLocal > 0) duelTimerLocal -= delta;
+
+            if (duelTimerLocal <= 0 && screen.game.transport == null) {
+                duelEnded = true;
+                resolveDuelByHp(screen);
+                return;
+            }
+
+            if (isMultiplayer) {
+                transport.pollGameEvent(ge -> {
+                    if (GameEvent.DUEL_TIMEOUT.equals(ge.eventType) && !duelEnded) {
+                        duelEnded = true;
+                        resolveDuelByHp(screen);
+                    }
+                });
+            }
+        }
+    }
+
+    private void resolveDuelByHp(GameScreen screen) {
+        int rHp = screen.researcher != null ? screen.researcher.getHp() : 0;
+        int mHp = screen.monster    != null ? screen.monster.getHp()    : 0;
+        String winner = (rHp >= mHp) ? "RESEARCHER" : "MONSTER";
+        screen.game.setScreen(new GameOverScreen(screen.game, winner));
     }
 
     @Override
     public void render(GameScreen screen) {
         screen.game.batch.setProjectionMatrix(screen.camera.combined);
         screen.game.batch.begin();
+        for (TrapObject t  : screen.traps)  t.render(screen.game.batch);
+        for (DecoyObject d : screen.decoys) d.render(screen.game.batch);
         projectilePool.renderAll(screen.game.batch);
         screen.game.batch.end();
 
+        boolean isResearcher = "RESEARCHER".equals(screen.game.playerRole);
         int mHp    = screen.monster != null ? screen.monster.getHp()    : 0;
         int mMaxHp = screen.monster != null ? screen.monster.getMaxHp() : 1;
         hud.renderDuel(screen.researcher.getHp(), screen.researcher.getMaxHp(),
             screen.researcher.getStamina(), screen.researcher.getMaxStamina(),
-            mHp, mMaxHp);
+            mHp, mMaxHp, isResearcher);
+        hud.renderMatchTimer(Math.max(0f, duelTimerLocal));
+
+        if (isResearcher) {
+            hud.renderWeaponSlots(
+                screen.researcher.getEquippedWeapon(),
+                screen.researcher.getEquippedUtility());
+            hud.renderAmmo(ammo, maxAmmo, reloadTimer > 0, reloadTimer);
+        } else if (screen.monster != null) {
+            hud.renderDashCooldown(
+                screen.monster.getDashCooldownTimer(),
+                screen.monster.getDashMaxCooldown(),
+                dashIconTex);
+            hud.renderGenePanel(
+                screen.monster.getActiveGenes(),
+                screen.monster.getEcholocationCooldownTimer(),
+                screen.monster.getEcholocationMaxCooldown(),
+                screen.monster.getPhaseShiftCooldownTimer(),
+                screen.monster.getPhaseShiftMaxCooldown());
+        }
     }
 
     @Override public void exit(GameScreen screen) {}
@@ -165,6 +315,64 @@ public class DuelState implements GameStateHandler {
     public void dispose() {
         if (projectilePool != null) projectilePool.dispose();
         if (hud != null) hud.dispose();
+        if (dashIconTex != null) dashIconTex.dispose();
+    }
+
+    private int maxAmmoFor(Item weapon) {
+        if (weapon == null || weapon.consumed) return 6;
+        switch (weapon.type) {
+            case PISTOL:       return 12;
+            case STUN_GUN:     return 8;
+            case TASER:        return 5;
+            case RAIL_GUN:     return 4;
+            case ACID_GRENADE: return 3;
+            default:           return 6;
+        }
+    }
+
+    private void handleUtilityUseDuel(GameScreen screen, boolean isMultiplayer,
+                                      NetworkTransport transport) {
+        Item utility = screen.researcher.getEquippedUtility();
+        if (utility == null) return;
+        switch (utility.type) {
+            case HEAL_KIT:
+                screen.researcher.heal(1);
+                screen.researcher.consumeEquippedUtility();
+                break;
+            case TRAP:
+                if (screen.traps.size() < 2) {
+                    float tx = screen.researcher.getX(), ty = screen.researcher.getY();
+                    TrapObject trap = new TrapObject(tx, ty);
+                    trap.show();
+                    screen.traps.add(trap);
+                    screen.researcher.consumeEquippedUtility();
+                    if (isMultiplayer) {
+                        ProjectileSpawn ev = new ProjectileSpawn();
+                        ev.x = tx; ev.y = ty; ev.dirX = 0; ev.dirY = 0;
+                        ev.weaponType = "RES_TRAP";
+                        ev.timestamp  = System.currentTimeMillis();
+                        transport.sendProjectileSpawn(ev);
+                    }
+                }
+                break;
+            case DECOY:
+                Vector3 mouse = screen.camera.unproject(
+                    new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+                DecoyObject decoy = new DecoyObject(mouse.x, mouse.y);
+                decoy.show();
+                screen.decoys.add(decoy);
+                screen.researcher.consumeEquippedUtility();
+                if (isMultiplayer) {
+                    ProjectileSpawn ev = new ProjectileSpawn();
+                    ev.x = mouse.x; ev.y = mouse.y; ev.dirX = 0; ev.dirY = 0;
+                    ev.weaponType = "RES_DECOY";
+                    ev.timestamp  = System.currentTimeMillis();
+                    transport.sendProjectileSpawn(ev);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     private void fireFrom(float x, float y, float[] dir, String shooter) {
@@ -184,6 +392,8 @@ public class DuelState implements GameStateHandler {
     }
 
     private void applyMonsterInput(GameScreen screen, float delta) {
+        screen.monster.updateCooldownTimer(delta);
+
         boolean w = Gdx.input.isKeyPressed(Input.Keys.W);
         boolean s = Gdx.input.isKeyPressed(Input.Keys.S);
         boolean a = Gdx.input.isKeyPressed(Input.Keys.A);
@@ -200,6 +410,13 @@ public class DuelState implements GameStateHandler {
         else if (s)      { vy = -1;            dir = Direction.S;  }
         else if (d)      {            vx =  1; dir = Direction.E;  }
         else if (a)      {            vx = -1; dir = Direction.W;  }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) && screen.monster.canDash())
+            screen.monster.startDash(vx, vy);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && screen.monster.canEcholocate())
+            screen.monster.activateEcholocation();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.G) && screen.monster.canPhaseShift())
+            screen.monster.activatePhaseShift();
 
         if (vx != 0 || vy != 0) screen.monster.applyMovement(vx, vy, dir, delta);
         else                    screen.monster.applyIdle();

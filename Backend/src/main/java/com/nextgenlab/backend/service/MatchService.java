@@ -18,13 +18,32 @@ public class MatchService {
     }
 
     public MatchStartResponse startMatch() {
-        MatchSession session = matchRepository.save(new MatchSession());
+        MatchSession session = new MatchSession();
+        session.setPrepStartedAt(System.currentTimeMillis());
+        session = matchRepository.save(session);
         return new MatchStartResponse(
             session.getId(),
             session.getStatus(),
             session.getResearcherProgress(),
             session.getMonsterProgress()
         );
+    }
+
+    public void startDuel(Long id) {
+        matchRepository.findById(id).ifPresent(m -> {
+            if (m.getDuelStartedAt() == null) {
+                m.setDuelStartedAt(System.currentTimeMillis());
+                m.setStatus("DUEL");
+                matchRepository.save(m);
+            }
+        });
+    }
+
+    public void endDuel(Long id) {
+        matchRepository.findById(id).ifPresent(m -> {
+            m.setStatus("FINISHED");
+            matchRepository.save(m);
+        });
     }
 
     public MatchSession updateProgress(Long id, ProgressUpdateRequest cmd) {
