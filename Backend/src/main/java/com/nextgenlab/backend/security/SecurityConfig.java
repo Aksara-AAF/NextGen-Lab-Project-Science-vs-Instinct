@@ -33,11 +33,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/status",
                                  "/api/auth/register",
                                  "/api/auth/login",
-                                 "/ws/**").permitAll()
+                                 "/ws/**",
+                                 "/api/leaderboard").permitAll()
                 .requestMatchers("/api/match/**",
                                  "/api/room/**",
                                  "/api/stats/**",
-                                 "/api/auth/me").authenticated()
+                                 "/api/auth/me",
+                                 "/api/achievements/**").authenticated()
                 .anyRequest().permitAll()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

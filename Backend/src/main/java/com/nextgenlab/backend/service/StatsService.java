@@ -30,54 +30,61 @@ public class StatsService {
     private final PlayerStatsRepository   statsRepo;
     private final MatchHistoryRepository  historyRepo;
     private final UserRepository          userRepo;
+    private final AchievementService      achievementService;
 
     public StatsService(MatchSessionRepository matchRepo,
                         PlayerStatsRepository statsRepo,
                         MatchHistoryRepository historyRepo,
-                        UserRepository userRepo) {
-        this.matchRepo   = matchRepo;
-        this.statsRepo   = statsRepo;
-        this.historyRepo = historyRepo;
-        this.userRepo    = userRepo;
+                        UserRepository userRepo,
+                        AchievementService achievementService) {
+        this.matchRepo          = matchRepo;
+        this.statsRepo          = statsRepo;
+        this.historyRepo        = historyRepo;
+        this.userRepo           = userRepo;
+        this.achievementService = achievementService;
     }
 
     @Transactional
-    public void finishMatch(Long matchId, String winner) {
+    public List<String> finishMatch(Long matchId, String winner, Long callerUserId) {
         MatchSession match = matchRepo.findByIdForUpdate(matchId)
             .orElseThrow(() -> new RuntimeException("Match not found: " + matchId));
 
-        if (match.getWinner() != null) return;
+        if (match.getWinner() == null) {
+            long now = System.currentTimeMillis();
+            match.setWinner(winner);
+            match.setFinishedAt(now);
+            match.setStatus("FINISHED");
+            matchRepo.save(match);
 
-        long now = System.currentTimeMillis();
-        match.setWinner(winner);
-        match.setFinishedAt(now);
-        match.setStatus("FINISHED");
-        matchRepo.save(match);
+            Long startMs = match.getPrepStartedAt();
+            int duration = startMs != null ? (int) ((now - startMs) / 1000) : 0;
 
-        Long startMs = match.getPrepStartedAt();
-        int duration = startMs != null ? (int) ((now - startMs) / 1000) : 0;
+            Long rId = match.getResearcherUserId();
+            Long mId = match.getMonsterUserId();
+            if (rId != null && mId != null) {
+                PlayerStats rStats = findOrCreate(rId);
+                PlayerStats mStats = findOrCreate(mId);
 
-        Long rId = match.getResearcherUserId();
-        Long mId = match.getMonsterUserId();
-        if (rId == null || mId == null) return;
+                boolean rWon = "RESEARCHER".equals(winner);
+                int rEloBefore = rStats.getElo();
+                int mEloBefore = mStats.getElo();
 
-        PlayerStats rStats = findOrCreate(rId);
-        PlayerStats mStats = findOrCreate(mId);
+                rStats.setElo(calcElo(rEloBefore, mEloBefore, rWon));
+                mStats.setElo(calcElo(mEloBefore, rEloBefore, !rWon));
+                applyResult(rStats, "RESEARCHER", rWon);
+                applyResult(mStats, "MONSTER",    !rWon);
 
-        boolean rWon = "RESEARCHER".equals(winner);
-        int rEloBefore = rStats.getElo();
-        int mEloBefore = mStats.getElo();
+                statsRepo.save(rStats);
+                statsRepo.save(mStats);
 
-        rStats.setElo(calcElo(rEloBefore, mEloBefore, rWon));
-        mStats.setElo(calcElo(mEloBefore, rEloBefore, !rWon));
-        applyResult(rStats, "RESEARCHER", rWon);
-        applyResult(mStats, "MONSTER",    !rWon);
+                saveHistory(matchId, rId, "RESEARCHER", rWon, duration, rEloBefore, rStats.getElo());
+                saveHistory(matchId, mId, "MONSTER",    !rWon, duration, mEloBefore, mStats.getElo());
+            }
+        }
 
-        statsRepo.save(rStats);
-        statsRepo.save(mStats);
-
-        saveHistory(matchId, rId, "RESEARCHER", rWon, duration, rEloBefore, rStats.getElo());
-        saveHistory(matchId, mId, "MONSTER",    !rWon, duration, mEloBefore, mStats.getElo());
+        PlayerStats callerStats = statsRepo.findByUserId(callerUserId).orElse(null);
+        if (callerStats == null) return List.of();
+        return achievementService.checkAndUnlock(match, callerUserId, callerStats);
     }
 
     public PlayerStatsDTO getStats(Long userId) {

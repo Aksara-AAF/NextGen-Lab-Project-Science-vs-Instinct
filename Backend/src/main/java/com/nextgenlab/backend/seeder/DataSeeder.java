@@ -1,6 +1,8 @@
 package com.nextgenlab.backend.seeder;
 
+import com.nextgenlab.backend.model.entity.Achievement;
 import com.nextgenlab.backend.model.entity.EvolutionGene;
+import com.nextgenlab.backend.repository.AchievementRepository;
 import com.nextgenlab.backend.repository.EvolutionGeneRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -13,13 +15,16 @@ import java.util.List;
 public class DataSeeder {
 
     private final EvolutionGeneRepository geneRepo;
+    private final AchievementRepository   achievementRepo;
 
-    public DataSeeder(EvolutionGeneRepository geneRepo) {
-        this.geneRepo = geneRepo;
+    public DataSeeder(EvolutionGeneRepository geneRepo, AchievementRepository achievementRepo) {
+        this.geneRepo        = geneRepo;
+        this.achievementRepo = achievementRepo;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void seed() {
+        seedAchievements();
         if (geneRepo.count() == 0) {
             List<EvolutionGene> genes = Arrays.asList(
                 gene("PREDATOR_CLAWS", "Predator Claws", "+1 melee damage per hit",
@@ -46,6 +51,24 @@ public class DataSeeder {
             geneRepo.saveAll(genes);
             System.out.println("[DataSeeder] Seeded " + genes.size() + " evolution genes.");
         }
+    }
+
+    private void seedAchievements() {
+        if (achievementRepo.count() > 0) return;
+        List<Achievement> achievements = Arrays.asList(
+            new Achievement("FIRST_WIN",      "First Win",      "Menangkan pertandingan pertamamu"),
+            new Achievement("VETERAN",         "Veteran",         "Mainkan 10 pertandingan"),
+            new Achievement("MONSTER_HUNTER",  "Monster Hunter",  "Menangkan 5x sebagai Peneliti"),
+            new Achievement("LAB_DEFENDER",    "Lab Defender",    "Menangkan 5x sebagai Monster"),
+            new Achievement("SPEED_DEMON",     "Speed Demon",     "Menangkan dalam waktu < 3 menit"),
+            new Achievement("SURVIVOR",        "Survivor",        "Menangkan 10 pertandingan"),
+            new Achievement("SHARPSHOOTER",    "Sharpshooter",    "Mainkan 20x sebagai Peneliti"),
+            new Achievement("APEX_PREDATOR",   "Apex Predator",   "Mainkan 20x sebagai Monster"),
+            new Achievement("ELO_MASTER",      "ELO Master",      "Capai ELO 1200"),
+            new Achievement("LEGEND",          "Legend",          "Capai ELO 1500")
+        );
+        achievementRepo.saveAll(achievements);
+        System.out.println("[DataSeeder] Seeded " + achievements.size() + " achievements.");
     }
 
     private EvolutionGene gene(String code, String name, String desc, String effectJson) {

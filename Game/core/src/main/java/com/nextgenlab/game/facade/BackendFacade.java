@@ -119,12 +119,27 @@ public class BackendFacade {
     }
 
 
-    public void finishMatch(Long matchId, String winner) {
-        if (!isLoggedIn() || matchId == null) return;
+    public void finishMatch(Long matchId, String winner,
+                            java.util.function.Consumer<String> onComplete) {
+        if (!isLoggedIn() || matchId == null) {
+            if (onComplete != null) onComplete.accept("[]");
+            return;
+        }
         String body = "{\"winner\":\"" + winner + "\"}";
         post("/api/match/" + matchId + "/finish", body,
-            r -> Gdx.app.log("BACKEND", "match finished, winner=" + winner),
-            t -> Gdx.app.error("BACKEND", "finishMatch failed: " + t.getMessage()));
+            r -> { if (onComplete != null) onComplete.accept(r); },
+            t -> { if (onComplete != null) onComplete.accept("[]"); });
+    }
+
+    public void getLeaderboard(java.util.function.Consumer<String> onSuccess,
+                               java.util.function.Consumer<Throwable> onFail) {
+        get("/api/leaderboard", onSuccess, onFail);
+    }
+
+    public void getUserAchievements(Long userId,
+                                    java.util.function.Consumer<String> onSuccess,
+                                    java.util.function.Consumer<Throwable> onFail) {
+        get("/api/achievements/user/" + userId, onSuccess, onFail);
     }
 
     public void getStats(Long userId,

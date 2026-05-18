@@ -5,6 +5,7 @@ import com.nextgenlab.backend.model.dto.MatchHistoryDTO;
 import com.nextgenlab.backend.model.dto.PlayerStatsDTO;
 import com.nextgenlab.backend.service.StatsService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,10 +20,12 @@ public class StatsController {
     }
 
     @PostMapping("/api/match/{id}/finish")
-    public ResponseEntity<Void> finishMatch(@PathVariable Long id,
-                                            @RequestBody FinishMatchRequest req) {
-        statsService.finishMatch(id, req.getWinner());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<String>> finishMatch(@PathVariable Long id,
+                                                    @RequestBody FinishMatchRequest req,
+                                                    Authentication auth) {
+        Long callerUserId = (Long) auth.getPrincipal();
+        List<String> newAchievements = statsService.finishMatch(id, req.getWinner(), callerUserId);
+        return ResponseEntity.ok(newAchievements);
     }
 
     @GetMapping("/api/stats/{userId}")

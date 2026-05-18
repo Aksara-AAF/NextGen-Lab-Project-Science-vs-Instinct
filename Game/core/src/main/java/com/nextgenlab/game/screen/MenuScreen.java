@@ -51,10 +51,10 @@ public class MenuScreen extends ScreenAdapter {
     private void refreshLabels() {
         if (game.backend.isLoggedIn()) {
             loginLabel.setText("Login: " + game.backend.getCurrentUsername());
-            hintLabel.setText("[ENTER] mulai   |   [P] profil   |   [L] logout");
+            hintLabel.setText("[ENTER] mulai   |   [P] profil   |   [L] leaderboard   |   [A] achievement");
         } else {
             loginLabel.setText("Belum login (multiplayer butuh login)");
-            hintLabel.setText("[ENTER] mulai   |   [L] login / register");
+            hintLabel.setText("[ENTER] mulai   |   [L] leaderboard");
         }
     }
 
@@ -72,15 +72,12 @@ public class MenuScreen extends ScreenAdapter {
             return;
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-            if (game.backend.isLoggedIn()) {
-                game.backend.logout();
-                refreshLabels();
-            } else {
-                game.setScreen(new AuthScreen(game,
-                    () -> game.setScreen(new MenuScreen(game)),
-                    () -> game.setScreen(new MenuScreen(game))));
-                return;
-            }
+            game.setScreen(new LeaderboardScreen(game, () -> game.setScreen(new MenuScreen(game))));
+            return;
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.A) && game.backend.isLoggedIn()) {
+            game.setScreen(new AchievementScreen(game, () -> game.setScreen(new MenuScreen(game))));
+            return;
         }
 
         stage.act(delta);
