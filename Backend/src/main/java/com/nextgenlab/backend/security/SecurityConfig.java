@@ -36,6 +36,7 @@ public class SecurityConfig {
                                  "/ws/**").permitAll()
                 .requestMatchers("/api/match/**",
                                  "/api/room/**",
+                                 "/api/stats/**",
                                  "/api/auth/me").authenticated()
                 .anyRequest().permitAll()
             )

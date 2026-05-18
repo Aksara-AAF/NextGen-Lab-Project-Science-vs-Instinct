@@ -119,6 +119,27 @@ public class BackendFacade {
     }
 
 
+    public void finishMatch(Long matchId, String winner) {
+        if (!isLoggedIn() || matchId == null) return;
+        String body = "{\"winner\":\"" + winner + "\"}";
+        post("/api/match/" + matchId + "/finish", body,
+            r -> Gdx.app.log("BACKEND", "match finished, winner=" + winner),
+            t -> Gdx.app.error("BACKEND", "finishMatch failed: " + t.getMessage()));
+    }
+
+    public void getStats(Long userId,
+                         java.util.function.Consumer<String> onSuccess,
+                         java.util.function.Consumer<Throwable> onFail) {
+        get("/api/stats/" + userId, onSuccess, onFail);
+    }
+
+    public void getMatchHistory(Long userId, int page,
+                                java.util.function.Consumer<String> onSuccess,
+                                java.util.function.Consumer<Throwable> onFail) {
+        get("/api/stats/" + userId + "/history?page=" + page, onSuccess, onFail);
+    }
+
+
     public void createRoom(String role, RoomCallback callback) {
         String body = "{\"role\":\"" + role + "\"}";
         post("/api/room/create", body, response -> parseRoom(response, callback),

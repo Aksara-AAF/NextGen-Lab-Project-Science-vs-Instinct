@@ -70,6 +70,9 @@ public class LobbyScreen extends ScreenAdapter {
         addBtn(t, "BUAT ROOM BARU",  Color.GREEN,  this::onCreateRoom);
         addBtn(t, "MASUK KE ROOM",   Color.YELLOW, this::onJoinRoom);
         addBtn(t, "SOLO (OFFLINE)",  Color.GRAY,   this::startOffline);
+        if (game.backend.isLoggedIn()) {
+            addBtn(t, "PROFIL SAYA", Color.CYAN, () -> game.setScreen(new ProfileScreen(game, () -> game.setScreen(new LobbyScreen(game)))));
+        }
         addBtn(t,
             game.backend.isLoggedIn() ? "LOGOUT" : "LOGIN / REGISTER",
             Color.WHITE,

@@ -20,8 +20,14 @@ public class RoomService {
         this.matchRepository = matchRepository;
     }
 
-    public GameRoom createRoom(String role) {
-        MatchSession session = matchRepository.save(new MatchSession());
+    public GameRoom createRoom(String role, Long userId) {
+        MatchSession session = new MatchSession();
+        session.setPrepStartedAt(System.currentTimeMillis());
+        if (userId != null) {
+            if ("RESEARCHER".equalsIgnoreCase(role)) session.setResearcherUserId(userId);
+            else if ("MONSTER".equalsIgnoreCase(role)) session.setMonsterUserId(userId);
+        }
+        matchRepository.save(session);
 
         GameRoom room = new GameRoom();
         room.setRoomCode(generateCode());
@@ -32,11 +38,19 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    public GameRoom joinRoom(String roomCode, String role) {
+    public GameRoom joinRoom(String roomCode, String role, Long userId) {
         GameRoom room = roomRepository.findByRoomCode(roomCode)
             .orElseThrow(() -> new RuntimeException("Room not found: " + roomCode));
 
         applyRole(room, role);
+
+        if (userId != null && room.getMatchSessionId() != null) {
+            matchRepository.findById(room.getMatchSessionId()).ifPresent(session -> {
+                if ("RESEARCHER".equalsIgnoreCase(role)) session.setResearcherUserId(userId);
+                else if ("MONSTER".equalsIgnoreCase(role)) session.setMonsterUserId(userId);
+                matchRepository.save(session);
+            });
+        }
 
         if (room.isResearcherJoined() && room.isMonsterJoined()) {
             room.setStatus("READY");

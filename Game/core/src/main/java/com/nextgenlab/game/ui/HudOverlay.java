@@ -396,7 +396,8 @@ public class HudOverlay {
         hudBatch.end();
     }
 
-    public void renderAmmo(int ammo, int maxAmmo, boolean reloading, float reloadTimer) {
+    public void renderAmmo(int ammo, int maxAmmo, int ammoReserve, boolean reloading, float reloadTimer) {
+        if (maxAmmo <= 0) return;
         int W = Gdx.graphics.getWidth();
         float slotY  = SLOT_PAD + 80f + SLOT_SIZE + 6f;
         float slot1X = W - 2 * (SLOT_SIZE + SLOT_PAD) - SLOT_PAD;
@@ -405,10 +406,10 @@ public class HudOverlay {
         hudBatch.begin();
         if (reloading) {
             font.setColor(Color.YELLOW);
-            font.draw(hudBatch, String.format("RELOAD %.1fs", reloadTimer), slot1X, slotY);
+            font.draw(hudBatch, String.format("RELOAD %.1fs  +%d", reloadTimer, ammoReserve), slot1X, slotY);
         } else {
             font.setColor(ammo == 0 ? Color.RED : Color.LIGHT_GRAY);
-            font.draw(hudBatch, "AMMO " + ammo + "/" + maxAmmo, slot1X, slotY);
+            font.draw(hudBatch, "AMMO " + ammo + "/" + maxAmmo + "  +" + ammoReserve, slot1X, slotY);
         }
         font.setColor(Color.WHITE);
         hudBatch.end();

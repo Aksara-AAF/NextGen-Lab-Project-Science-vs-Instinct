@@ -24,6 +24,10 @@ public class GameOverScreen extends ScreenAdapter {
 
     @Override
     public void show() {
+        if (game.backend.isLoggedIn() && game.currentMatchId != null) {
+            game.backend.finishMatch(game.currentMatchId, winner);
+        }
+
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 

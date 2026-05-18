@@ -3,6 +3,7 @@ package com.nextgenlab.backend.controller;
 import com.nextgenlab.backend.model.dto.RoomRequest;
 import com.nextgenlab.backend.model.entity.GameRoom;
 import com.nextgenlab.backend.service.RoomService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,14 +18,16 @@ public class GameController {
 
 
     @PostMapping("/create")
-    public GameRoom createRoom(@RequestBody RoomRequest request) {
-        return roomService.createRoom(request.getRole());
+    public GameRoom createRoom(@RequestBody RoomRequest request, Authentication auth) {
+        Long userId = auth != null ? (Long) auth.getPrincipal() : null;
+        return roomService.createRoom(request.getRole(), userId);
     }
 
 
     @PostMapping("/join/{code}")
-    public GameRoom joinRoom(@PathVariable String code, @RequestBody RoomRequest request) {
-        return roomService.joinRoom(code, request.getRole());
+    public GameRoom joinRoom(@PathVariable String code, @RequestBody RoomRequest request, Authentication auth) {
+        Long userId = auth != null ? (Long) auth.getPrincipal() : null;
+        return roomService.joinRoom(code, request.getRole(), userId);
     }
 
 

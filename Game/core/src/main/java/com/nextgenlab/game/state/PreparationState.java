@@ -139,7 +139,7 @@ public class PreparationState implements GameStateHandler {
         screen.prepWinner = null;
 
         Item w0 = screen.researcher != null ? screen.researcher.getEquippedWeapon() : null;
-        maxAmmo = maxAmmoFor(w0) + (screen.researcher != null ? screen.researcher.getBonusAmmo() : 0);
+        maxAmmo = maxAmmoFor(w0);
         ammo    = maxAmmo;
         reloadTimer = 0f;
     }
@@ -332,14 +332,25 @@ public class PreparationState implements GameStateHandler {
 
 
             Item curWep = screen.researcher.getEquippedWeapon();
-            int newMax = maxAmmoFor(curWep) + screen.researcher.getBonusAmmo();
-            if (newMax != maxAmmo) { maxAmmo = newMax; ammo = newMax; }
+            int newMax = maxAmmoFor(curWep);
+            if (newMax != maxAmmo) { maxAmmo = newMax; ammo = newMax; reloadTimer = 0f; }
 
-            if (reloadTimer > 0) { reloadTimer -= delta; if (reloadTimer <= 0) ammo = maxAmmo; }
+            if (reloadTimer > 0) {
+                reloadTimer -= delta;
+                if (reloadTimer <= 0) {
+                    int needed = maxAmmo - ammo;
+                    int take = Math.min(needed, screen.researcher.getAmmoReserve());
+                    ammo += take;
+                    screen.researcher.consumeAmmoReserve(take);
+                }
+            }
 
-            if (ammo <= 0 && reloadTimer <= 0) reloadTimer = RELOAD_TIME;
+            if (ammo <= 0 && reloadTimer <= 0 && maxAmmo > 0
+                    && screen.researcher.getAmmoReserve() > 0)
+                reloadTimer = RELOAD_TIME;
 
-            if (Gdx.input.isKeyJustPressed(Input.Keys.R) && reloadTimer <= 0 && ammo < maxAmmo)
+            if (Gdx.input.isKeyJustPressed(Input.Keys.R) && reloadTimer <= 0
+                    && ammo < maxAmmo && screen.researcher.getAmmoReserve() > 0)
                 reloadTimer = RELOAD_TIME;
 
 
@@ -859,7 +870,7 @@ public class PreparationState implements GameStateHandler {
             hud.renderWeaponSlots(
                 screen.researcher.getEquippedWeapon(),
                 screen.researcher.getEquippedUtility());
-            hud.renderAmmo(ammo, maxAmmo, reloadTimer > 0, reloadTimer);
+            hud.renderAmmo(ammo, maxAmmo, screen.researcher.getAmmoReserve(), reloadTimer > 0, reloadTimer);
             if (showLevelUpNotification) {
                 hud.renderNotification("Monster sedang berevolusi...");
             }

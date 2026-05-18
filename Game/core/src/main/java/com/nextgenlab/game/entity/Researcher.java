@@ -65,7 +65,7 @@ public class Researcher {
     private final Map<ItemType, Integer> utilityStock = new EnumMap<>(ItemType.class);
     private ItemType selectedUtilityType = null;
     private float   railGunCharge       = 0f;
-    private int     bonusAmmo           = 0;
+    private int     ammoReserve         = 0;
 
     private float   stamina          = 100f;
     private float   maxStamina       = 100f;
@@ -228,16 +228,29 @@ public class Researcher {
     }
 
     public void equipItem(Item item) {
-        if (item.type == ItemType.AMMO_PACK) { bonusAmmo += 6; return; }
+        if (item.type == ItemType.AMMO_PACK) { ammoReserve += 12; return; }
         if (item.type.isWeapon) {
             equippedWeapon = item;
+            ammoReserve += magazineFor(item.type);
         } else {
             utilityStock.merge(item.type, 1, Integer::sum);
             if (selectedUtilityType == null) selectedUtilityType = item.type;
         }
     }
 
-    public int getBonusAmmo() { return bonusAmmo; }
+    public int  getAmmoReserve()          { return ammoReserve; }
+    public void consumeAmmoReserve(int n) { ammoReserve = Math.max(0, ammoReserve - n); }
+
+    private static int magazineFor(ItemType type) {
+        switch (type) {
+            case PISTOL:       return 12;
+            case STUN_GUN:     return 8;
+            case TASER:        return 5;
+            case RAIL_GUN:     return 4;
+            case ACID_GRENADE: return 3;
+            default:           return 0;
+        }
+    }
 
     public Item getEquippedUtility() {
         if (selectedUtilityType == null) return null;

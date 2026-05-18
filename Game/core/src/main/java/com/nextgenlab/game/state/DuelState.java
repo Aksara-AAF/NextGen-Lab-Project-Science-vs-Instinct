@@ -71,7 +71,7 @@ public class DuelState implements GameStateHandler {
         duelEnded      = false;
 
         Item w = screen.researcher != null ? screen.researcher.getEquippedWeapon() : null;
-        maxAmmo = maxAmmoFor(w) + (screen.researcher != null ? screen.researcher.getBonusAmmo() : 0);
+        maxAmmo = maxAmmoFor(w);
         ammo    = maxAmmo;
         reloadTimer = 0f;
 
@@ -153,13 +153,20 @@ public class DuelState implements GameStateHandler {
 
         if (isResearcher && reloadTimer > 0) {
             reloadTimer -= delta;
-            if (reloadTimer <= 0) ammo = maxAmmo;
+            if (reloadTimer <= 0) {
+                int needed = maxAmmo - ammo;
+                int take = Math.min(needed, screen.researcher.getAmmoReserve());
+                ammo += take;
+                screen.researcher.consumeAmmoReserve(take);
+            }
         }
 
-        if (isResearcher && ammo <= 0 && reloadTimer <= 0) reloadTimer = RELOAD_TIME;
+        if (isResearcher && ammo <= 0 && reloadTimer <= 0 && maxAmmo > 0
+                && screen.researcher.getAmmoReserve() > 0)
+            reloadTimer = RELOAD_TIME;
 
         if (isResearcher && Gdx.input.isKeyJustPressed(Input.Keys.R)
-                && reloadTimer <= 0 && ammo < maxAmmo) {
+                && reloadTimer <= 0 && ammo < maxAmmo && screen.researcher.getAmmoReserve() > 0) {
             reloadTimer = RELOAD_TIME;
         }
 
@@ -294,7 +301,7 @@ public class DuelState implements GameStateHandler {
             hud.renderWeaponSlots(
                 screen.researcher.getEquippedWeapon(),
                 screen.researcher.getEquippedUtility());
-            hud.renderAmmo(ammo, maxAmmo, reloadTimer > 0, reloadTimer);
+            hud.renderAmmo(ammo, maxAmmo, screen.researcher.getAmmoReserve(), reloadTimer > 0, reloadTimer);
         } else if (screen.monster != null) {
             hud.renderDashCooldown(
                 screen.monster.getDashCooldownTimer(),
@@ -319,7 +326,7 @@ public class DuelState implements GameStateHandler {
     }
 
     private int maxAmmoFor(Item weapon) {
-        if (weapon == null || weapon.consumed) return 6;
+        if (weapon == null || weapon.consumed) return 0;
         switch (weapon.type) {
             case PISTOL:       return 12;
             case STUN_GUN:     return 8;

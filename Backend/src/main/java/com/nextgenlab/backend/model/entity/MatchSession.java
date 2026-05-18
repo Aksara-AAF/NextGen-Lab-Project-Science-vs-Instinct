@@ -28,6 +28,18 @@ public class MatchSession {
     @Column(name = "prep_winner")
     private String prepWinner;
 
+    @Column(name = "researcher_user_id")
+    private Long researcherUserId;
+
+    @Column(name = "monster_user_id")
+    private Long monsterUserId;
+
+    @Column(name = "winner")
+    private String winner;
+
+    @Column(name = "finished_at")
+    private Long finishedAt;
+
     public MatchSession() {}
 
     public Long getId() { return id; }
@@ -50,4 +62,16 @@ public class MatchSession {
 
     public String getPrepWinner() { return prepWinner; }
     public void setPrepWinner(String prepWinner) { this.prepWinner = prepWinner; }
+
+    public Long getResearcherUserId() { return researcherUserId; }
+    public void setResearcherUserId(Long researcherUserId) { this.researcherUserId = researcherUserId; }
+
+    public Long getMonsterUserId() { return monsterUserId; }
+    public void setMonsterUserId(Long monsterUserId) { this.monsterUserId = monsterUserId; }
+
+    public String getWinner() { return winner; }
+    public void setWinner(String winner) { this.winner = winner; }
+
+    public Long getFinishedAt() { return finishedAt; }
+    public void setFinishedAt(Long finishedAt) { this.finishedAt = finishedAt; }
 }

@@ -51,7 +51,7 @@ public class MenuScreen extends ScreenAdapter {
     private void refreshLabels() {
         if (game.backend.isLoggedIn()) {
             loginLabel.setText("Login: " + game.backend.getCurrentUsername());
-            hintLabel.setText("[ENTER] mulai   |   [L] logout");
+            hintLabel.setText("[ENTER] mulai   |   [P] profil   |   [L] logout");
         } else {
             loginLabel.setText("Belum login (multiplayer butuh login)");
             hintLabel.setText("[ENTER] mulai   |   [L] login / register");
@@ -65,6 +65,10 @@ public class MenuScreen extends ScreenAdapter {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             game.setScreen(new LobbyScreen(game));
+            return;
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P) && game.backend.isLoggedIn()) {
+            game.setScreen(new ProfileScreen(game));
             return;
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
