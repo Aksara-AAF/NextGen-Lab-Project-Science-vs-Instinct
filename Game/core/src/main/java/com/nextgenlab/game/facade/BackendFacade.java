@@ -155,21 +155,109 @@ public class BackendFacade {
     }
 
 
-    public void createRoom(String role, RoomCallback callback) {
-        String body = "{\"role\":\"" + role + "\"}";
+    public void createRoom(boolean isPublic, RoomCallback callback) {
+        String body = "{\"isPublic\":" + isPublic + "}";
         post("/api/room/create", body, response -> parseRoom(response, callback),
             t -> Gdx.app.error("BACKEND", "createRoom gagal: " + t.getMessage()));
     }
 
-    public void joinRoom(String code, String role, RoomCallback callback) {
-        String body = "{\"role\":\"" + role + "\"}";
-        post("/api/room/join/" + code, body, response -> parseRoom(response, callback),
-            t -> Gdx.app.error("BACKEND", "joinRoom gagal: " + t.getMessage()));
+    public void joinRoom(String code,
+                         java.util.function.Consumer<String> onSuccess,
+                         java.util.function.Consumer<Throwable> onFail) {
+        post("/api/room/join/" + code, "{}", onSuccess, onFail);
     }
 
     public void getRoomStatus(String code, RoomCallback callback) {
         get("/api/room/" + code, response -> parseRoom(response, callback),
             t -> Gdx.app.error("BACKEND", "getRoomStatus gagal: " + t.getMessage()));
+    }
+
+    public void getRoomDetail(String code,
+                              java.util.function.Consumer<String> onSuccess,
+                              java.util.function.Consumer<Throwable> onFail) {
+        get("/api/room/" + code, onSuccess, onFail);
+    }
+
+    public void getPublicRooms(java.util.function.Consumer<String> onSuccess,
+                               java.util.function.Consumer<Throwable> onFail) {
+        get("/api/room/list", onSuccess, onFail);
+    }
+
+    public void setReady(String code, boolean ready,
+                         java.util.function.Consumer<String> onSuccess,
+                         java.util.function.Consumer<Throwable> onFail) {
+        post("/api/room/" + code + (ready ? "/ready" : "/unready"), "{}", onSuccess, onFail);
+    }
+
+    public void claimRole(String code, String role,
+                          java.util.function.Consumer<String> ok,
+                          java.util.function.Consumer<Throwable> fail) {
+        post("/api/room/" + code + "/claim", "{\"role\":\"" + role + "\"}", ok, fail);
+    }
+
+    public void startCountdown(String code,
+                               java.util.function.Consumer<String> onSuccess,
+                               java.util.function.Consumer<Throwable> onFail) {
+        post("/api/room/" + code + "/start", "{}", onSuccess, onFail);
+    }
+
+    public void abortCountdown(String code,
+                               java.util.function.Consumer<String> onSuccess,
+                               java.util.function.Consumer<Throwable> onFail) {
+        post("/api/room/" + code + "/abort", "{}", onSuccess, onFail);
+    }
+
+    public void leaveRoom(String code,
+                          java.util.function.Consumer<String> onSuccess,
+                          java.util.function.Consumer<Throwable> onFail) {
+        post("/api/room/" + code + "/leave", "{}", onSuccess, onFail);
+    }
+
+    public void setVisibility(String code, boolean isPublic,
+                              java.util.function.Consumer<String> ok,
+                              java.util.function.Consumer<Throwable> fail) {
+        post("/api/room/" + code + "/visibility", "{\"isPublic\":" + isPublic + "}", ok, fail);
+    }
+
+    public void kickPlayer(String code, Long userId,
+                           java.util.function.Consumer<String> ok,
+                           java.util.function.Consumer<Throwable> fail) {
+        post("/api/room/" + code + "/kick/" + userId, "{}", ok, fail);
+    }
+
+
+    public void sendFriendRequest(Long targetUserId,
+                                  java.util.function.Consumer<String> ok,
+                                  java.util.function.Consumer<Throwable> fail) {
+        post("/api/friends/request", "{\"targetUserId\":" + targetUserId + "}", ok, fail);
+    }
+
+    public void acceptFriend(Long friendshipId,
+                             java.util.function.Consumer<String> ok,
+                             java.util.function.Consumer<Throwable> fail) {
+        put("/api/friends/accept/" + friendshipId, "{}", ok, fail);
+    }
+
+    public void getMyFriends(java.util.function.Consumer<String> ok,
+                             java.util.function.Consumer<Throwable> fail) {
+        get("/api/friends", ok, fail);
+    }
+
+    public void getPendingRequests(java.util.function.Consumer<String> ok,
+                                   java.util.function.Consumer<Throwable> fail) {
+        get("/api/friends/pending", ok, fail);
+    }
+
+    public void removeFriend(Long targetUserId,
+                             java.util.function.Consumer<String> ok,
+                             java.util.function.Consumer<Throwable> fail) {
+        delete("/api/friends/" + targetUserId, ok, fail);
+    }
+
+    public void searchUsers(String query,
+                            java.util.function.Consumer<String> ok,
+                            java.util.function.Consumer<Throwable> fail) {
+        get("/api/users/search?q=" + query, ok, fail);
     }
 
 
@@ -181,6 +269,28 @@ public class BackendFacade {
             .url(baseUrl + path)
             .header("Content-Type", "application/json")
             .content(body);
+        if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
+        Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
+    }
+
+    private void put(String path, String body,
+                     java.util.function.Consumer<String> onSuccess,
+                     java.util.function.Consumer<Throwable> onFail) {
+        HttpRequestBuilder builder = new HttpRequestBuilder()
+            .newRequest().method(Net.HttpMethods.PUT)
+            .url(baseUrl + path)
+            .header("Content-Type", "application/json")
+            .content(body);
+        if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
+        Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
+    }
+
+    private void delete(String path,
+                        java.util.function.Consumer<String> onSuccess,
+                        java.util.function.Consumer<Throwable> onFail) {
+        HttpRequestBuilder builder = new HttpRequestBuilder()
+            .newRequest().method(Net.HttpMethods.DELETE)
+            .url(baseUrl + path);
         if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
         Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
     }
@@ -207,10 +317,10 @@ public class BackendFacade {
     private void parseRoom(String response, RoomCallback callback) {
         if (callback == null) return;
         try {
-            JsonValue root      = new JsonReader().parse(response);
-            String roomCode     = root.getString("roomCode");
-            long   matchSessId  = root.getLong("matchSessionId");
-            String status       = root.getString("status");
+            JsonValue root     = new JsonReader().parse(response);
+            String roomCode    = root.getString("roomCode");
+            long   matchSessId = root.getLong("matchSessionId");
+            String status      = root.getString("status");
             callback.onResult(roomCode, matchSessId, status);
         } catch (Exception e) {
             Gdx.app.error("BACKEND", "parseRoom: " + e.getMessage());

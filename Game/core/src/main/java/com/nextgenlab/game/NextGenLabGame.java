@@ -13,9 +13,10 @@ public class NextGenLabGame extends Game {
     public BackendFacade     backend;
     public NetworkTransport  transport;
 
-    public Long   currentMatchId = null;
-    public String playerRole     = "RESEARCHER";
-    public String serverHost     = "localhost";
+    public Long   currentMatchId  = null;
+    public String currentRoomCode = null;
+    public String playerRole      = "RESEARCHER";
+    public String serverHost      = "localhost";
 
     @Override
     public void create() {

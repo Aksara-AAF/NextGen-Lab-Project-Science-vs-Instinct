@@ -10,6 +10,7 @@ import com.nextgenlab.backend.repository.MatchHistoryRepository;
 import com.nextgenlab.backend.repository.MatchSessionRepository;
 import com.nextgenlab.backend.repository.PlayerStatsRepository;
 import com.nextgenlab.backend.repository.UserRepository;
+import com.nextgenlab.backend.service.RoomService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,17 +32,20 @@ public class StatsService {
     private final MatchHistoryRepository  historyRepo;
     private final UserRepository          userRepo;
     private final AchievementService      achievementService;
+    private final RoomService             roomService;
 
     public StatsService(MatchSessionRepository matchRepo,
                         PlayerStatsRepository statsRepo,
                         MatchHistoryRepository historyRepo,
                         UserRepository userRepo,
-                        AchievementService achievementService) {
+                        AchievementService achievementService,
+                        RoomService roomService) {
         this.matchRepo          = matchRepo;
         this.statsRepo          = statsRepo;
         this.historyRepo        = historyRepo;
         this.userRepo           = userRepo;
         this.achievementService = achievementService;
+        this.roomService        = roomService;
     }
 
     @Transactional
@@ -55,6 +59,7 @@ public class StatsService {
             match.setFinishedAt(now);
             match.setStatus("FINISHED");
             matchRepo.save(match);
+            roomService.markFinished(matchId);
 
             Long startMs = match.getPrepStartedAt();
             int duration = startMs != null ? (int) ((now - startMs) / 1000) : 0;

@@ -1,11 +1,8 @@
 package com.nextgenlab.backend.model.dto;
 
 public class RoomRequest {
-    private String role;
-    private String roomCode;
+    private Boolean isPublic;
 
-    public String getRole()     { return role; }
-    public String getRoomCode() { return roomCode; }
-    public void setRole(String role)         { this.role = role; }
-    public void setRoomCode(String roomCode) { this.roomCode = roomCode; }
+    public Boolean getIsPublic()       { return isPublic; }
+    public void setIsPublic(Boolean v) { this.isPublic = v; }
 }
