@@ -3,7 +3,7 @@
 > **Dokumen Perencanaan Komprehensif Proyek Game**
 > Seleksi Oprec Netlab 2026 — Divisi Game Dev
 > Versi: 2.0 — Tanggal: 2026-05-19
-> Status proyek saat penulisan: **Audio + Camera Polish Complete** (sprint S1–S18 selesai)
+> Status proyek saat penulisan: **Narrative + UI Redesign Complete** (sprint S1–S19 selesai)
 
 ---
 .
@@ -1366,13 +1366,17 @@ EventBus subscribe contoh:
 >
 > **File dimodifikasi:** `NextGenLabGame.java` (+loadAll, +setMasterVol, +dispose audio), `screen/MenuScreen.java` (+playBgm), `screen/LobbyScreen.java` (+playBgm, +SFX btn), `screen/GameOverScreen.java` (+stopBgm, +SFX btn), `screen/SettingsScreen.java` (+ChangeListener vol, +setMasterVol onSave, +SFX btn), `screen/AuthScreen.java` (+SFX btn), `screen/RoomScreen.java` (+SFX btn), `state/PreparationState.java` (+footstep/growl/dash SFX, +resize()), `state/DuelState.java` (+playBgm duel, +footstep/dash SFX, +resize()), `state/GameStateHandler.java` (+default resize()), `ui/HudOverlay.java` (+resize()), `screen/GameScreen.java` (+EventBus audio listeners, +alarmTriggered, +CAM_LERP, +lerp+clamp render, +getMapPixelSize(), +hard-snap show/switchMap, +resize chain).
 
-#### **S19 — Narrative — intro/outro + dialog popup**
-- Buat `screen/StoryScreen.java` (intro/outro text-based dengan typewriter effect)
-- Backstory di intro (Project Apex, spesimen 10-X memberontak)
-- Outro by winner: 3 variasi text (Researcher win, Monster win, draw)
-- `ui/DialogPopup.java`: muncul saat in-match event (alarm 80%, monster spotted, dll.)
-- **Verifikasi:** intro saat new match start, outro saat game over, dialog popup trigger
-- **File:** `StoryScreen.java`, `DialogPopup.java`, hook di `GameScreen`, `GameOverScreen`
+#### **S19 — Narrative + UI Redesign + Ilustrasi** ✅ DONE (2026-05-20)
+
+> **Catatan implementasi:**
+> - **StoryScreen**: per-role typewriter intro (3 halaman — RESEARCHER vs MONSTER), ilustrasi kiri 480px (role-specific pages 1-2, shared `story_containmentBreach.png` page 3), tombol SKIP, klik/ENTER lanjut atau instant-complete typewriter. Hook di `RoomScreen.startMultiplayer()`.
+> - **DialogPopup**: `ui/DialogPopup.java` — popup kecil dark navy + cyan border 520×56px, fade in/out, auto-dismiss. Trigger: `OnSerumProgress ≥ 80` ("PERINGATAN serum"), `OnTaskCompleted` ("Tugas X selesai"). Semua via `overlayStage` di GameScreen.
+> - **PhaseTransitionOverlay**: `ui/PhaseTransitionOverlay.java` — full-screen overlay bergambar (fase illustration + judul GOLD 52pt FreeType), fade in 0.5s → hold → fade out 0.5s, lalu remove. Trigger: Preparation start (3s) di `show()`, Duel start (3.5s) di `transitionTo(DuelState)`. Phase textures diload sesuai `game.playerRole`, fallback solid color.
+> - **UI Redesign**: MenuScreen full overhaul — background `menu_bg.png` + dark overlay, font FreeType Kenney Pixel 52/22/17pt, 4 TextButton bergaya sci-fi (dark panel + cyan border 2px, hover teal). LobbyScreen + RoomScreen: background `lobby_bg.png` + 52% dark overlay. GameOverScreen: split layout 640/640px — ilustrasi winner kiri, typewriter outro kanan, tombol MAIN LAGI/KELUAR fade-in setelah typewriter selesai.
+> - **FreeType**: `gdx-freetype:$gdxVersion` di `core/build.gradle`, `gdx-freetype-platform:$gdxVersion:natives-desktop` di `lwjgl3/build.gradle`. Font: `assets/fonts/Kenney Pixel.ttf` (sudah ada).
+> - **11 gambar AI prompt** disiapkan untuk user generate: `backgrounds/menu_bg.png`, `backgrounds/lobby_bg.png`, `story/story_researcher.png`, `story/story_monster.png`, `story/story_containmentBreach.png`, `gameover/win_researcher.png`, `gameover/win_monster.png`, `phase/phase_preparation_{researcher,monster}.png`, `phase/phase_duel_{researcher,monster}.png`. Fallback solid color jika file belum ada.
+> - **File dibuat:** `screen/StoryScreen.java`, `ui/DialogPopup.java`, `ui/PhaseTransitionOverlay.java`.
+> - **File dimodifikasi:** `screen/GameScreen.java` (+overlayStage, +prepTex/duelTex, +PhaseTransitionOverlay show, +DialogPopup hooks, +loadOrFallback), `screen/RoomScreen.java` (hook StoryScreen), `screen/LobbyScreen.java` (+bgTex/overlayTex render), `screen/GameOverScreen.java` (split layout + typewriter outro + FreeType), `screen/MenuScreen.java` (full rewrite + FreeType + real TextButtons), `core/build.gradle` (+freetype), `lwjgl3/build.gradle` (+freetype platform).
 
 #### **S20 — Server address selector** *(dijadwalkan sebelum web build S21 — persiapan deployment)*
 - `LobbyScreen.java`: tambah fase `NETWORK_SELECT` (Localhost / LAN / Internet)
@@ -1585,4 +1589,4 @@ Versi terakhir disimpan di git history. Tag release di GitHub menandai milestone
 
 *Dokumen ini dibuat 2026-05-01 sebagai panduan implementasi NextGenLab: Science vs Instinct untuk seleksi Oprec Netlab 2026 — Divisi Game Dev. Dipersembahkan untuk fokus implementasi yang konsisten dari awal sampai akhir proyek.*
 
-*Update terakhir: 2026-05-19 — S18 complete (Audio integration: AudioFacade singleton, 14 CC0 OGG, BGM per fase, SFX EventBus-driven, footstep 0.3s, growl proximity 200px, dash SFX, button click+hover semua screen, vol slider live). Bug fixes: volume slider live via ChangeListener, bgm_menu play saat kembali ke Lobby, HUD hilang saat maximize via hudCamera resize chain. Camera lerp + bounds clamping: smooth follow CAM_LERP=8f, clamp ke batas peta via Tiled map properties, hard-snap di show() & switchMap(). S19 berikutnya.*
+*Update terakhir: 2026-05-20 — S19 complete (Narrative + UI Redesign + Ilustrasi). StoryScreen per-role typewriter + 3 ilustrasi. DialogPopup in-match (serum 80%, task selesai). PhaseTransitionOverlay full-screen fade in/out saat Preparation & Duel. MenuScreen full overhaul: FreeType Kenney Pixel, background PNG, TextButton sci-fi. LobbyScreen/RoomScreen background. GameOverScreen split layout + typewriter outro. FreeType dependency ditambah ke build.gradle. 11 prompt gambar AI disiapkan. S20 berikutnya.*

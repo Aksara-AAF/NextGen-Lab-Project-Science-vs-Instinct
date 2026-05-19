@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -12,6 +14,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.nextgenlab.game.NextGenLabGame;
 import com.nextgenlab.game.command.InputHandler;
 import com.nextgenlab.game.facade.AudioFacade;
@@ -24,8 +28,11 @@ import com.nextgenlab.game.entity.SabotagePanel;
 import com.nextgenlab.game.entity.TrapObject;
 import com.nextgenlab.game.factory.EntityFactory;
 import com.nextgenlab.game.event.*;
+import com.nextgenlab.game.state.DuelState;
 import com.nextgenlab.game.state.GameStateHandler;
 import com.nextgenlab.game.state.PreparationState;
+import com.nextgenlab.game.ui.DialogPopup;
+import com.nextgenlab.game.ui.PhaseTransitionOverlay;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,6 +90,13 @@ public class GameScreen extends ScreenAdapter {
     private static final float CAM_LERP = 8f;
 
 
+    public Stage overlayStage;
+
+
+    private Texture prepTex;
+    private Texture duelTex;
+
+
     private GameStateHandler currentState;
     private GameStateHandler pendingState;
 
@@ -134,16 +148,39 @@ public class GameScreen extends ScreenAdapter {
         camera.position.set(initX, initY, 0);
         camera.update();
 
+
+        overlayStage = new Stage(new ScreenViewport());
+
+
+        String prepPath = isResearcherRole
+            ? "phase/phase_preparation_researcher.png"
+            : "phase/phase_preparation_monster.png";
+        String duelPath = isResearcherRole
+            ? "phase/phase_duel_researcher.png"
+            : "phase/phase_duel_monster.png";
+        prepTex = loadOrFallback(prepPath, 0.05f, 0.10f, 0.20f);
+        duelTex = loadOrFallback(duelPath, 0.20f, 0.05f, 0.05f);
+
         transitionTo(new PreparationState());
         AudioFacade.getInstance().playBgm("bgm_lab_ambient");
+
+
+        PhaseTransitionOverlay.show(overlayStage, "FASE PERSIAPAN DIMULAI!", prepTex, 3f);
 
         AudioFacade af = AudioFacade.getInstance();
         EventBus eb = EventBus.getInstance();
         eb.subscribe(OnSerumProgress.class,  listenerSerum   = e -> {
-            if (e.progress >= 80 && !alarmTriggered) { alarmTriggered = true; af.playSfx("sfx_alarm"); }
+            if (e.progress >= 80 && !alarmTriggered) {
+                alarmTriggered = true;
+                af.playSfx("sfx_alarm");
+                DialogPopup.show(overlayStage, "PERINGATAN: Serum hampir terkumpul sepenuhnya!");
+            }
         });
         eb.subscribe(OnMonsterLevelUp.class, listenerLevelUp = e -> af.playSfx("sfx_levelup"));
-        eb.subscribe(OnTaskCompleted.class,  listenerTask    = e -> af.playSfx("sfx_task_complete"));
+        eb.subscribe(OnTaskCompleted.class,  listenerTask    = e -> {
+            af.playSfx("sfx_task_complete");
+            DialogPopup.show(overlayStage, "Tugas selesai!");
+        });
         eb.subscribe(OnGuardKilled.class,    listenerGuard   = e -> af.playSfx("sfx_hit"));
         eb.subscribe(OnPlayerHit.class,      listenerHit     = e -> af.playSfx("sfx_hit"));
     }
@@ -190,9 +227,17 @@ public class GameScreen extends ScreenAdapter {
         if (fgLayerIndices.length > 0) mapRenderer.render(fgLayerIndices);
 
         if (currentState != null) currentState.render(this);
+
+        if (overlayStage != null) {
+            overlayStage.act(delta);
+            overlayStage.draw();
+        }
     }
 
     public void transitionTo(GameStateHandler newState) {
+        if (overlayStage != null && newState instanceof DuelState) {
+            PhaseTransitionOverlay.show(overlayStage, "FASE DUEL DIMULAI!", duelTex, 3.5f);
+        }
         pendingState = newState;
     }
 
@@ -365,11 +410,23 @@ public class GameScreen extends ScreenAdapter {
     public void resize(int width, int height) {
         camera.setToOrtho(false, 600, 450);
         if (currentState != null) currentState.resize(this, width, height);
+        if (overlayStage != null) overlayStage.getViewport().update(width, height, true);
+    }
+
+    private static Texture loadOrFallback(String path, float r, float g, float b) {
+        if (Gdx.files.internal(path).exists()) return new Texture(Gdx.files.internal(path));
+        Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pm.setColor(r, g, b, 1f); pm.fill();
+        Texture t = new Texture(pm); pm.dispose();
+        return t;
     }
 
     @Override
     public void dispose() {
         map.dispose();
+        if (overlayStage != null) overlayStage.dispose();
+        if (prepTex != null) prepTex.dispose();
+        if (duelTex != null) duelTex.dispose();
         EventBus eb = EventBus.getInstance();
         eb.unsubscribe(OnSerumProgress.class,  listenerSerum);
         eb.unsubscribe(OnMonsterLevelUp.class, listenerLevelUp);

@@ -25,7 +25,7 @@ public class LobbyScreen extends ScreenAdapter {
 
     private final NextGenLabGame game;
     private Stage      stage;
-    private Texture    btnTex, btnSelTex;
+    private Texture    btnTex, btnSelTex, bgTex, overlayTex;
     private BitmapFont font;
 
     public LobbyScreen(NextGenLabGame game) {
@@ -40,6 +40,11 @@ public class LobbyScreen extends ScreenAdapter {
         font.getData().setScale(1.5f);
         btnTex    = solid(380, 60, 0.15f, 0.15f, 0.20f, 1f);
         btnSelTex = solid(380, 60, 0.08f, 0.08f, 0.12f, 1f);
+        String bgPath = "backgrounds/lobby_bg.png";
+        bgTex      = Gdx.files.internal(bgPath).exists()
+            ? new Texture(Gdx.files.internal(bgPath))
+            : solid(1, 1, 0.03f, 0.03f, 0.08f, 1f);
+        overlayTex = solid(1, 1, 0f, 0f, 0f, 1f);
         buildUI();
     }
 
@@ -98,6 +103,14 @@ public class LobbyScreen extends ScreenAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.03f, 0.03f, 0.08f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        int W = Gdx.graphics.getWidth(), H = Gdx.graphics.getHeight();
+        game.batch.begin();
+        game.batch.setColor(Color.WHITE);
+        game.batch.draw(bgTex, 0, 0, W, H);
+        game.batch.setColor(0f, 0f, 0f, 0.52f);
+        game.batch.draw(overlayTex, 0, 0, W, H);
+        game.batch.setColor(Color.WHITE);
+        game.batch.end();
         stage.act(delta);
         stage.draw();
     }
@@ -112,10 +125,12 @@ public class LobbyScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        if (stage    != null) stage.dispose();
-        if (btnTex   != null) btnTex.dispose();
-        if (btnSelTex != null) btnSelTex.dispose();
-        if (font     != null) font.dispose();
+        if (stage      != null) stage.dispose();
+        if (btnTex     != null) btnTex.dispose();
+        if (btnSelTex  != null) btnSelTex.dispose();
+        if (bgTex      != null) bgTex.dispose();
+        if (overlayTex != null) overlayTex.dispose();
+        if (font       != null) font.dispose();
     }
 
 

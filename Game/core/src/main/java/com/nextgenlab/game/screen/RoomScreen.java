@@ -424,7 +424,8 @@ public class RoomScreen extends ScreenAdapter {
         tr.connect();
         game.transport = tr;
         Gdx.app.log("ROOM", "WS matchId=" + pendingMatchId + " role=" + game.playerRole);
-        game.setScreen(new GameScreen(game));
+        game.setScreen(new StoryScreen(game, game.playerRole,
+            () -> game.setScreen(new GameScreen(game))));
     }
 
     @Override
