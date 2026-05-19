@@ -2,8 +2,8 @@
 
 > **Dokumen Perencanaan Komprehensif Proyek Game**
 > Seleksi Oprec Netlab 2026 — Divisi Game Dev
-> Versi: 1.9 — Tanggal: 2026-05-19
-> Status proyek saat penulisan: **EventBus + SettingsScreen + Responsive UI Complete** (sprint S1–S17 selesai)
+> Versi: 2.0 — Tanggal: 2026-05-19
+> Status proyek saat penulisan: **Audio + Camera Polish Complete** (sprint S1–S18 selesai)
 
 ---
 .
@@ -1327,13 +1327,44 @@ EventBus subscribe contoh:
 >
 > **File dimodifikasi:** `NextGenLabGame.java` (+applySettings()), `lwjgl3/Lwjgl3Launcher.java` (640×480 → 1280×720), `state/PreparationState.java` (5× publish EventBus), `screen/GameScreen.java` (subscribe/unsubscribe 5 listener), `screen/LobbyScreen.java` (+tombol [SETELAN], scale), semua 11 UI screen bestehend (`MenuScreen`, `AuthScreen`, `PlayModeScreen`, `RoomScreen`, `PublicRoomListScreen`, `FriendScreen`, `ProfileScreen`, `LeaderboardScreen`, `AchievementScreen`, `LevelUpScreen`) — ScreenViewport → FitViewport + font scale + button scale.
 
-#### **S18 — Audio integration**
-- Download aset CC0 sesuai list di §11.2
-- Buat `facade/AudioFacade.java`
-- Subscribe EventBus untuk play sfx pada event
-- Background music switch otomatis: menu → bgm_menu, prep → bgm_lab_ambient, duel → bgm_duel
-- **Verifikasi:** semua sfx terdengar, volume slider berpengaruh, alarm di 80% serum trigger
-- **File:** `AudioFacade.java`, `assets/audio/*`, hook ke `MenuScreen`, `GameScreen`
+#### **S18 — Audio integration** ✅ DONE (2026-05-19)
+
+> **Catatan implementasi:**
+>
+> **AudioFacade (Singleton + Facade pattern):** `facade/AudioFacade.java` — `Sound` untuk SFX in-memory, `Music` untuk BGM streamed. Same-name guard mencegah restart BGM yang sudah jalan. `setMasterVol(float)` update volume live (BGM menggunakan 65% dari master vol). `playFootstep()` random dari 3 varian footstep OGG.
+>
+> **14 CC0 audio asset** di `assets/audio/`:
+> - **SFX (11):** sfx_footstep_concrete, sfx_footstep_metal, sfx_footstep_grass, sfx_task_complete, sfx_alarm, sfx_monster_growl, sfx_dash, sfx_hit, sfx_levelup, sfx_button_click, sfx_button_hover (dari Kenney impact/scifi/interface/digital packs)
+> - **BGM (3):** bgm_menu (menu_3.ogg), bgm_lab_ambient (busy_cyberworld.ogg), bgm_duel (EmptyCity.ogg) — semua CC0 dari OpenGameArt.org
+>
+> **EventBus → Audio wiring** di `GameScreen.show()` (5 listener):
+> - `OnSerumProgress` → alarm sfx saat progress ≥ 80% (satu kali, flag `alarmTriggered`)
+> - `OnMonsterLevelUp` → sfx_levelup
+> - `OnTaskCompleted` → sfx_task_complete
+> - `OnGuardKilled` → sfx_hit
+> - `OnPlayerHit` → sfx_hit
+>
+> **Footstep timer:** `footstepTimer += delta; if >= 0.3f → playFootstep()` di `PreparationState.update()` dan `DuelState.update()`.
+>
+> **Monster growl proximity:** `growlTimer >= 5s + distance < 200px + isResearcher perspective` → sfx_monster_growl di `PreparationState`.
+>
+> **Dash SFX:** sfx_dash dipanggil di `applyMonsterInput()` saat dash dieksekusi di kedua state.
+>
+> **Button SFX:** Semua `makeBtn()` di tiap screen (`MenuScreen`, `AuthScreen`, `LobbyScreen`, `RoomScreen`, `SettingsScreen`, `GameOverScreen`) dengan click + hover (InputListener.enter() pointer==-1 guard).
+>
+> **Bug fixes dalam sprint ini:**
+> - Volume slider tidak live: tambah `ChangeListener` pada slider → `setMasterVol()` real-time
+> - BGM tidak play saat kembali ke Lobby: tambah `playBgm("bgm_menu")` di `LobbyScreen.show()`
+> - HUD hilang saat maximize: `HudOverlay.resize()` update `hudCamera`; chain `GameScreen.resize()` → `GameStateHandler.resize()` (default) → `PreparationState/DuelState.resize()` → `hud.resize()`
+>
+> **Camera lerp + bounds clamping** (anti-motion-sickness):
+> - `GameScreen`: konstanta `CAM_LERP = 8f`, lerp eksponensial `pos += (target - pos) * min(1, 8*delta)`
+> - Bounds clamp via `getMapPixelSize()` (baca `width/height/tilewidth/tileheight` dari Tiled props)
+> - Hard-snap di `show()` dan `switchMap()` mencegah lerp dari (0,0) atau lintas peta
+>
+> **File dibuat:** `facade/AudioFacade.java`, `assets/audio/` (14 file OGG).
+>
+> **File dimodifikasi:** `NextGenLabGame.java` (+loadAll, +setMasterVol, +dispose audio), `screen/MenuScreen.java` (+playBgm), `screen/LobbyScreen.java` (+playBgm, +SFX btn), `screen/GameOverScreen.java` (+stopBgm, +SFX btn), `screen/SettingsScreen.java` (+ChangeListener vol, +setMasterVol onSave, +SFX btn), `screen/AuthScreen.java` (+SFX btn), `screen/RoomScreen.java` (+SFX btn), `state/PreparationState.java` (+footstep/growl/dash SFX, +resize()), `state/DuelState.java` (+playBgm duel, +footstep/dash SFX, +resize()), `state/GameStateHandler.java` (+default resize()), `ui/HudOverlay.java` (+resize()), `screen/GameScreen.java` (+EventBus audio listeners, +alarmTriggered, +CAM_LERP, +lerp+clamp render, +getMapPixelSize(), +hard-snap show/switchMap, +resize chain).
 
 #### **S19 — Narrative — intro/outro + dialog popup**
 - Buat `screen/StoryScreen.java` (intro/outro text-based dengan typewriter effect)
@@ -1533,7 +1564,7 @@ Setelah dokumen ini disetujui, langkah pertama adalah:
 11. ✅ Sprint **S15 (Leaderboard + Achievement)** — DONE 2026-05-18
 12. ✅ Sprint **S16 (Friend System + Room Redesign)** — DONE 2026-05-19
 13. ✅ Sprint **S17 (EventBus + SettingsScreen + Responsive UI)** — DONE 2026-05-19
-14. 🟡 Sprint **S18 (Audio)** — NEXT
+14. ✅ Sprint **S18 (Audio)** — DONE 2026-05-19
 11. Setiap sprint diakhiri:
    - Run verifikasi (§13)
    - Update `PROJECT_STATUS.md` Section "Sprint Log" (centang sprint, tulis catatan)
@@ -1554,4 +1585,4 @@ Versi terakhir disimpan di git history. Tag release di GitHub menandai milestone
 
 *Dokumen ini dibuat 2026-05-01 sebagai panduan implementasi NextGenLab: Science vs Instinct untuk seleksi Oprec Netlab 2026 — Divisi Game Dev. Dipersembahkan untuk fokus implementasi yang konsisten dari awal sampai akhir proyek.*
 
-*Update terakhir: 2026-05-19 — S17 complete (EventBus Observer pattern + SettingsScreen dengan volume/server/fullscreen persist + FitViewport(1280,720) migrasi 12 UI screen + window default 1280×720 + bug fix fullscreen toggle). S18 (Audio integration) berikutnya.*
+*Update terakhir: 2026-05-19 — S18 complete (Audio integration: AudioFacade singleton, 14 CC0 OGG, BGM per fase, SFX EventBus-driven, footstep 0.3s, growl proximity 200px, dash SFX, button click+hover semua screen, vol slider live). Bug fixes: volume slider live via ChangeListener, bgm_menu play saat kembali ke Lobby, HUD hilang saat maximize via hudCamera resize chain. Camera lerp + bounds clamping: smooth follow CAM_LERP=8f, clamp ke batas peta via Tiled map properties, hard-snap di show() & switchMap(). S19 berikutnya.*

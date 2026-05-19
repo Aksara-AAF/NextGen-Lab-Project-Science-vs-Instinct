@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.nextgenlab.game.NextGenLabGame;
 import com.nextgenlab.game.command.InputHandler;
+import com.nextgenlab.game.facade.AudioFacade;
 import com.nextgenlab.game.entity.Chest;
 import com.nextgenlab.game.entity.DecoyObject;
 import com.nextgenlab.game.entity.Guard;
@@ -71,8 +72,15 @@ public class GameScreen extends ScreenAdapter {
     public String prepWinner = null;
 
 
+    public  float   footstepTimer  = 0f;
+    private boolean alarmTriggered = false;
+
+
     private int[] bgLayerIndices;
     private int[] fgLayerIndices;
+
+
+    private static final float CAM_LERP = 8f;
 
 
     private GameStateHandler currentState;
@@ -119,14 +127,25 @@ public class GameScreen extends ScreenAdapter {
         bgLayerIndices = findLayerIndices("Background", "Dekorasi Non-Solid");
         fgLayerIndices = findLayerIndices("Foreground", "Interact Object");
 
-        transitionTo(new PreparationState());
 
+        boolean isResearcherRole = "RESEARCHER".equals(game.playerRole);
+        float initX = isResearcherRole ? researcher.getX() : (monster != null ? monster.getX() : researcher.getX());
+        float initY = isResearcherRole ? researcher.getY() : (monster != null ? monster.getY() : researcher.getY());
+        camera.position.set(initX, initY, 0);
+        camera.update();
+
+        transitionTo(new PreparationState());
+        AudioFacade.getInstance().playBgm("bgm_lab_ambient");
+
+        AudioFacade af = AudioFacade.getInstance();
         EventBus eb = EventBus.getInstance();
-        eb.subscribe(OnSerumProgress.class,  listenerSerum   = e -> Gdx.app.log("EVENT", "Serum progress: " + e.progress));
-        eb.subscribe(OnMonsterLevelUp.class, listenerLevelUp = e -> Gdx.app.log("EVENT", "Monster level up: " + e.gene));
-        eb.subscribe(OnTaskCompleted.class,  listenerTask    = e -> Gdx.app.log("EVENT", "Task completed: " + e.totalCompleted));
-        eb.subscribe(OnGuardKilled.class,    listenerGuard   = e -> Gdx.app.log("EVENT", "Guard killed"));
-        eb.subscribe(OnPlayerHit.class,      listenerHit     = e -> Gdx.app.log("EVENT", "Player hit: " + e.role));
+        eb.subscribe(OnSerumProgress.class,  listenerSerum   = e -> {
+            if (e.progress >= 80 && !alarmTriggered) { alarmTriggered = true; af.playSfx("sfx_alarm"); }
+        });
+        eb.subscribe(OnMonsterLevelUp.class, listenerLevelUp = e -> af.playSfx("sfx_levelup"));
+        eb.subscribe(OnTaskCompleted.class,  listenerTask    = e -> af.playSfx("sfx_task_complete"));
+        eb.subscribe(OnGuardKilled.class,    listenerGuard   = e -> af.playSfx("sfx_hit"));
+        eb.subscribe(OnPlayerHit.class,      listenerHit     = e -> af.playSfx("sfx_hit"));
     }
 
     @Override
@@ -146,7 +165,16 @@ public class GameScreen extends ScreenAdapter {
         boolean isResearcher = "RESEARCHER".equals(game.playerRole);
         float camX = isResearcher ? researcher.getX() : (monster != null ? monster.getX() : researcher.getX());
         float camY = isResearcher ? researcher.getY() : (monster != null ? monster.getY() : researcher.getY());
-        camera.position.set(camX, camY, 0);
+
+        float lerpT = Math.min(1f, CAM_LERP * delta);
+        camera.position.x += (camX - camera.position.x) * lerpT;
+        camera.position.y += (camY - camera.position.y) * lerpT;
+
+        float halfW = camera.viewportWidth  / 2f;
+        float halfH = camera.viewportHeight / 2f;
+        float[] mapPx = getMapPixelSize();
+        camera.position.x = MathUtils.clamp(camera.position.x, halfW, mapPx[0] - halfW);
+        camera.position.y = MathUtils.clamp(camera.position.y, halfH, mapPx[1] - halfH);
         camera.update();
 
         mapRenderer.setView(camera);
@@ -192,6 +220,20 @@ public class GameScreen extends ScreenAdapter {
             monster.setPosition(monSpawnX[mi], monSpawnY[mi]);
             monster.setMap(map);
         }
+
+        float snapX = researcher != null ? researcher.getX() : (monster != null ? monster.getX() : 300f);
+        float snapY = researcher != null ? researcher.getY() : (monster != null ? monster.getY() : 300f);
+        camera.position.set(snapX, snapY, 0);
+        camera.update();
+    }
+
+    private float[] getMapPixelSize() {
+        com.badlogic.gdx.maps.MapProperties props = map.getProperties();
+        int tilesW = props.get("width",      Integer.class);
+        int tilesH = props.get("height",     Integer.class);
+        int tileW  = props.get("tilewidth",  Integer.class);
+        int tileH  = props.get("tileheight", Integer.class);
+        return new float[]{ tilesW * tileW, tilesH * tileH };
     }
 
     private void loadSpawnPoints() {
@@ -322,6 +364,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         camera.setToOrtho(false, 600, 450);
+        if (currentState != null) currentState.resize(this, width, height);
     }
 
     @Override

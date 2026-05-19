@@ -16,6 +16,7 @@ import com.nextgenlab.game.network.GameEvent;
 import com.nextgenlab.game.network.NetworkTransport;
 import com.nextgenlab.game.network.PositionUpdate;
 import com.nextgenlab.game.network.ProjectileSpawn;
+import com.nextgenlab.game.facade.AudioFacade;
 import com.nextgenlab.game.pool.Projectile;
 import com.nextgenlab.game.pool.ProjectilePool;
 import com.nextgenlab.game.screen.GameOverScreen;
@@ -40,6 +41,8 @@ public class DuelState implements GameStateHandler {
     private float          netSendTimer       = 0f;
     private float          duelTimerLocal     = 180f;
     private boolean        duelEnded          = false;
+    private float          footstepTimer      = 0f;
+    private static final float FOOTSTEP_INTERVAL = 0.3f;
     private int            ammo               = 6;
     private int            maxAmmo            = 6;
     private float          reloadTimer        = 0f;
@@ -48,6 +51,7 @@ public class DuelState implements GameStateHandler {
     public void enter(GameScreen screen) {
 
         screen.switchMap("arena.tmx");
+        AudioFacade.getInstance().playBgm("bgm_duel");
 
 
         boolean isResearcher = "RESEARCHER".equals(screen.game.playerRole);
@@ -253,6 +257,19 @@ public class DuelState implements GameStateHandler {
             screen.game.setScreen(new GameOverScreen(screen.game, "RESEARCHER"));
 
 
+        boolean localMovingD = isResearcher ? screen.researcher.isMoving()
+                                            : (screen.monster != null && screen.monster.isMoving());
+        if (localMovingD) {
+            footstepTimer += delta;
+            if (footstepTimer >= FOOTSTEP_INTERVAL) {
+                footstepTimer = 0f;
+                AudioFacade.getInstance().playFootstep();
+            }
+        } else {
+            footstepTimer = 0f;
+        }
+
+
         if (!duelEnded) {
             if (duelTimerLocal > 0) duelTimerLocal -= delta;
 
@@ -314,6 +331,11 @@ public class DuelState implements GameStateHandler {
                 screen.monster.getPhaseShiftCooldownTimer(),
                 screen.monster.getPhaseShiftMaxCooldown());
         }
+    }
+
+    @Override
+    public void resize(GameScreen screen, int width, int height) {
+        if (hud != null) hud.resize(width, height);
     }
 
     @Override public void exit(GameScreen screen) {}
@@ -418,8 +440,10 @@ public class DuelState implements GameStateHandler {
         else if (d)      {            vx =  1; dir = Direction.E;  }
         else if (a)      {            vx = -1; dir = Direction.W;  }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) && screen.monster.canDash())
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) && screen.monster.canDash()) {
             screen.monster.startDash(vx, vy);
+            AudioFacade.getInstance().playSfx("sfx_dash");
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && screen.monster.canEcholocate())
             screen.monster.activateEcholocation();
         if (Gdx.input.isKeyJustPressed(Input.Keys.G) && screen.monster.canPhaseShift())

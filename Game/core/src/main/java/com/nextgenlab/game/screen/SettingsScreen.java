@@ -9,17 +9,21 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
+import com.nextgenlab.game.facade.AudioFacade;
 import com.nextgenlab.game.facade.BackendFacade;
 
 public class SettingsScreen extends ScreenAdapter {
@@ -75,6 +79,11 @@ public class SettingsScreen extends ScreenAdapter {
         ss.knob       = drawable(20,  20, 0.85f, 0.85f, 0.85f);
         volumeSlider  = new Slider(0f, 1f, 0.05f, false, ss);
         volumeSlider.setValue(vol);
+        volumeSlider.addListener(new ChangeListener() {
+            @Override public void changed(ChangeEvent event, Actor actor) {
+                AudioFacade.getInstance().setMasterVol(volumeSlider.getValue());
+            }
+        });
         t.add(volumeSlider).width(300).padBottom(28).row();
 
 
@@ -123,6 +132,7 @@ public class SettingsScreen extends ScreenAdapter {
         prefs.putBoolean("fullscreen", isFullscreen);
         prefs.flush();
 
+        AudioFacade.getInstance().setMasterVol(volumeSlider.getValue());
         game.serverHost = newServer;
         game.backend    = new BackendFacade("http://" + game.serverHost + ":8080");
         game.setScreen(new LobbyScreen(game));
@@ -146,7 +156,15 @@ public class SettingsScreen extends ScreenAdapter {
         s.down      = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         TextButton btn = new TextButton(text, s);
         btn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent e, float x, float y) { action.run(); }
+            @Override public void clicked(InputEvent e, float x, float y) {
+                AudioFacade.getInstance().playSfx("sfx_button_click");
+                action.run();
+            }
+        });
+        btn.addListener(new InputListener() {
+            @Override public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                if (pointer == -1) AudioFacade.getInstance().playSfx("sfx_button_hover");
+            }
         });
         return btn;
     }

@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -19,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
+import com.nextgenlab.game.facade.AudioFacade;
 import com.nextgenlab.game.facade.BackendFacade;
 
 public class AuthScreen extends ScreenAdapter {
@@ -171,7 +174,15 @@ public class AuthScreen extends ScreenAdapter {
         s.down = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         TextButton btn = new TextButton(text, s);
         btn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent e, float x, float y) { action.run(); }
+            @Override public void clicked(InputEvent e, float x, float y) {
+                AudioFacade.getInstance().playSfx("sfx_button_click");
+                action.run();
+            }
+        });
+        btn.addListener(new InputListener() {
+            @Override public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                if (pointer == -1) AudioFacade.getInstance().playSfx("sfx_button_hover");
+            }
         });
         return btn;
     }
