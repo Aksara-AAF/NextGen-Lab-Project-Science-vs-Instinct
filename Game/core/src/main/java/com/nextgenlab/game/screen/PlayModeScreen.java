@@ -17,7 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 
 public class PlayModeScreen extends ScreenAdapter {
@@ -38,6 +38,7 @@ public class PlayModeScreen extends ScreenAdapter {
     @Override
     public void show() {
         font = new BitmapFont();
+        font.getData().setScale(1.5f);
         buildTextures();
         buildMainUI();
     }
@@ -48,7 +49,7 @@ public class PlayModeScreen extends ScreenAdapter {
         rebuildStage();
         Table t = mainTable();
 
-        addTitle(t, "PILIH MODE", 1.8f, Color.CYAN);
+        addTitle(t, "PILIH MODE", 2.5f, Color.CYAN);
 
         addBtn(t, "HOST  (Buat Room)",    Color.GREEN,  this::onHost);
         addBtn(t, "PUBLIC  (Cari Room)",  Color.YELLOW, this::onPublic);
@@ -78,7 +79,7 @@ public class PlayModeScreen extends ScreenAdapter {
         rebuildStage();
         Table t = mainTable();
 
-        addTitle(t, "BUAT ROOM", 1.5f, Color.CYAN);
+        addTitle(t, "BUAT ROOM", 2f, Color.CYAN);
         addBtn(t, "PUBLIK",  Color.GREEN,  () -> doCreateRoom(true));
         addBtn(t, "PRIVAT",  Color.YELLOW, () -> doCreateRoom(false));
         addBtn(t, "KEMBALI", Color.GRAY,   this::buildMainUI);
@@ -89,7 +90,7 @@ public class PlayModeScreen extends ScreenAdapter {
         rebuildStage();
         Table t = mainTable();
 
-        addTitle(t, "MASUK KE ROOM", 1.5f, Color.CYAN);
+        addTitle(t, "MASUK KE ROOM", 2f, Color.CYAN);
 
         t.add(label("Kode Room:", Color.WHITE)).padBottom(4).row();
         TextField.TextFieldStyle tfStyle = makeTfStyle();
@@ -97,7 +98,7 @@ public class PlayModeScreen extends ScreenAdapter {
         codeField.setMaxLength(6);
         codeField.setAlignment(Align.center);
         codeField.setMessageText("mis. A3F7K2");
-        t.add(codeField).width(200).height(36).padBottom(16).row();
+        t.add(codeField).width(270).height(48).padBottom(16).row();
 
         addBtn(t, "BERGABUNG", Color.GREEN, () -> doJoinRoom(codeField.getText().trim().toUpperCase()));
         addBtn(t, "KEMBALI",   Color.GRAY,  this::buildMainUI);
@@ -166,7 +167,7 @@ public class PlayModeScreen extends ScreenAdapter {
 
     private void rebuildStage() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -184,7 +185,7 @@ public class PlayModeScreen extends ScreenAdapter {
     }
 
     private void addBtn(Table t, String text, Color color, Runnable action) {
-        t.add(makeBtn(text, color, action)).width(260).height(44).padBottom(10).row();
+        t.add(makeBtn(text, color, action)).width(380).height(60).padBottom(12).row();
     }
 
     private TextButton makeBtn(String text, Color color, Runnable action) {
@@ -215,9 +216,9 @@ public class PlayModeScreen extends ScreenAdapter {
     }
 
     private void buildTextures() {
-        btnTex    = solid(260, 44, 0.15f, 0.15f, 0.20f, 1f);
-        btnSelTex = solid(260, 44, 0.08f, 0.08f, 0.12f, 1f);
-        tfBgTex   = solid(200, 36, 0.10f, 0.10f, 0.14f, 1f);
+        btnTex    = solid(380, 60, 0.15f, 0.15f, 0.20f, 1f);
+        btnSelTex = solid(380, 60, 0.08f, 0.08f, 0.12f, 1f);
+        tfBgTex   = solid(270, 48, 0.10f, 0.10f, 0.14f, 1f);
         Pixmap cur = new Pixmap(2, 28, Pixmap.Format.RGBA8888);
         cur.setColor(Color.WHITE); cur.fill();
         tfCursorTex = new Texture(cur);

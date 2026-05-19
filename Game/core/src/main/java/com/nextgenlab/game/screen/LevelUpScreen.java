@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.task.TaskUiTheme;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class LevelUpScreen {
     private String    chosenGene = null;
 
     public void show(List<String> alreadyPicked) {
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
 
         List<Integer> available = new ArrayList<>();
         for (int i = 0; i < ALL_GENES.length; i++) {
@@ -120,7 +120,7 @@ public class LevelUpScreen {
                 }
             });
 
-            outer.add(card).width(200).fillY().pad(8);
+            outer.add(card).width(270).fillY().pad(8);
         }
 
         root.add(outer);

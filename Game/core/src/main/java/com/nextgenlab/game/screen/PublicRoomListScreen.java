@@ -17,7 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 
 public class PublicRoomListScreen extends ScreenAdapter {
@@ -41,6 +41,7 @@ public class PublicRoomListScreen extends ScreenAdapter {
     @Override
     public void show() {
         font      = new BitmapFont();
+        font.getData().setScale(1.5f);
         bgTex     = solidTex(0f, 0f, 0f, 0.9f);
         btnTex    = solidTex(0.15f, 0.15f, 0.2f, 1f);
         btnSelTex = solidTex(0.08f, 0.08f, 0.12f, 1f);
@@ -67,7 +68,7 @@ public class PublicRoomListScreen extends ScreenAdapter {
 
     private void buildLoadingScreen() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
         Table root = new Table();
         root.setFillParent(true);
@@ -77,7 +78,7 @@ public class PublicRoomListScreen extends ScreenAdapter {
 
     private void buildDataScreen() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Label.LabelStyle white = new Label.LabelStyle(font, Color.WHITE);
@@ -109,7 +110,7 @@ public class PublicRoomListScreen extends ScreenAdapter {
             Table row = new Table();
             row.left().padBottom(6);
             row.add(new Label(host, white)).left().expandX();
-            row.add(makeBtn("JOIN", Color.GREEN, () -> doJoin(roomCode))).width(70).height(32).padLeft(10);
+            row.add(makeBtn("JOIN", Color.GREEN, () -> doJoin(roomCode))).width(95).height(44).padLeft(10);
             listTable.add(row).left().fillX().expandX().row();
         }
 

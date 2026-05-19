@@ -38,6 +38,7 @@ import com.nextgenlab.game.task.ReactorTask;
 import com.nextgenlab.game.task.ServerHackTask;
 import com.nextgenlab.game.task.TaskUiTheme;
 import com.nextgenlab.game.task.WireTask;
+import com.nextgenlab.game.event.*;
 import com.nextgenlab.game.ui.CraftingPanel;
 import com.nextgenlab.game.ui.HudOverlay;
 import com.nextgenlab.game.ui.InventoryPanel;
@@ -197,11 +198,15 @@ public class PreparationState implements GameStateHandler {
                     int synced = Math.min(Math.max(0, u.taskProgress), TOTAL_TASKS);
                     tasksCompleted = synced;
                     if (tasksCompleted >= TOTAL_TASKS) phaseComplete = true;
+                    EventBus.getInstance().publish(new OnSerumProgress(synced));
                     lastResearcherWeaponOrdinal = u.equippedItemOrdinal;
                 } else if ("MONSTER".equals(u.role) && m != null && isResearcher) {
                     boolean wasHit = (u.actionFlag & PositionUpdate.FLAG_HIT) != 0;
                     m.applyRemoteUpdate(u);
-                    if (wasHit && screen.researcher != null) screen.researcher.damage(1);
+                    if (wasHit && screen.researcher != null) {
+                        screen.researcher.damage(1);
+                        EventBus.getInstance().publish(new OnPlayerHit("RESEARCHER", 1));
+                    }
                     applyGuardSync(screen, u);
                     syncedMonsterXp    = u.monsterXp;
                     syncedMonsterLevel = u.monsterLevel;
@@ -309,6 +314,7 @@ public class PreparationState implements GameStateHandler {
             if (tasks[activeTaskIdx].isCompleted() && !taskDone[activeTaskIdx]) {
                 taskDone[activeTaskIdx] = true;
                 tasksCompleted++;
+                EventBus.getInstance().publish(new OnTaskCompleted(tasksCompleted));
                 activeTaskIdx = -1;
                 Gdx.input.setInputProcessor(null);
                 if (screen.matchId != null)
@@ -435,6 +441,7 @@ public class PreparationState implements GameStateHandler {
                 if (levelUpScreen != null && levelUpScreen.isChosen()) {
                     String gene = levelUpScreen.getChosenGene();
                     screen.monster.applyGene(gene);
+                    EventBus.getInstance().publish(new OnMonsterLevelUp(gene));
                     levelUpScreen.dispose();
                     levelUpScreen = null;
                     monsterPaused = false;
@@ -1062,6 +1069,7 @@ public class PreparationState implements GameStateHandler {
                 if (g.isAlive()) {
                     screen.monster.attackMelee(g);
                     if (!g.isAlive()) {
+                        EventBus.getInstance().publish(new OnGuardKilled());
                         if (screen.monster.addXp(25)) {
                             triggerLevelUp(screen, isMultiplayer, transport);
                         }

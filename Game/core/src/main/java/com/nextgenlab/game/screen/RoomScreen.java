@@ -15,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 import com.nextgenlab.game.network.NetworkTransport;
 import com.nextgenlab.game.network.WebSocketTransport;
@@ -66,16 +66,17 @@ public class RoomScreen extends ScreenAdapter {
     @Override
     public void show() {
         font      = new BitmapFont();
-        btnTex    = solidTex(0.15f, 0.15f, 0.20f, 1f, 260, 44);
-        btnSelTex = solidTex(0.08f, 0.08f, 0.12f, 1f, 260, 44);
-        btnDimTex = solidTex(0.10f, 0.10f, 0.13f, 1f, 260, 44);
+        font.getData().setScale(1.5f);
+        btnTex    = solidTex(0.15f, 0.15f, 0.20f, 1f, 380, 60);
+        btnSelTex = solidTex(0.08f, 0.08f, 0.12f, 1f, 380, 60);
+        btnDimTex = solidTex(0.10f, 0.10f, 0.13f, 1f, 380, 60);
         buildUI();
     }
 
 
     private void buildUI() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Label.LabelStyle white = new Label.LabelStyle(font, Color.WHITE);
@@ -87,7 +88,7 @@ public class RoomScreen extends ScreenAdapter {
         stage.addActor(t);
 
         Label codeLabel = new Label("ROOM: " + roomCode, gold);
-        codeLabel.setFontScale(1.8f);
+        codeLabel.setFontScale(2.5f);
         t.add(codeLabel).padBottom(24).row();
 
         String  myName   = game.backend.getCurrentUsername();
@@ -114,8 +115,8 @@ public class RoomScreen extends ScreenAdapter {
             TextButton claimMon = makeSmallBtn("KLAIM MONSTER",
                 monUser.isEmpty() ? Color.PURPLE : Color.GRAY,
                 monUser.isEmpty() ? () -> onClaimRole("MONSTER")    : () -> {});
-            claimRow.add(claimRes).width(160).height(36).padRight(8);
-            claimRow.add(claimMon).width(160).height(36);
+            claimRow.add(claimRes).width(220).height(48).padRight(8);
+            claimRow.add(claimMon).width(220).height(48);
             t.add(claimRow).padBottom(16).row();
         }
 
@@ -126,7 +127,7 @@ public class RoomScreen extends ScreenAdapter {
         resRow.add(new Label("PENELITI: " + resTag, new Label.LabelStyle(font, resColor))).expandX().left();
         if (isHost && !resUser.isEmpty() && !resIsMe && lastResUserId != null && !isStarting) {
             final Long kid = lastResUserId;
-            resRow.add(makeSmallBtn("KICK", Color.RED, () -> onKick(kid))).width(55).height(28).padLeft(8);
+            resRow.add(makeSmallBtn("KICK", Color.RED, () -> onKick(kid))).width(80).height(36).padLeft(8);
         }
         t.add(resRow).fillX().padBottom(8).row();
 
@@ -137,7 +138,7 @@ public class RoomScreen extends ScreenAdapter {
         monRow.add(new Label("MONSTER:  " + monTag, new Label.LabelStyle(font, monColor))).expandX().left();
         if (isHost && !monUser.isEmpty() && !monIsMe && lastMonUserId != null && !isStarting) {
             final Long kid = lastMonUserId;
-            monRow.add(makeSmallBtn("KICK", Color.RED, () -> onKick(kid))).width(55).height(28).padLeft(8);
+            monRow.add(makeSmallBtn("KICK", Color.RED, () -> onKick(kid))).width(80).height(36).padLeft(8);
         }
         t.add(monRow).fillX().padBottom(20).row();
 
@@ -147,7 +148,7 @@ public class RoomScreen extends ScreenAdapter {
         if (isHost && !isDisbanded && !isStarting) {
             t.add(makeBtn(lastIsPublic ? "JADIKAN PRIVAT" : "JADIKAN PUBLIK",
                           lastIsPublic ? Color.YELLOW : Color.GREEN,
-                          this::onToggleVisibility)).width(220).height(36).padBottom(12).row();
+                          this::onToggleVisibility)).width(300).height(55).padBottom(12).row();
         }
 
 
@@ -163,20 +164,20 @@ public class RoomScreen extends ScreenAdapter {
 
         } else if (isStarting && countdownTimer > 0) {
             t.add(countdownLabel).padBottom(16).row();
-            t.add(makeBtn("BATAL", Color.RED, this::onAbort)).width(200).height(44).padBottom(10).row();
+            t.add(makeBtn("BATAL", Color.RED, this::onAbort)).width(280).height(55).padBottom(10).row();
 
         } else {
             boolean myHasRole = resIsMe || monIsMe;
             if (myHasRole) {
                 if (myReady) {
-                    t.add(makeBtn("BATAL SIAP", Color.YELLOW, this::onUnready)).width(220).height(44).padBottom(8).row();
+                    t.add(makeBtn("BATAL SIAP", Color.YELLOW, this::onUnready)).width(300).height(55).padBottom(8).row();
                 } else {
-                    t.add(makeBtn("SIAP", Color.GREEN, this::onReady)).width(220).height(44).padBottom(8).row();
+                    t.add(makeBtn("SIAP", Color.GREEN, this::onReady)).width(300).height(55).padBottom(8).row();
                 }
             }
 
             if (isHost && bothRolesClaimed && bothReady) {
-                t.add(makeBtn("MULAI!", Color.CYAN, this::onStart)).width(220).height(44).padBottom(8).row();
+                t.add(makeBtn("MULAI!", Color.CYAN, this::onStart)).width(300).height(55).padBottom(8).row();
             } else if (!bothRolesClaimed) {
                 statusLabel.setText("Menunggu pemain memilih peran...");
                 t.add(statusLabel).padBottom(8).row();
@@ -186,13 +187,13 @@ public class RoomScreen extends ScreenAdapter {
         }
 
         if (!isDisbanded && !isStarting) {
-            t.add(makeBtn("KELUAR", Color.RED, this::onLeave)).width(200).height(44).padTop(8).row();
+            t.add(makeBtn("KELUAR", Color.RED, this::onLeave)).width(280).height(55).padTop(8).row();
         }
     }
 
     private void buildKickedUI() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
         Table t = new Table();
         t.setFillParent(true);

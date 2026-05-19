@@ -1,6 +1,8 @@
 package com.nextgenlab.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.nextgenlab.game.facade.AssetFacade;
 import com.nextgenlab.game.facade.BackendFacade;
@@ -20,11 +22,18 @@ public class NextGenLabGame extends Game {
 
     @Override
     public void create() {
-        batch   = new SpriteBatch();
-        backend = new BackendFacade("http://localhost:8080");
+        batch = new SpriteBatch();
+        applySettings();
         AssetFacade.getInstance().loadAssets();
-
         this.setScreen(new MenuScreen(this));
+    }
+
+    public void applySettings() {
+        Preferences prefs = Gdx.app.getPreferences("nextgenlab");
+        serverHost = prefs.getString("server", "localhost");
+        backend    = new BackendFacade("http://" + serverHost + ":8080");
+        if (prefs.getBoolean("fullscreen", false))
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
     }
 
     public void resetSession() {

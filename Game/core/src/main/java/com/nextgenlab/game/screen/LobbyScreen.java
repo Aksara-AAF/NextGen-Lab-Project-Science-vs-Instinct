@@ -15,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 
 public class LobbyScreen extends ScreenAdapter {
@@ -33,14 +33,15 @@ public class LobbyScreen extends ScreenAdapter {
     public void show() {
         game.resetSession();
         font      = new BitmapFont();
-        btnTex    = solid(260, 44, 0.15f, 0.15f, 0.20f, 1f);
-        btnSelTex = solid(260, 44, 0.08f, 0.08f, 0.12f, 1f);
+        font.getData().setScale(1.5f);
+        btnTex    = solid(380, 60, 0.15f, 0.15f, 0.20f, 1f);
+        btnSelTex = solid(380, 60, 0.08f, 0.08f, 0.12f, 1f);
         buildUI();
     }
 
     private void buildUI() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Table t = new Table();
@@ -48,7 +49,7 @@ public class LobbyScreen extends ScreenAdapter {
         stage.addActor(t);
 
         Label title = new Label("NEXTGEN-LAB", new Label.LabelStyle(font, Color.CYAN));
-        title.setFontScale(2f);
+        title.setFontScale(3f);
         t.add(title).padBottom(8).row();
 
         String authLine = game.backend.isLoggedIn()
@@ -69,6 +70,8 @@ public class LobbyScreen extends ScreenAdapter {
             addBtn(t, "TEMAN", Color.GREEN,
                 () -> game.setScreen(new FriendScreen(game, () -> game.setScreen(new LobbyScreen(game)))));
         }
+
+        addBtn(t, "SETELAN", Color.GRAY, () -> game.setScreen(new SettingsScreen(game)));
 
         addBtn(t,
             game.backend.isLoggedIn() ? "LOGOUT" : "LOGIN / REGISTER",
@@ -113,7 +116,7 @@ public class LobbyScreen extends ScreenAdapter {
 
 
     private void addBtn(Table t, String text, Color color, Runnable action) {
-        t.add(makeBtn(text, color, action)).width(260).height(44).padBottom(10).row();
+        t.add(makeBtn(text, color, action)).width(380).height(60).padBottom(12).row();
     }
 
     private TextButton makeBtn(String text, Color color, Runnable action) {

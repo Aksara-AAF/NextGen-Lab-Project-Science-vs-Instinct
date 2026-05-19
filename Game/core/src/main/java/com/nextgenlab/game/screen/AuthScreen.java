@@ -17,7 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 import com.nextgenlab.game.facade.BackendFacade;
 
@@ -48,13 +48,14 @@ public class AuthScreen extends ScreenAdapter {
     @Override
     public void show() {
         font = new BitmapFont();
+        font.getData().setScale(1.5f);
         buildTextures();
         rebuildUI();
     }
 
     private void rebuildUI() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Table t = new Table();
@@ -62,14 +63,14 @@ public class AuthScreen extends ScreenAdapter {
         stage.addActor(t);
 
         Label title = label(mode == Mode.LOGIN ? "LOGIN" : "REGISTER", Color.CYAN);
-        title.setFontScale(2f);
+        title.setFontScale(3f);
         t.add(title).colspan(2).padBottom(24).row();
 
         Table tabs = new Table();
         tabs.add(makeBtn("LOGIN",    mode == Mode.LOGIN    ? Color.CYAN : Color.GRAY, () -> { mode = Mode.LOGIN; rebuildUI(); }))
-            .width(120).height(34).padRight(8);
+            .width(160).height(46).padRight(8);
         tabs.add(makeBtn("REGISTER", mode == Mode.REGISTER ? Color.CYAN : Color.GRAY, () -> { mode = Mode.REGISTER; rebuildUI(); }))
-            .width(120).height(34);
+            .width(160).height(46);
         t.add(tabs).colspan(2).padBottom(20).row();
 
         TextField.TextFieldStyle tfStyle = makeTfStyle();
@@ -77,13 +78,13 @@ public class AuthScreen extends ScreenAdapter {
         emailField = new TextField("", tfStyle);
         emailField.setMessageText("email");
         t.add(label("Email", Color.WHITE)).right().padRight(10);
-        t.add(emailField).width(240).height(34).padBottom(8).row();
+        t.add(emailField).width(320).height(46).padBottom(8).row();
 
         if (mode == Mode.REGISTER) {
             usernameField = new TextField("", tfStyle);
             usernameField.setMessageText("username");
             t.add(label("Username", Color.WHITE)).right().padRight(10);
-            t.add(usernameField).width(240).height(34).padBottom(8).row();
+            t.add(usernameField).width(320).height(46).padBottom(8).row();
         }
 
         passwordField = new TextField("", tfStyle);
@@ -91,16 +92,16 @@ public class AuthScreen extends ScreenAdapter {
         passwordField.setPasswordMode(true);
         passwordField.setPasswordCharacter('*');
         t.add(label("Password", Color.WHITE)).right().padRight(10);
-        t.add(passwordField).width(240).height(34).padBottom(16).row();
+        t.add(passwordField).width(320).height(46).padBottom(16).row();
 
         errorLabel = label("", Color.RED);
         t.add(errorLabel).colspan(2).padBottom(12).row();
 
         submitBtn = makeBtn(mode == Mode.LOGIN ? "MASUK" : "DAFTAR", Color.GREEN, this::doSubmit);
-        t.add(submitBtn).colspan(2).width(240).height(40).padBottom(8).row();
+        t.add(submitBtn).colspan(2).width(320).height(54).padBottom(8).row();
 
         TextButton cancel = makeBtn("KEMBALI", Color.GRAY, () -> { if (onCancel != null) onCancel.run(); });
-        t.add(cancel).colspan(2).width(240).height(36).row();
+        t.add(cancel).colspan(2).width(320).height(48).row();
     }
 
     private void doSubmit() {
@@ -193,9 +194,9 @@ public class AuthScreen extends ScreenAdapter {
     }
 
     private void buildTextures() {
-        btnTex    = solid(260, 44, 0.15f, 0.15f, 0.20f, 1f);
-        btnSelTex = solid(260, 44, 0.08f, 0.08f, 0.12f, 1f);
-        tfBgTex   = solid(240, 34, 0.10f, 0.10f, 0.14f, 1f);
+        btnTex    = solid(380, 60, 0.15f, 0.15f, 0.20f, 1f);
+        btnSelTex = solid(380, 60, 0.08f, 0.08f, 0.12f, 1f);
+        tfBgTex   = solid(320, 46, 0.10f, 0.10f, 0.14f, 1f);
 
         Pixmap cur = new Pixmap(2, 24, Pixmap.Format.RGBA8888);
         cur.setColor(Color.WHITE); cur.fill();

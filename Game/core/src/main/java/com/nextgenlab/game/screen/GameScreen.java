@@ -22,6 +22,7 @@ import com.nextgenlab.game.entity.Researcher;
 import com.nextgenlab.game.entity.SabotagePanel;
 import com.nextgenlab.game.entity.TrapObject;
 import com.nextgenlab.game.factory.EntityFactory;
+import com.nextgenlab.game.event.*;
 import com.nextgenlab.game.state.GameStateHandler;
 import com.nextgenlab.game.state.PreparationState;
 
@@ -77,6 +78,13 @@ public class GameScreen extends ScreenAdapter {
     private GameStateHandler currentState;
     private GameStateHandler pendingState;
 
+
+    private GameEventListener<OnSerumProgress>  listenerSerum;
+    private GameEventListener<OnMonsterLevelUp> listenerLevelUp;
+    private GameEventListener<OnTaskCompleted>  listenerTask;
+    private GameEventListener<OnGuardKilled>    listenerGuard;
+    private GameEventListener<OnPlayerHit>      listenerHit;
+
     public GameScreen(NextGenLabGame game) {
         this.game = game;
     }
@@ -112,6 +120,13 @@ public class GameScreen extends ScreenAdapter {
         fgLayerIndices = findLayerIndices("Foreground", "Interact Object");
 
         transitionTo(new PreparationState());
+
+        EventBus eb = EventBus.getInstance();
+        eb.subscribe(OnSerumProgress.class,  listenerSerum   = e -> Gdx.app.log("EVENT", "Serum progress: " + e.progress));
+        eb.subscribe(OnMonsterLevelUp.class, listenerLevelUp = e -> Gdx.app.log("EVENT", "Monster level up: " + e.gene));
+        eb.subscribe(OnTaskCompleted.class,  listenerTask    = e -> Gdx.app.log("EVENT", "Task completed: " + e.totalCompleted));
+        eb.subscribe(OnGuardKilled.class,    listenerGuard   = e -> Gdx.app.log("EVENT", "Guard killed"));
+        eb.subscribe(OnPlayerHit.class,      listenerHit     = e -> Gdx.app.log("EVENT", "Player hit: " + e.role));
     }
 
     @Override
@@ -312,6 +327,13 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         map.dispose();
+        EventBus eb = EventBus.getInstance();
+        eb.unsubscribe(OnSerumProgress.class,  listenerSerum);
+        eb.unsubscribe(OnMonsterLevelUp.class, listenerLevelUp);
+        eb.unsubscribe(OnTaskCompleted.class,  listenerTask);
+        eb.unsubscribe(OnGuardKilled.class,    listenerGuard);
+        eb.unsubscribe(OnPlayerHit.class,      listenerHit);
+
         mapRenderer.dispose();
         researcher.dispose();
         if (monster != null) monster.dispose();

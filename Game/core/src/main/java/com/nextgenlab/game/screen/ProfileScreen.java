@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 
 public class ProfileScreen extends ScreenAdapter {
@@ -42,6 +42,7 @@ public class ProfileScreen extends ScreenAdapter {
     @Override
     public void show() {
         font   = new BitmapFont();
+        font.getData().setScale(1.5f);
         bgTex  = solidTex(0f, 0f, 0f, 0.9f);
         rowTex = solidTex(0.12f, 0.12f, 0.18f, 1f);
 
@@ -71,7 +72,7 @@ public class ProfileScreen extends ScreenAdapter {
 
     private void buildLoadingScreen() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Label.LabelStyle white = new Label.LabelStyle(font, Color.WHITE);
@@ -83,7 +84,7 @@ public class ProfileScreen extends ScreenAdapter {
 
     private void buildDataScreen() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Label.LabelStyle white  = new Label.LabelStyle(font, Color.WHITE);

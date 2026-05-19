@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 
 public class MenuScreen extends ScreenAdapter {
@@ -25,9 +25,10 @@ public class MenuScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
         font = new BitmapFont();
+        font.getData().setScale(1.5f);
 
         Table table = new Table();
         table.setFillParent(true);
@@ -36,7 +37,7 @@ public class MenuScreen extends ScreenAdapter {
         Label.LabelStyle style = new Label.LabelStyle(font, Color.WHITE);
 
         Label titleLabel = new Label("NEXTGEN-LAB PROJECT:\nSCIENCE VS INSTINCT", style);
-        titleLabel.setFontScale(2f);
+        titleLabel.setFontScale(3f);
 
         loginLabel = new Label("", new Label.LabelStyle(font, Color.CYAN));
         hintLabel  = new Label("", style);

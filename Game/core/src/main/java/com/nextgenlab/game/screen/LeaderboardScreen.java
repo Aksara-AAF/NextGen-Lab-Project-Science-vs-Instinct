@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 
 public class LeaderboardScreen extends ScreenAdapter {
@@ -36,6 +36,7 @@ public class LeaderboardScreen extends ScreenAdapter {
     @Override
     public void show() {
         font  = new BitmapFont();
+        font.getData().setScale(1.5f);
         bgTex = solidTex(0f, 0f, 0f, 0.9f);
         buildLoadingScreen();
 
@@ -47,7 +48,7 @@ public class LeaderboardScreen extends ScreenAdapter {
 
     private void buildLoadingScreen() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
         Table root = new Table();
         root.setFillParent(true);
@@ -60,7 +61,7 @@ public class LeaderboardScreen extends ScreenAdapter {
         rebuilt = true;
 
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Label.LabelStyle white = new Label.LabelStyle(font, Color.WHITE);

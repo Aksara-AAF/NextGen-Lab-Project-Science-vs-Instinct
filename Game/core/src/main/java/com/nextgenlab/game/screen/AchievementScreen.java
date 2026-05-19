@@ -15,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 
 import java.util.ArrayList;
@@ -49,6 +49,7 @@ public class AchievementScreen extends ScreenAdapter {
     @Override
     public void show() {
         font  = new BitmapFont();
+        font.getData().setScale(1.5f);
         bgTex = solidTex(0f, 0f, 0f, 0.9f);
 
         for (String code : ICON_CODES) {
@@ -77,7 +78,7 @@ public class AchievementScreen extends ScreenAdapter {
 
     private void buildLoadingScreen() {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
         Table root = new Table();
         root.setFillParent(true);
@@ -90,7 +91,7 @@ public class AchievementScreen extends ScreenAdapter {
         rebuilt = true;
 
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Label.LabelStyle white = new Label.LabelStyle(font, Color.WHITE);
@@ -126,9 +127,9 @@ public class AchievementScreen extends ScreenAdapter {
             Texture iconTex = icons.get(code.toLowerCase());
             if (iconTex != null) {
                 row.add(new Image(new TextureRegionDrawable(new TextureRegion(iconTex))))
-                   .width(32).height(32).padRight(10);
+                   .width(40).height(40).padRight(10);
             } else {
-                row.add(new Label("[?]", gray)).width(32).height(32).padRight(10);
+                row.add(new Label("[?]", gray)).width(40).height(40).padRight(10);
             }
 
 

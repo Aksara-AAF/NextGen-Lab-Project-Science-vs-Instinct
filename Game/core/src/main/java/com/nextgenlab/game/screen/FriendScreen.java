@@ -18,7 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 
 public class FriendScreen extends ScreenAdapter {
@@ -40,10 +40,11 @@ public class FriendScreen extends ScreenAdapter {
     @Override
     public void show() {
         font         = new BitmapFont();
-        btnTex       = solid(140, 36, 0.15f, 0.15f, 0.20f, 1f);
-        btnSelTex    = solid(140, 36, 0.08f, 0.08f, 0.12f, 1f);
-        btnActiveTex = solid(140, 36, 0.10f, 0.25f, 0.35f, 1f);
-        tfBgTex      = solid(240, 36, 0.10f, 0.10f, 0.14f, 1f);
+        font.getData().setScale(1.5f);
+        btnTex       = solid(190, 48, 0.15f, 0.15f, 0.20f, 1f);
+        btnSelTex    = solid(190, 48, 0.08f, 0.08f, 0.12f, 1f);
+        btnActiveTex = solid(190, 48, 0.10f, 0.25f, 0.35f, 1f);
+        tfBgTex      = solid(300, 48, 0.10f, 0.10f, 0.14f, 1f);
         Pixmap cur   = new Pixmap(2, 28, Pixmap.Format.RGBA8888);
         cur.setColor(Color.WHITE); cur.fill();
         tfCursorTex  = new Texture(cur);
@@ -80,11 +81,11 @@ public class FriendScreen extends ScreenAdapter {
                 if (!roomCode.isEmpty()) {
                     final String rc = roomCode;
                     row.add(smallBtn("JOIN", Color.GREEN,
-                        () -> doJoinFriendRoom(rc))).width(60).height(28).padLeft(8);
+                        () -> doJoinFriendRoom(rc))).width(80).height(36).padLeft(8);
                 }
 
                 row.add(smallBtn("HAPUS", Color.RED,
-                    () -> doRemoveFriend(targetId))).width(70).height(28).padLeft(4);
+                    () -> doRemoveFriend(targetId))).width(95).height(36).padLeft(4);
                 list.add(row).fillX().expandX().row();
             }
             if (!any) list.add(new Label("(Belum ada teman)", ls(Color.GRAY))).left().row();
@@ -109,9 +110,9 @@ public class FriendScreen extends ScreenAdapter {
                 Table row = new Table().left().padBottom(6);
                 row.add(new Label("dari: " + uname, ls(Color.WHITE))).expandX().left();
                 row.add(smallBtn("TERIMA", Color.GREEN,
-                    () -> doAccept(friendshipId))).width(80).height(28).padLeft(8);
+                    () -> doAccept(friendshipId))).width(105).height(36).padLeft(8);
                 row.add(smallBtn("TOLAK",  Color.RED,
-                    () -> doRemoveFriend(fromId))).width(80).height(28).padLeft(4);
+                    () -> doRemoveFriend(fromId))).width(105).height(36).padLeft(4);
                 list.add(row).fillX().expandX().row();
             }
             if (!any) list.add(new Label("(Tidak ada permintaan)", ls(Color.GRAY))).left().row();
@@ -126,7 +127,7 @@ public class FriendScreen extends ScreenAdapter {
 
     private void buildSearchScreen(String prefill, String resultJson) {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Table root = new Table().top().left();
@@ -141,12 +142,12 @@ public class FriendScreen extends ScreenAdapter {
         field.setMaxLength(32);
 
         Table searchRow = new Table();
-        searchRow.add(field).width(220).height(36).padRight(8);
+        searchRow.add(field).width(300).height(48).padRight(8);
         searchRow.add(smallBtn("CARI", Color.CYAN, () ->
             game.backend.searchUsers(field.getText().trim(),
                 resp -> Gdx.app.postRunnable(() -> buildSearchScreen(field.getText().trim(), resp)),
                 err  -> Gdx.app.error("FRIEND", err.getMessage()))
-        )).width(70).height(36);
+        )).width(95).height(48);
         root.add(searchRow).left().padBottom(16).row();
 
         if (resultJson != null) {
@@ -171,7 +172,7 @@ public class FriendScreen extends ScreenAdapter {
             Table row = new Table().left().padBottom(6);
             row.add(new Label(uname, ls(Color.WHITE))).expandX().left();
             row.add(smallBtn("+ TEMAN", Color.GREEN,
-                () -> doAddFriend(userId))).width(90).height(28).padLeft(10);
+                () -> doAddFriend(userId))).width(120).height(36).padLeft(10);
             list.add(row).fillX().expandX().row();
         }
         if (!any) list.add(new Label("(Tidak ada hasil)", ls(Color.GRAY))).left().row();
@@ -183,7 +184,7 @@ public class FriendScreen extends ScreenAdapter {
 
     private void buildShell(String tabName, JsonToTable tableBuilder) {
         if (stage != null) stage.dispose();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
 
         Table root = new Table().top().left();
@@ -256,9 +257,9 @@ public class FriendScreen extends ScreenAdapter {
 
     private Table tabRow() {
         Table row = new Table();
-        row.add(tabBtn("TEMAN",      Tab.FRIENDS)).width(140).height(36).padRight(4);
-        row.add(tabBtn("PERMINTAAN", Tab.REQUESTS)).width(140).height(36).padRight(4);
-        row.add(tabBtn("CARI",       Tab.SEARCH)).width(140).height(36);
+        row.add(tabBtn("TEMAN",      Tab.FRIENDS)).width(190).height(48).padRight(4);
+        row.add(tabBtn("PERMINTAAN", Tab.REQUESTS)).width(190).height(48).padRight(4);
+        row.add(tabBtn("CARI",       Tab.SEARCH)).width(190).height(48);
         return row;
     }
 
