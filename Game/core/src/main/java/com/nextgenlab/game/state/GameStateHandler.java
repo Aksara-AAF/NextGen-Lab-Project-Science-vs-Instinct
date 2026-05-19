@@ -8,4 +8,5 @@ public interface GameStateHandler {
     void render(GameScreen screen);
     void exit(GameScreen screen);
     void dispose();
+    default void resize(GameScreen screen, int width, int height) {}
 }

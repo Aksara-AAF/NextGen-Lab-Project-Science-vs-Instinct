@@ -39,6 +39,7 @@ import com.nextgenlab.game.task.ServerHackTask;
 import com.nextgenlab.game.task.TaskUiTheme;
 import com.nextgenlab.game.task.WireTask;
 import com.nextgenlab.game.event.*;
+import com.nextgenlab.game.facade.AudioFacade;
 import com.nextgenlab.game.ui.CraftingPanel;
 import com.nextgenlab.game.ui.HudOverlay;
 import com.nextgenlab.game.ui.InventoryPanel;
@@ -50,6 +51,9 @@ public class PreparationState implements GameStateHandler {
 
     private static final int   TOTAL_TASKS         = 5;
     private static final float TRIGGER_RADIUS      = 80f;
+    private static final float FOOTSTEP_INTERVAL   = 0.3f;
+    private static final float GROWL_INTERVAL      = 5.0f;
+    private static final float GROWL_RANGE         = 200f;
     private static final float NET_SEND_RATE       = 0.05f;
     private static final float GUARD_BULLET_SPEED  = 280f;
     private static final float RES_BULLET_SPEED    = 420f;
@@ -99,6 +103,10 @@ public class PreparationState implements GameStateHandler {
 
     private int syncedMonsterXp    = 0;
     private int syncedMonsterLevel = 0;
+
+
+    private float footstepTimer = 0f;
+    private float growlTimer    = 0f;
 
 
     private float   prepTimerLocal = 360f;
@@ -583,6 +591,31 @@ public class PreparationState implements GameStateHandler {
         }
         for (DecoyObject d : screen.decoys) d.update(delta);
         screen.decoys.removeIf(d -> !d.isActive());
+
+
+        boolean localMoving = isResearcher ? screen.researcher.isMoving()
+                                           : (screen.monster != null && screen.monster.isMoving());
+        if (localMoving) {
+            footstepTimer += delta;
+            if (footstepTimer >= FOOTSTEP_INTERVAL) {
+                footstepTimer = 0f;
+                AudioFacade.getInstance().playFootstep();
+            }
+        } else {
+            footstepTimer = 0f;
+        }
+
+
+        if (isResearcher && screen.monster != null) {
+            growlTimer += delta;
+            if (growlTimer >= GROWL_INTERVAL) {
+                growlTimer = 0f;
+                float dx = screen.monster.getX() - screen.researcher.getX();
+                float dy = screen.monster.getY() - screen.researcher.getY();
+                if (dx * dx + dy * dy <= GROWL_RANGE * GROWL_RANGE)
+                    AudioFacade.getInstance().playSfx("sfx_monster_growl");
+            }
+        }
     }
 
 
@@ -905,6 +938,11 @@ public class PreparationState implements GameStateHandler {
     }
 
     @Override
+    public void resize(GameScreen screen, int width, int height) {
+        if (hud != null) hud.resize(width, height);
+    }
+
+    @Override
     public void exit(GameScreen screen) { Gdx.input.setInputProcessor(null); }
 
     @Override
@@ -1044,6 +1082,7 @@ public class PreparationState implements GameStateHandler {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) && screen.monster.canDash()) {
             screen.monster.startDash(vx, vy);
+            AudioFacade.getInstance().playSfx("sfx_dash");
         }
 
 

@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
+import com.nextgenlab.game.facade.AudioFacade;
 
 public class MenuScreen extends ScreenAdapter {
 
@@ -25,6 +26,7 @@ public class MenuScreen extends ScreenAdapter {
 
     @Override
     public void show() {
+        AudioFacade.getInstance().playBgm("bgm_menu");
         stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);
         font = new BitmapFont();

@@ -57,6 +57,11 @@ public class HudOverlay {
         loadItemIcons();
     }
 
+    public void resize(int width, int height) {
+        hudCamera.setToOrtho(false, width, height);
+        hudCamera.update();
+    }
+
     private void loadItemIcons() {
         ItemType[] types = ItemType.values();
         for (int i = 0; i < types.length; i++) {
