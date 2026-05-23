@@ -43,7 +43,7 @@ public class FriendScreen extends ScreenAdapter {
     @Override
     public void show() {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Pix32.ttf"));
+            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
         FreeTypeFontParameter fp = new FreeTypeFontParameter();
         fp.size = 18;
         font = gen.generateFont(fp);

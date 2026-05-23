@@ -24,6 +24,8 @@ public class BackendFacade {
         this.baseUrl = url;
     }
 
+    public String getBaseUrl() { return baseUrl; }
+
 
     public boolean isLoggedIn()        { return authToken != null; }
     public String  getAuthToken()      { return authToken; }

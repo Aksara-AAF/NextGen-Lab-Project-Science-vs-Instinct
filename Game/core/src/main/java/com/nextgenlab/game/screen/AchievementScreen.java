@@ -52,7 +52,7 @@ public class AchievementScreen extends ScreenAdapter {
     @Override
     public void show() {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Pix32.ttf"));
+            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
         FreeTypeFontParameter p = new FreeTypeFontParameter();
         p.size = 18;
         font = gen.generateFont(p);

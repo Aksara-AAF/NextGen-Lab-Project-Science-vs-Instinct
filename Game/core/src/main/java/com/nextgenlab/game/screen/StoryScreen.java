@@ -65,7 +65,7 @@ public class StoryScreen extends ScreenAdapter {
         AudioFacade.getInstance().playBgm("bgm_menu");
 
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Pix32.ttf"));
+            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
         FreeTypeFontParameter p = new FreeTypeFontParameter();
         p.size = 28;
         font = gen.generateFont(p);

@@ -62,7 +62,7 @@ public class GameOverScreen extends ScreenAdapter {
         AudioFacade.getInstance().stopBgm();
 
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Pix32.ttf"));
+            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
         FreeTypeFontParameter p = new FreeTypeFontParameter();
         p.size = 20;
         font = gen.generateFont(p);

@@ -47,7 +47,7 @@ public class MenuScreen extends ScreenAdapter {
             ? new Texture(Gdx.files.internal("background/title_logo.png")) : null;
 
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Pix32.ttf"));
+            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
         FreeTypeFontParameter p = new FreeTypeFontParameter();
         p.size = 52;
         titleFont = gen.generateFont(p);

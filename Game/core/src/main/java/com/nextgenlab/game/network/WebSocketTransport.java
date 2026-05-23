@@ -23,10 +23,10 @@ public class WebSocketTransport implements NetworkTransport {
     private WebSocketClient client;
     private volatile boolean opened = false;
 
-    public WebSocketTransport(long matchId, String myRole, String hostPort) {
+    public WebSocketTransport(long matchId, String myRole, String wsBaseUrl) {
         this.matchId = matchId;
         this.myRole  = myRole;
-        this.wsUrl   = "ws://" + hostPort + "/ws/game?matchId=" + matchId + "&role=" + myRole;
+        this.wsUrl   = wsBaseUrl + "/ws/game?matchId=" + matchId + "&role=" + myRole;
     }
 
     @Override

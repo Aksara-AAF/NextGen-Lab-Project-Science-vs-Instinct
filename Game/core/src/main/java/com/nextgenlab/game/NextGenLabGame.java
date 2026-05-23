@@ -33,11 +33,19 @@ public class NextGenLabGame extends Game {
     public void applySettings() {
         Preferences prefs = Gdx.app.getPreferences("nextgenlab");
         serverHost = prefs.getString("server", "localhost");
-        backend    = new BackendFacade("http://" + serverHost + ":8080");
+        backend    = new BackendFacade(buildBaseUrl(serverHost));
         float vol  = prefs.getFloat("volume", 1.0f);
         AudioFacade.getInstance().setMasterVol(vol);
         if (prefs.getBoolean("fullscreen", false))
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+    }
+
+    public static String buildBaseUrl(String raw) {
+        if (raw == null || raw.isEmpty()) raw = "localhost";
+        if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+        if (raw.equals("localhost") || raw.matches("\\d{1,3}(\\.\\d{1,3}){3}"))
+            return "http://" + raw + ":8080";
+        return "https://" + raw;
     }
 
     public void resetSession() {

@@ -72,7 +72,7 @@ public class RoomScreen extends ScreenAdapter {
     @Override
     public void show() {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Pix32.ttf"));
+            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
         FreeTypeFontParameter fp = new FreeTypeFontParameter();
         fp.size = 20;
         font = gen.generateFont(fp);
@@ -437,8 +437,10 @@ public class RoomScreen extends ScreenAdapter {
     private void startMultiplayer() {
         if (pendingMatchId == null) return;
         game.currentMatchId = pendingMatchId;
-        NetworkTransport tr = new WebSocketTransport(pendingMatchId, game.playerRole,
-                                                     game.serverHost + ":8080");
+        String wsBase = game.backend.getBaseUrl()
+            .replace("https://", "wss://")
+            .replace("http://", "ws://");
+        NetworkTransport tr = new WebSocketTransport(pendingMatchId, game.playerRole, wsBase);
         tr.connect();
         game.transport = tr;
         Gdx.app.log("ROOM", "WS matchId=" + pendingMatchId + " role=" + game.playerRole);

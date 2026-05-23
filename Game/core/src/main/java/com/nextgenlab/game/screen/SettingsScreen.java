@@ -35,6 +35,7 @@ public class SettingsScreen extends ScreenAdapter {
     private Stage      stage;
     private BitmapFont font;
     private Texture    btnTex, btnSelTex;
+    private Texture    presetUpTex, presetSelTex;
     private Texture    bgTex, overlayTex;
     private Slider     volumeSlider;
     private TextField  serverField;
@@ -47,13 +48,15 @@ public class SettingsScreen extends ScreenAdapter {
     @Override
     public void show() {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Pix32.ttf"));
+            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
         FreeTypeFontParameter p = new FreeTypeFontParameter();
         p.size = 20;
         font = gen.generateFont(p);
         gen.dispose();
-        btnTex    = buildBorder(380, 56, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
-        btnSelTex = buildBorder(380, 56, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
+        btnTex       = buildBorder(380, 56, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
+        btnSelTex    = buildBorder(380, 56, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
+        presetUpTex  = buildBorder(120, 38, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
+        presetSelTex = buildBorder(120, 38, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
         bgTex     = loadBgOrSolid("background/lobby_bg.png", 0.03f, 0.03f, 0.08f);
         overlayTex = solid1x1(0f, 0f, 0f);
         isFullscreen = Gdx.graphics.isFullscreen();
@@ -98,13 +101,19 @@ public class SettingsScreen extends ScreenAdapter {
 
         t.add(new Label("Alamat Server:", gray)).left().padBottom(6).row();
 
+        Table presetRow = new Table();
+        presetRow.add(makePresetBtn("Localhost", Color.CYAN,   () -> serverField.setText("localhost"))).width(120).height(38).padRight(8);
+        presetRow.add(makePresetBtn("LAN",       Color.GREEN,  () -> serverField.setText(getLocalIp()))).width(120).height(38).padRight(8);
+        presetRow.add(makePresetBtn("Internet",  Color.YELLOW, () -> serverField.setText("https://"))).width(120).height(38);
+        t.add(presetRow).padBottom(6).row();
+
         TextField.TextFieldStyle tf = new TextField.TextFieldStyle();
         tf.font       = font;
         tf.fontColor  = Color.WHITE;
-        tf.background = drawable(300, 48, 0.15f, 0.15f, 0.22f);
+        tf.background = drawable(380, 48, 0.15f, 0.15f, 0.22f);
         tf.cursor     = drawable(2,   48, 1f,    1f,    1f   );
         serverField   = new TextField(server, tf);
-        t.add(serverField).width(300).height(48).padBottom(28).row();
+        t.add(serverField).width(380).height(48).padBottom(28).row();
 
 
         String fsLabel = isFullscreen ? "JADIKAN WINDOWED" : "JADIKAN FULLSCREEN";
@@ -133,7 +142,7 @@ public class SettingsScreen extends ScreenAdapter {
 
     private void onSave() {
         String newServer = serverField.getText().trim();
-        if (newServer.isEmpty()) newServer = "localhost";
+        if (newServer.isEmpty() || newServer.equals("https://")) newServer = "localhost";
 
         Preferences prefs = Gdx.app.getPreferences("nextgenlab");
         prefs.putFloat("volume",      volumeSlider.getValue());
@@ -143,7 +152,7 @@ public class SettingsScreen extends ScreenAdapter {
 
         AudioFacade.getInstance().setMasterVol(volumeSlider.getValue());
         game.serverHost = newServer;
-        game.backend    = new BackendFacade("http://" + game.serverHost + ":8080");
+        game.backend    = new BackendFacade(NextGenLabGame.buildBaseUrl(newServer));
         game.setScreen(new LobbyScreen(game));
     }
 
@@ -156,6 +165,32 @@ public class SettingsScreen extends ScreenAdapter {
         game.setScreen(new LobbyScreen(game));
     }
 
+
+    private TextButton makePresetBtn(String text, Color color, Runnable action) {
+        TextButton.TextButtonStyle s = new TextButton.TextButtonStyle();
+        s.font      = font;
+        s.fontColor = color;
+        s.up        = new TextureRegionDrawable(new TextureRegion(presetUpTex));
+        s.over      = new TextureRegionDrawable(new TextureRegion(presetSelTex));
+        s.down      = new TextureRegionDrawable(new TextureRegion(presetSelTex));
+        TextButton btn = new TextButton(text, s);
+        btn.getLabel().setFontScale(0.7f);
+        btn.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent e, float x, float y) {
+                AudioFacade.getInstance().playSfx("sfx_button_click");
+                action.run();
+            }
+        });
+        return btn;
+    }
+
+    private static String getLocalIp() {
+        try {
+            return java.net.InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            return "127.0.0.1";
+        }
+    }
 
     private TextButton makeBtn(String text, Color color, Runnable action) {
         TextButton.TextButtonStyle s = new TextButton.TextButtonStyle();
@@ -237,11 +272,13 @@ public class SettingsScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        if (stage      != null) stage.dispose();
-        if (btnTex     != null) btnTex.dispose();
-        if (btnSelTex  != null) btnSelTex.dispose();
-        if (bgTex      != null) bgTex.dispose();
-        if (overlayTex != null) overlayTex.dispose();
-        if (font       != null) font.dispose();
+        if (stage        != null) stage.dispose();
+        if (btnTex       != null) btnTex.dispose();
+        if (btnSelTex    != null) btnSelTex.dispose();
+        if (presetUpTex  != null) presetUpTex.dispose();
+        if (presetSelTex != null) presetSelTex.dispose();
+        if (bgTex        != null) bgTex.dispose();
+        if (overlayTex   != null) overlayTex.dispose();
+        if (font         != null) font.dispose();
     }
 }
