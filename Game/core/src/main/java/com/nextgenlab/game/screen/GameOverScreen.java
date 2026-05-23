@@ -62,7 +62,7 @@ public class GameOverScreen extends ScreenAdapter {
         AudioFacade.getInstance().stopBgm();
 
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Kenney Pixel.ttf"));
+            Gdx.files.internal("fonts/Pix32.ttf"));
         FreeTypeFontParameter p = new FreeTypeFontParameter();
         p.size = 20;
         font = gen.generateFont(p);
@@ -75,8 +75,8 @@ public class GameOverScreen extends ScreenAdapter {
 
 
         String winPath = "RESEARCHER".equals(winner)
-            ? "gameover/win_researcher.png"
-            : "gameover/win_monster.png";
+            ? "background/win_researcher.png"
+            : "background/win_monster.png";
         winTex = Gdx.files.internal(winPath).exists()
             ? new Texture(Gdx.files.internal(winPath))
             : solid(1, 1,
@@ -128,6 +128,8 @@ public class GameOverScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
+        stage.getViewport().apply(true);
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
         game.batch.begin();
         game.batch.setColor(Color.WHITE);
         game.batch.draw(winTex, 0, 0, 640, 720);

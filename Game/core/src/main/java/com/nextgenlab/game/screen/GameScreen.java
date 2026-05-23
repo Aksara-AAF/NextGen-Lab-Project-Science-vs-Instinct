@@ -153,11 +153,11 @@ public class GameScreen extends ScreenAdapter {
 
 
         String prepPath = isResearcherRole
-            ? "phase/phase_preparation_researcher.png"
-            : "phase/phase_preparation_monster.png";
+            ? "background/phase_preparation_researcher.png"
+            : "background/phase_preparation_monster.png";
         String duelPath = isResearcherRole
-            ? "phase/phase_duel_researcher.png"
-            : "phase/phase_duel_monster.png";
+            ? "background/phase_duel_researcher.png"
+            : "background/phase_duel_monster.png";
         prepTex = loadOrFallback(prepPath, 0.05f, 0.10f, 0.20f);
         duelTex = loadOrFallback(duelPath, 0.20f, 0.05f, 0.05f);
 

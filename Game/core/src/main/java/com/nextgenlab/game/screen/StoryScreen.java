@@ -65,18 +65,18 @@ public class StoryScreen extends ScreenAdapter {
         AudioFacade.getInstance().playBgm("bgm_menu");
 
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/Kenney Pixel.ttf"));
+            Gdx.files.internal("fonts/Pix32.ttf"));
         FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 22;
+        p.size = 28;
         font = gen.generateFont(p);
-        p.size = 18;
+        p.size = 20;
         promptFont = gen.generateFont(p);
         gen.dispose();
 
 
         boolean isResearcher = pages == PAGES_RESEARCHER;
-        String roleIllusPath  = isResearcher ? "story/story_researcher.png" : "story/story_monster.png";
-        String breachPath     = "story/story_containmentBreach.png";
+        String roleIllusPath  = isResearcher ? "background/story_researcher.png" : "background/story_monster.png";
+        String breachPath     = "background/story_containmentBreach.png";
         Texture roleIllus  = loadOrSolid(roleIllusPath,  0.05f, 0.08f, 0.18f);
         Texture breachIllu = loadOrSolid(breachPath,     0.18f, 0.04f, 0.04f);
         illustrations = new Texture[]{ roleIllus, roleIllus, breachIllu };
@@ -135,6 +135,8 @@ public class StoryScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
+        stage.getViewport().apply(true);
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
         game.batch.begin();
         game.batch.setColor(Color.WHITE);
         game.batch.draw(illustrations[currentPage], 0, 0, 480, 720);

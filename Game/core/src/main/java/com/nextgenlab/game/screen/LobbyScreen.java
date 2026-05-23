@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -25,8 +27,8 @@ public class LobbyScreen extends ScreenAdapter {
 
     private final NextGenLabGame game;
     private Stage      stage;
-    private Texture    btnTex, btnSelTex, bgTex, overlayTex;
-    private BitmapFont font;
+    private Texture    btnUpTex, btnOverTex, bgTex, overlayTex;
+    private BitmapFont titleFont, btnFont, labelFont;
 
     public LobbyScreen(NextGenLabGame game) {
         this.game = game;
@@ -36,15 +38,27 @@ public class LobbyScreen extends ScreenAdapter {
     public void show() {
         AudioFacade.getInstance().playBgm("bgm_menu");
         game.resetSession();
-        font      = new BitmapFont();
-        font.getData().setScale(1.5f);
-        btnTex    = solid(380, 60, 0.15f, 0.15f, 0.20f, 1f);
-        btnSelTex = solid(380, 60, 0.08f, 0.08f, 0.12f, 1f);
-        String bgPath = "backgrounds/lobby_bg.png";
+
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/Pix32.ttf"));
+        FreeTypeFontParameter p = new FreeTypeFontParameter();
+        p.size = 44;
+        titleFont = gen.generateFont(p);
+        p.size = 22;
+        btnFont = gen.generateFont(p);
+        p.size = 17;
+        labelFont = gen.generateFont(p);
+        gen.dispose();
+
+        btnUpTex  = buildBorderTex(380, 56, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
+        btnOverTex = buildBorderTex(380, 56, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
+
+        String bgPath = "background/lobby_bg.png";
         bgTex      = Gdx.files.internal(bgPath).exists()
             ? new Texture(Gdx.files.internal(bgPath))
-            : solid(1, 1, 0.03f, 0.03f, 0.08f, 1f);
-        overlayTex = solid(1, 1, 0f, 0f, 0f, 1f);
+            : solidTex(1, 1, 0.03f, 0.03f, 0.08f, 1f);
+        overlayTex = solidTex(1, 1, 0f, 0f, 0f, 1f);
+
         buildUI();
     }
 
@@ -57,15 +71,14 @@ public class LobbyScreen extends ScreenAdapter {
         t.setFillParent(true);
         stage.addActor(t);
 
-        Label title = new Label("NEXTGEN-LAB", new Label.LabelStyle(font, Color.CYAN));
-        title.setFontScale(3f);
+        Label title = new Label("NEXTGEN-LAB", new Label.LabelStyle(titleFont, Color.CYAN));
         t.add(title).padBottom(8).row();
 
         String authLine = game.backend.isLoggedIn()
             ? "Login: " + game.backend.getCurrentUsername()
             : "Belum login (multiplayer wajib login)";
-        t.add(new Label(authLine, new Label.LabelStyle(font,
-            game.backend.isLoggedIn() ? Color.CYAN : Color.GRAY))).padBottom(24).row();
+        t.add(new Label(authLine, new Label.LabelStyle(labelFont,
+            game.backend.isLoggedIn() ? Color.CYAN : Color.GRAY))).padBottom(28).row();
 
         addBtn(t, "PLAY",        Color.GREEN,  () -> game.setScreen(new PlayModeScreen(game)));
         addBtn(t, "LEADERBOARD", Color.YELLOW,
@@ -103,12 +116,13 @@ public class LobbyScreen extends ScreenAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.03f, 0.03f, 0.08f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        int W = Gdx.graphics.getWidth(), H = Gdx.graphics.getHeight();
+        stage.getViewport().apply(true);
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
         game.batch.begin();
         game.batch.setColor(Color.WHITE);
-        game.batch.draw(bgTex, 0, 0, W, H);
+        game.batch.draw(bgTex, 0, 0, 1280, 720);
         game.batch.setColor(0f, 0f, 0f, 0.52f);
-        game.batch.draw(overlayTex, 0, 0, W, H);
+        game.batch.draw(overlayTex, 0, 0, 1280, 720);
         game.batch.setColor(Color.WHITE);
         game.batch.end();
         stage.act(delta);
@@ -126,23 +140,25 @@ public class LobbyScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         if (stage      != null) stage.dispose();
-        if (btnTex     != null) btnTex.dispose();
-        if (btnSelTex  != null) btnSelTex.dispose();
+        if (btnUpTex   != null) btnUpTex.dispose();
+        if (btnOverTex != null) btnOverTex.dispose();
         if (bgTex      != null) bgTex.dispose();
         if (overlayTex != null) overlayTex.dispose();
-        if (font       != null) font.dispose();
+        if (titleFont  != null) titleFont.dispose();
+        if (btnFont    != null) btnFont.dispose();
+        if (labelFont  != null) labelFont.dispose();
     }
 
-
     private void addBtn(Table t, String text, Color color, Runnable action) {
-        t.add(makeBtn(text, color, action)).width(380).height(60).padBottom(12).row();
+        t.add(makeBtn(text, color, action)).width(380).height(56).padBottom(12).row();
     }
 
     private TextButton makeBtn(String text, Color color, Runnable action) {
         TextButton.TextButtonStyle s = new TextButton.TextButtonStyle();
-        s.font = font; s.fontColor = color;
-        s.up   = new TextureRegionDrawable(new TextureRegion(btnTex));
-        s.down = new TextureRegionDrawable(new TextureRegion(btnSelTex));
+        s.font = btnFont; s.fontColor = color;
+        s.up   = new TextureRegionDrawable(new TextureRegion(btnUpTex));
+        s.over = new TextureRegionDrawable(new TextureRegion(btnOverTex));
+        s.down = new TextureRegionDrawable(new TextureRegion(btnOverTex));
         TextButton btn = new TextButton(text, s);
         btn.addListener(new ClickListener() {
             @Override public void clicked(InputEvent e, float x, float y) {
@@ -158,9 +174,21 @@ public class LobbyScreen extends ScreenAdapter {
         return btn;
     }
 
-    private Texture solid(int w, int h, float r, float g, float b, float a) {
+    private static Texture solidTex(int w, int h, float r, float g, float b, float a) {
         Pixmap p = new Pixmap(w, h, Pixmap.Format.RGBA8888);
         p.setColor(r, g, b, a); p.fill();
+        Texture t = new Texture(p); p.dispose();
+        return t;
+    }
+
+    private static Texture buildBorderTex(int w, int h,
+                                          float fr, float fg, float fb, float fa,
+                                          float br, float bg2, float bb) {
+        Pixmap p = new Pixmap(w, h, Pixmap.Format.RGBA8888);
+        p.setColor(fr, fg, fb, fa); p.fill();
+        p.setColor(br, bg2, bb, 1f);
+        p.drawRectangle(0, 0, w, h);
+        p.drawRectangle(1, 1, w - 2, h - 2);
         Texture t = new Texture(p); p.dispose();
         return t;
     }

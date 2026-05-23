@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -21,9 +23,10 @@ public class LeaderboardScreen extends ScreenAdapter {
 
     private final NextGenLabGame game;
     private final Runnable       onBack;
-    private Stage   stage;
+    private Stage      stage;
     private BitmapFont font;
-    private Texture bgTex;
+    private Texture    bgTex;
+    private Texture    bgImgTex, overlayTex;
 
     private volatile String responseJson = null;
     private boolean rebuilt = false;
@@ -35,9 +38,16 @@ public class LeaderboardScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        font  = new BitmapFont();
-        font.getData().setScale(1.5f);
-        bgTex = solidTex(0f, 0f, 0f, 0.9f);
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/Pix32.ttf"));
+        FreeTypeFontParameter p = new FreeTypeFontParameter();
+        p.size = 18;
+        font = gen.generateFont(p);
+        gen.dispose();
+        bgTex     = solidTex(0f, 0f, 0f, 0.9f);
+        bgImgTex  = Gdx.files.internal("background/lobby_bg.png").exists()
+            ? new Texture(Gdx.files.internal("background/lobby_bg.png")) : solidTex(0.03f, 0.03f, 0.08f, 1f);
+        overlayTex = solidTex(0f, 0f, 0f, 1f);
         buildLoadingScreen();
 
         game.backend.getLeaderboard(
@@ -136,6 +146,15 @@ public class LeaderboardScreen extends ScreenAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.getViewport().apply(true);
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
+        game.batch.begin();
+        game.batch.setColor(1f, 1f, 1f, 1f);
+        game.batch.draw(bgImgTex, 0, 0, 1280, 720);
+        game.batch.setColor(0f, 0f, 0f, 0.45f);
+        game.batch.draw(overlayTex, 0, 0, 1280, 720);
+        game.batch.setColor(1f, 1f, 1f, 1f);
+        game.batch.end();
         stage.act(delta);
         stage.draw();
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) onBack.run();
@@ -151,9 +170,11 @@ public class LeaderboardScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        if (stage != null) stage.dispose();
-        if (font  != null) font.dispose();
-        if (bgTex != null) bgTex.dispose();
+        if (stage      != null) stage.dispose();
+        if (font       != null) font.dispose();
+        if (bgTex      != null) bgTex.dispose();
+        if (bgImgTex   != null) bgImgTex.dispose();
+        if (overlayTex != null) overlayTex.dispose();
     }
 
 

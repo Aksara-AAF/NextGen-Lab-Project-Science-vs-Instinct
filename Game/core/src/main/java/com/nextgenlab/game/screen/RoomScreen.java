@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -31,6 +33,7 @@ public class RoomScreen extends ScreenAdapter {
     private Stage      stage;
     private BitmapFont font;
     private Texture    btnTex, btnSelTex, btnDimTex;
+    private Texture    bgTex, overlayTex;
 
     private float   pollTimer      = 1.8f;
     private float   dotTimer       = 0f;
@@ -68,11 +71,17 @@ public class RoomScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        font      = new BitmapFont();
-        font.getData().setScale(1.5f);
-        btnTex    = solidTex(0.15f, 0.15f, 0.20f, 1f, 380, 60);
-        btnSelTex = solidTex(0.08f, 0.08f, 0.12f, 1f, 380, 60);
-        btnDimTex = solidTex(0.10f, 0.10f, 0.13f, 1f, 380, 60);
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/Pix32.ttf"));
+        FreeTypeFontParameter fp = new FreeTypeFontParameter();
+        fp.size = 20;
+        font = gen.generateFont(fp);
+        gen.dispose();
+        btnTex    = buildBorder(380, 56, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
+        btnSelTex = buildBorder(380, 56, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
+        btnDimTex = buildBorder(380, 56, 0.08f, 0.08f, 0.13f, 0.80f, 0f, 0.50f, 0.50f);
+        bgTex     = loadBgOrSolid("background/lobby_bg.png", 0.03f, 0.03f, 0.08f);
+        overlayTex = solid1x1(0f, 0f, 0f);
         buildUI();
     }
 
@@ -360,6 +369,15 @@ public class RoomScreen extends ScreenAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.03f, 0.03f, 0.08f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.getViewport().apply(true);
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
+        game.batch.begin();
+        game.batch.setColor(1f, 1f, 1f, 1f);
+        game.batch.draw(bgTex, 0, 0, 1280, 720);
+        game.batch.setColor(0f, 0f, 0f, 0.55f);
+        game.batch.draw(overlayTex, 0, 0, 1280, 720);
+        game.batch.setColor(1f, 1f, 1f, 1f);
+        game.batch.end();
 
         if (kickedTimer > 0) {
             kickedTimer -= delta;
@@ -439,11 +457,13 @@ public class RoomScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        if (stage     != null) stage.dispose();
-        if (font      != null) font.dispose();
-        if (btnTex    != null) btnTex.dispose();
-        if (btnSelTex != null) btnSelTex.dispose();
-        if (btnDimTex != null) btnDimTex.dispose();
+        if (stage      != null) stage.dispose();
+        if (font       != null) font.dispose();
+        if (btnTex     != null) btnTex.dispose();
+        if (btnSelTex  != null) btnSelTex.dispose();
+        if (btnDimTex  != null) btnDimTex.dispose();
+        if (bgTex      != null) bgTex.dispose();
+        if (overlayTex != null) overlayTex.dispose();
     }
 
 
@@ -451,6 +471,7 @@ public class RoomScreen extends ScreenAdapter {
         TextButton.TextButtonStyle s = new TextButton.TextButtonStyle();
         s.font = font; s.fontColor = color;
         s.up   = new TextureRegionDrawable(new TextureRegion(btnTex));
+        s.over = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         s.down = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         TextButton btn = new TextButton(text, s);
         btn.addListener(new ClickListener() {
@@ -471,6 +492,7 @@ public class RoomScreen extends ScreenAdapter {
         TextButton.TextButtonStyle s = new TextButton.TextButtonStyle();
         s.font = font; s.fontColor = color;
         s.up   = new TextureRegionDrawable(new TextureRegion(btnDimTex));
+        s.over = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         s.down = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         TextButton btn = new TextButton(text, s);
         btn.addListener(new ClickListener() {
@@ -524,9 +546,26 @@ public class RoomScreen extends ScreenAdapter {
         return !a.equals(b);
     }
 
-    private Texture solidTex(float r, float g, float b, float a, int w, int h) {
+    private static Texture loadBgOrSolid(String path, float r, float g, float b) {
+        if (Gdx.files.internal(path).exists()) return new Texture(Gdx.files.internal(path));
+        return solid1x1(r, g, b);
+    }
+
+    private static Texture solid1x1(float r, float g, float b) {
+        Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pm.setColor(r, g, b, 1f); pm.fill();
+        Texture t = new Texture(pm); pm.dispose();
+        return t;
+    }
+
+    private static Texture buildBorder(int w, int h,
+                                       float fr, float fg, float fb, float fa,
+                                       float br, float bg2, float bb) {
         Pixmap p = new Pixmap(w, h, Pixmap.Format.RGBA8888);
-        p.setColor(r, g, b, a); p.fill();
+        p.setColor(fr, fg, fb, fa); p.fill();
+        p.setColor(br, bg2, bb, 1f);
+        p.drawRectangle(0, 0, w, h);
+        p.drawRectangle(1, 1, w - 2, h - 2);
         Texture t = new Texture(p); p.dispose();
         return t;
     }

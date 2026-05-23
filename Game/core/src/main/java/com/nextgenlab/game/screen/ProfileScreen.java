@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -25,6 +27,7 @@ public class ProfileScreen extends ScreenAdapter {
     private BitmapFont font;
     private Texture bgTex;
     private Texture rowTex;
+    private Texture bgImgTex, overlayTex;
 
     private volatile String statsJson   = null;
     private volatile String historyJson = null;
@@ -41,10 +44,17 @@ public class ProfileScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        font   = new BitmapFont();
-        font.getData().setScale(1.5f);
-        bgTex  = solidTex(0f, 0f, 0f, 0.9f);
-        rowTex = solidTex(0.12f, 0.12f, 0.18f, 1f);
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/Pix32.ttf"));
+        FreeTypeFontParameter p = new FreeTypeFontParameter();
+        p.size = 18;
+        font = gen.generateFont(p);
+        gen.dispose();
+        bgTex     = solidTex(0f, 0f, 0f, 0.9f);
+        rowTex    = solidTex(0.12f, 0.12f, 0.18f, 1f);
+        bgImgTex  = Gdx.files.internal("background/lobby_bg.png").exists()
+            ? new Texture(Gdx.files.internal("background/lobby_bg.png")) : solidTex(0.03f, 0.03f, 0.08f, 1f);
+        overlayTex = solidTex(0f, 0f, 0f, 1f);
 
         buildLoadingScreen();
         Gdx.input.setInputProcessor(stage);
@@ -173,7 +183,15 @@ public class ProfileScreen extends ScreenAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        stage.getViewport().apply(true);
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
+        game.batch.begin();
+        game.batch.setColor(1f, 1f, 1f, 1f);
+        game.batch.draw(bgImgTex, 0, 0, 1280, 720);
+        game.batch.setColor(0f, 0f, 0f, 0.45f);
+        game.batch.draw(overlayTex, 0, 0, 1280, 720);
+        game.batch.setColor(1f, 1f, 1f, 1f);
+        game.batch.end();
         stage.act(delta);
         stage.draw();
 
@@ -192,10 +210,12 @@ public class ProfileScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        if (stage  != null) stage.dispose();
-        if (font   != null) font.dispose();
-        if (bgTex  != null) bgTex.dispose();
-        if (rowTex != null) rowTex.dispose();
+        if (stage      != null) stage.dispose();
+        if (font       != null) font.dispose();
+        if (bgTex      != null) bgTex.dispose();
+        if (rowTex     != null) rowTex.dispose();
+        if (bgImgTex   != null) bgImgTex.dispose();
+        if (overlayTex != null) overlayTex.dispose();
     }
 
     private static Texture solidTex(float r, float g, float b, float a) {

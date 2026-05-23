@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -33,6 +35,7 @@ public class SettingsScreen extends ScreenAdapter {
     private Stage      stage;
     private BitmapFont font;
     private Texture    btnTex, btnSelTex;
+    private Texture    bgTex, overlayTex;
     private Slider     volumeSlider;
     private TextField  serverField;
     private boolean    isFullscreen;
@@ -43,10 +46,16 @@ public class SettingsScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        font         = new BitmapFont();
-        font.getData().setScale(1.5f);
-        btnTex       = solid(380, 60, 0.15f, 0.15f, 0.20f);
-        btnSelTex    = solid(380, 60, 0.08f, 0.08f, 0.12f);
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/Pix32.ttf"));
+        FreeTypeFontParameter p = new FreeTypeFontParameter();
+        p.size = 20;
+        font = gen.generateFont(p);
+        gen.dispose();
+        btnTex    = buildBorder(380, 56, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
+        btnSelTex = buildBorder(380, 56, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
+        bgTex     = loadBgOrSolid("background/lobby_bg.png", 0.03f, 0.03f, 0.08f);
+        overlayTex = solid1x1(0f, 0f, 0f);
         isFullscreen = Gdx.graphics.isFullscreen();
         buildUI();
     }
@@ -153,6 +162,7 @@ public class SettingsScreen extends ScreenAdapter {
         s.font      = font;
         s.fontColor = color;
         s.up        = new TextureRegionDrawable(new TextureRegion(btnTex));
+        s.over      = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         s.down      = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         TextButton btn = new TextButton(text, s);
         btn.addListener(new ClickListener() {
@@ -169,21 +179,50 @@ public class SettingsScreen extends ScreenAdapter {
         return btn;
     }
 
-    private Texture solid(int w, int h, float r, float g, float b) {
+    private static Texture loadBgOrSolid(String path, float r, float g, float b) {
+        if (Gdx.files.internal(path).exists()) return new Texture(Gdx.files.internal(path));
+        return solid1x1(r, g, b);
+    }
+
+    private static Texture solid1x1(float r, float g, float b) {
+        Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pm.setColor(r, g, b, 1f); pm.fill();
+        Texture t = new Texture(pm); pm.dispose();
+        return t;
+    }
+
+    private static Texture buildBorder(int w, int h,
+                                       float fr, float fg, float fb, float fa,
+                                       float br, float bg2, float bb) {
         Pixmap p = new Pixmap(w, h, Pixmap.Format.RGBA8888);
-        p.setColor(r, g, b, 1f); p.fill();
+        p.setColor(fr, fg, fb, fa); p.fill();
+        p.setColor(br, bg2, bb, 1f);
+        p.drawRectangle(0, 0, w, h);
+        p.drawRectangle(1, 1, w - 2, h - 2);
         Texture t = new Texture(p); p.dispose();
         return t;
     }
 
     private TextureRegionDrawable drawable(int w, int h, float r, float g, float b) {
-        return new TextureRegionDrawable(new TextureRegion(solid(w, h, r, g, b)));
+        Pixmap p = new Pixmap(w, h, Pixmap.Format.RGBA8888);
+        p.setColor(r, g, b, 1f); p.fill();
+        Texture t = new Texture(p); p.dispose();
+        return new TextureRegionDrawable(new TextureRegion(t));
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.03f, 0.03f, 0.08f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.getViewport().apply(true);
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
+        game.batch.begin();
+        game.batch.setColor(1f, 1f, 1f, 1f);
+        game.batch.draw(bgTex, 0, 0, 1280, 720);
+        game.batch.setColor(0f, 0f, 0f, 0.52f);
+        game.batch.draw(overlayTex, 0, 0, 1280, 720);
+        game.batch.setColor(1f, 1f, 1f, 1f);
+        game.batch.end();
         stage.act(delta);
         stage.draw();
     }
@@ -198,9 +237,11 @@ public class SettingsScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        if (stage    != null) stage.dispose();
-        if (btnTex   != null) btnTex.dispose();
-        if (btnSelTex != null) btnSelTex.dispose();
-        if (font     != null) font.dispose();
+        if (stage      != null) stage.dispose();
+        if (btnTex     != null) btnTex.dispose();
+        if (btnSelTex  != null) btnSelTex.dispose();
+        if (bgTex      != null) bgTex.dispose();
+        if (overlayTex != null) overlayTex.dispose();
+        if (font       != null) font.dispose();
     }
 }
