@@ -380,17 +380,17 @@ public class HudOverlay {
     }
 
     public void renderLightsOut() {
-        int W = Gdx.graphics.getWidth(), H = Gdx.graphics.getHeight();
+
+        renderNotification("LIGHTS OUT!");
+    }
+
+    public void drawCountdownAt(int sx, int sy, int seconds) {
         hudCamera.update();
-        shapes.setProjectionMatrix(hudCamera.combined);
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0f, 0f, 0f, 0.87f);
-        shapes.rect(0, 0, W, H);
-        shapes.end();
         hudBatch.setProjectionMatrix(hudCamera.combined);
         hudBatch.begin();
-        font.setColor(Color.ORANGE);
-        font.draw(hudBatch, "LIGHTS OUT!", W / 2f - 40, H / 2f);
+        font.setColor(1f, 0.8f, 0f, 1f);
+        font.draw(hudBatch, String.valueOf(seconds), sx - 6, sy);
+        font.setColor(Color.WHITE);
         hudBatch.end();
     }
 

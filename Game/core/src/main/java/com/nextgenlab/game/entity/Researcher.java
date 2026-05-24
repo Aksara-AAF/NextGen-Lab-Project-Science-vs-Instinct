@@ -12,7 +12,9 @@ import com.nextgenlab.game.crafting.ItemType;
 import com.nextgenlab.game.crafting.Resource;
 import com.nextgenlab.game.network.PositionUpdate;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public class Researcher {
@@ -61,7 +63,9 @@ public class Researcher {
     private int maxHp = 3;
 
     private final EnumMap<Resource, Integer> inventory = new EnumMap<>(Resource.class);
-    private Item    equippedWeapon      = null;
+    private final List<Item> weaponSlots    = new ArrayList<>();
+    private int              weaponSlotIndex = 0;
+    private float            permanentSpeedMult = 1.0f;
     private final Map<ItemType, Integer> utilityStock = new EnumMap<>(ItemType.class);
     private ItemType selectedUtilityType = null;
     private float   railGunCharge       = 0f;
@@ -132,7 +136,7 @@ public class Researcher {
         stateTime += delta;
         moving = true;
 
-        float effectiveSpeed = (sprinting ? speed * SPRINT_SPEED_MULT : speed) * getSpeedFactor();
+        float effectiveSpeed = (sprinting ? speed * SPRINT_SPEED_MULT : speed) * getSpeedFactor() * permanentSpeedMult;
         float vx = rawVx, vy = rawVy;
         if (vx != 0 && vy != 0) {
             float len = (float) Math.sqrt(vx * vx + vy * vy);
@@ -230,7 +234,12 @@ public class Researcher {
     public void equipItem(Item item) {
         if (item.type == ItemType.AMMO_PACK) { ammoReserve += 12; return; }
         if (item.type.isWeapon) {
-            equippedWeapon = item;
+            if (weaponSlots.size() < 3) {
+                weaponSlots.add(item);
+                weaponSlotIndex = weaponSlots.size() - 1;
+            } else {
+                weaponSlots.set(weaponSlotIndex, item);
+            }
             ammoReserve += magazineFor(item.type);
         } else {
             utilityStock.merge(item.type, 1, Integer::sum);
@@ -279,8 +288,22 @@ public class Researcher {
         return true;
     }
 
+    public void cycleWeapon() {
+        weaponSlots.removeIf(w -> w.consumed);
+        if (weaponSlots.size() <= 1) return;
+        weaponSlotIndex = (weaponSlotIndex + 1) % weaponSlots.size();
+    }
+
+    public void applyPermanentSpeedBoost(float mult) { permanentSpeedMult = Math.max(permanentSpeedMult, mult); }
+    public void addAmmoReserve(int amount)            { ammoReserve += amount; }
+    public int  getWeaponSlotCount()                  { return weaponSlots.size(); }
+
     public EnumMap<Resource, Integer> getInventory() { return inventory; }
-    public Item  getEquippedWeapon()                 { return equippedWeapon; }
+    public Item  getEquippedWeapon() {
+        if (weaponSlots.isEmpty()) return null;
+        if (weaponSlotIndex >= weaponSlots.size()) weaponSlotIndex = 0;
+        return weaponSlots.get(weaponSlotIndex);
+    }
     public float getRailGunCharge()                  { return railGunCharge; }
     public void  setRailGunCharge(float v)           { railGunCharge = v; }
 

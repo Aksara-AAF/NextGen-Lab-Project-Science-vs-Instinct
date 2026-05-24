@@ -75,6 +75,10 @@ public class Monster {
     private final List<String> activeGenes = new ArrayList<>();
 
 
+    private int   meleeDamageBonus = 0;
+    private float cooldownMult     = 1.0f;
+
+
     private boolean predatorClaws   = false;
     private float   speedMult       = 1.0f;
     private boolean hasFrenzy       = false;
@@ -272,8 +276,12 @@ public class Monster {
     public void fullHeal()   { hp = maxHp; }
     public boolean isAlive() { return hp > 0; }
 
+    public void applyMeleeDamageBonus(int bonus)  { meleeDamageBonus += bonus; }
+    public void applySpeedBoost(float mult)        { speedMult *= mult; }
+    public void applyCooldownReduction(float factor) { cooldownMult = Math.min(cooldownMult, factor); }
+
     public int getMeleeDamage() {
-        int base = 1;
+        int base = 1 + meleeDamageBonus;
         if (predatorClaws) base++;
         if (hasBerserker && hp < 2) base = (int)(base * 1.3f + 0.5f);
         return base;
@@ -395,7 +403,7 @@ public class Monster {
     public boolean canEcholocate() { return hasEcholocation && echolocationCooldownTimer <= 0; }
 
     public void activateEcholocation() {
-        echolocationCooldownTimer = ECHOLOCATION_COOLDOWN;
+        echolocationCooldownTimer = ECHOLOCATION_COOLDOWN * cooldownMult;
         echolocationActiveTimer   = ECHOLOCATION_DURATION;
     }
 
@@ -405,7 +413,7 @@ public class Monster {
     public void activatePhaseShift() {
         phaseShiftActive        = true;
         phaseShiftRemaining     = PHASE_SHIFT_DURATION;
-        phaseShiftCooldownTimer = PHASE_SHIFT_COOLDOWN;
+        phaseShiftCooldownTimer = PHASE_SHIFT_COOLDOWN * cooldownMult;
     }
 
 

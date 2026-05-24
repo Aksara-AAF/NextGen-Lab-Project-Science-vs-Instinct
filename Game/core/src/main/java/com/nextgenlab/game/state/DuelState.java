@@ -46,6 +46,7 @@ public class DuelState implements GameStateHandler {
     private int            ammo               = 6;
     private int            maxAmmo            = 6;
     private float          reloadTimer        = 0f;
+    private boolean        reloadBoostActive  = false;
 
     @Override
     public void enter(GameScreen screen) {
@@ -56,9 +57,15 @@ public class DuelState implements GameStateHandler {
 
         boolean isResearcher = "RESEARCHER".equals(screen.game.playerRole);
         if ("RESEARCHER".equals(screen.prepWinner) && isResearcher && screen.researcher != null) {
-            screen.researcher.heal(3);
+            screen.researcher.fullHeal();
+            screen.researcher.addAmmoReserve(36);
+            screen.researcher.applyPermanentSpeedBoost(1.2f);
+            reloadBoostActive = true;
         } else if ("MONSTER".equals(screen.prepWinner) && !isResearcher && screen.monster != null) {
-            screen.monster.heal(2);
+            screen.monster.fullHeal();
+            screen.monster.applySpeedBoost(1.2f);
+            screen.monster.applyMeleeDamageBonus(1);
+            screen.monster.applyCooldownReduction(0.5f);
         }
 
 
@@ -167,11 +174,11 @@ public class DuelState implements GameStateHandler {
 
         if (isResearcher && ammo <= 0 && reloadTimer <= 0 && maxAmmo > 0
                 && screen.researcher.getAmmoReserve() > 0)
-            reloadTimer = RELOAD_TIME;
+            reloadTimer = RELOAD_TIME * (reloadBoostActive ? 0.5f : 1f);
 
         if (isResearcher && Gdx.input.isKeyJustPressed(Input.Keys.R)
                 && reloadTimer <= 0 && ammo < maxAmmo && screen.researcher.getAmmoReserve() > 0) {
-            reloadTimer = RELOAD_TIME;
+            reloadTimer = RELOAD_TIME * (reloadBoostActive ? 0.5f : 1f);
         }
 
         if (!isResearcher && monsterRangedTimer > 0) monsterRangedTimer -= delta;
@@ -189,6 +196,15 @@ public class DuelState implements GameStateHandler {
                 if (isMultiplayer) broadcastSpawn(transport, screen.researcher.getX(), screen.researcher.getY(), dir, "RESEARCHER");
             }
         }
+
+        if (isResearcher && Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
+            screen.researcher.cycleWeapon();
+            Item nw = screen.researcher.getEquippedWeapon();
+            maxAmmo = maxAmmoFor(nw);
+            ammo    = Math.min(ammo, maxAmmo);
+            reloadTimer = 0f;
+        }
+
 
         if (isResearcher && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             handleUtilityUseDuel(screen, isMultiplayer, transport);

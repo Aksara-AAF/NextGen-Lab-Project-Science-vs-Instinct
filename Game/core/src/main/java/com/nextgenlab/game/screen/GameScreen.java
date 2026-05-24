@@ -190,6 +190,8 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        if (Gdx.graphics.getWidth() <= 0 || Gdx.graphics.getHeight() <= 0) return;
+
         if (pendingState != null) {
             if (currentState != null) { currentState.exit(this); currentState.dispose(); }
             currentState = pendingState;
@@ -418,6 +420,7 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
+        if (width <= 0 || height <= 0) return;
         camera.setToOrtho(false, 600, 450);
         if (currentState != null) currentState.resize(this, width, height);
         if (overlayStage != null) overlayStage.getViewport().update(width, height, true);

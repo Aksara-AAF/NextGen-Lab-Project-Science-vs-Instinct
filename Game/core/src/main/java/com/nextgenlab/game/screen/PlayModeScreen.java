@@ -210,6 +210,9 @@ public class PlayModeScreen extends ScreenAdapter {
         s.down = new TextureRegionDrawable(new TextureRegion(btnSelTex));
         TextButton btn = new TextButton(text, s);
         btn.addListener(new ClickListener() {
+            @Override public void enter(InputEvent e, float x, float y, int ptr, com.badlogic.gdx.scenes.scene2d.Actor from) {
+                AudioFacade.getInstance().playSfx("sfx_button_hover");
+            }
             @Override public void clicked(InputEvent e, float x, float y) {
                 AudioFacade.getInstance().playSfx("sfx_button_click");
                 action.run();

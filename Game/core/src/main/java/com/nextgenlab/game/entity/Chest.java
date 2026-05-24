@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.nextgenlab.game.crafting.Resource;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -54,6 +55,10 @@ public class Chest {
             closedRegion = new TextureRegion(tilesetTex, u,                    v, TILE_SIZE, TILE_SIZE);
             openRegion   = new TextureRegion(tilesetTex, u + TILE_SIZE, v, TILE_SIZE, TILE_SIZE);
         }
+    }
+
+    public List<Resource> getContents() {
+        return looted ? Collections.emptyList() : Collections.unmodifiableList(contents);
     }
 
 

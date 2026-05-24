@@ -40,12 +40,17 @@ import com.nextgenlab.game.task.TaskUiTheme;
 import com.nextgenlab.game.task.WireTask;
 import com.nextgenlab.game.event.*;
 import com.nextgenlab.game.facade.AudioFacade;
+import com.nextgenlab.game.rendering.FogOfWarRenderer;
 import com.nextgenlab.game.ui.CraftingPanel;
 import com.nextgenlab.game.ui.HudOverlay;
 import com.nextgenlab.game.ui.InventoryPanel;
 
+import com.nextgenlab.game.crafting.Resource;
+
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PreparationState implements GameStateHandler {
 
@@ -76,6 +81,17 @@ public class PreparationState implements GameStateHandler {
     private int        tasksCompleted = 0;
     private int        activeTaskIdx  = -1;
     private boolean    phaseComplete  = false;
+
+
+    private static final float ROUND2_COOLDOWN = 20f;
+    private int[]   taskRoundsCompleted;
+    private float[] taskCooldownTimer;
+    private String  roundNotifMsg   = "";
+    private float   roundNotifTimer = 0f;
+
+
+    private FogOfWarRenderer fogRenderer;
+    private float            stateTime = 0f;
 
     private HudOverlay     hud;
     private InventoryPanel inventoryPanel;
@@ -137,6 +153,11 @@ public class PreparationState implements GameStateHandler {
             new BiometricLockTask()
         };
         taskDone              = new boolean[TOTAL_TASKS];
+        taskRoundsCompleted   = new int[TOTAL_TASKS];
+        taskCooldownTimer     = new float[TOTAL_TASKS];
+        roundNotifMsg   = "";
+        roundNotifTimer = 0f;
+        stateTime       = 0f;
         hud                   = new HudOverlay();
         inventoryPanel        = new InventoryPanel();
         craftingPanel         = new CraftingPanel();
@@ -147,7 +168,9 @@ public class PreparationState implements GameStateHandler {
         if (Gdx.files.internal("evolution/dash_icon.png").exists())
             dashIconTex = new com.badlogic.gdx.graphics.Texture("evolution/dash_icon.png");
         loadTaskZones(screen.map);
-        prepTimerLocal = 360f;
+        TiledMapTileLayer collLayer = (TiledMapTileLayer) screen.map.getLayers().get("Foreground");
+        if (collLayer != null) fogRenderer = new FogOfWarRenderer(collLayer);
+        prepTimerLocal = 300f;
         prepEnded      = false;
         screen.prepWinner = null;
 
@@ -159,8 +182,18 @@ public class PreparationState implements GameStateHandler {
 
     @Override
     public void update(float delta, GameScreen screen) {
+        stateTime += delta;
+
 
         if (prepTimerLocal > 0) prepTimerLocal -= delta;
+
+
+        for (int i = 0; i < TOTAL_TASKS; i++) {
+            if (taskCooldownTimer[i] > 0)
+                taskCooldownTimer[i] = Math.max(0f, taskCooldownTimer[i] - delta);
+        }
+
+        if (roundNotifTimer > 0) roundNotifTimer -= delta;
 
 
         if (screen.prepWinner == null && screen.monster != null) {
@@ -323,20 +356,35 @@ public class PreparationState implements GameStateHandler {
                 Gdx.input.setInputProcessor(null);
                 return;
             }
-            if (tasks[activeTaskIdx].isCompleted() && !taskDone[activeTaskIdx]) {
-                taskDone[activeTaskIdx] = true;
-                tasksCompleted++;
-                EventBus.getInstance().publish(
-                    new OnTaskCompleted(tasksCompleted, TASK_NAMES[activeTaskIdx], TOTAL_TASKS));
+            if (tasks[activeTaskIdx].isCompleted() && taskRoundsCompleted[activeTaskIdx] < 2) {
+                int idx = activeTaskIdx;
+                taskRoundsCompleted[idx]++;
                 activeTaskIdx = -1;
                 Gdx.input.setInputProcessor(null);
-                if (screen.matchId != null)
-                    screen.game.backend.sendProgressUpdate(screen.matchId, "RESEARCHER", 20);
-                if (isMultiplayer) {
-                    transport.sendPosition(snapshot(screen, true));
-                    netSendTimer = 0f;
+
+                if (taskRoundsCompleted[idx] == 1) {
+
+                    taskCooldownTimer[idx] = ROUND2_COOLDOWN;
+                    tasks[idx].dispose();
+                    tasks[idx] = createTask(idx);
+                    if (screen.matchId != null)
+                        screen.game.backend.sendProgressUpdate(screen.matchId, "RESEARCHER", 10);
+                    roundNotifMsg   = "Round 1: " + TASK_NAMES[idx] + " selesai! Round 2 dalam 20 detik.";
+                    roundNotifTimer = 3.5f;
+                } else {
+
+                    taskDone[idx] = true;
+                    tasksCompleted++;
+                    EventBus.getInstance().publish(
+                        new OnTaskCompleted(tasksCompleted, TASK_NAMES[idx], TOTAL_TASKS));
+                    if (screen.matchId != null)
+                        screen.game.backend.sendProgressUpdate(screen.matchId, "RESEARCHER", 10);
+                    if (isMultiplayer) {
+                        transport.sendPosition(snapshot(screen, true));
+                        netSendTimer = 0f;
+                    }
+                    if (tasksCompleted >= TOTAL_TASKS) phaseComplete = true;
                 }
-                if (tasksCompleted >= TOTAL_TASKS) phaseComplete = true;
             }
             return;
         }
@@ -384,21 +432,16 @@ public class PreparationState implements GameStateHandler {
 
 
             Item weapon = screen.researcher.getEquippedWeapon();
-            if (weapon != null && weapon.type == ItemType.RAIL_GUN && !weapon.consumed) {
-                if (Gdx.input.isButtonPressed(Buttons.LEFT)) {
-                    float charge = screen.researcher.getRailGunCharge() + delta;
-                    screen.researcher.setRailGunCharge(charge);
-                    if (charge >= RAIL_CHARGE_TIME && charge - delta < RAIL_CHARGE_TIME) {
-                        if (ammo > 0 && reloadTimer <= 0) {
-                            ammo--;
-                            fireResearcherProjectile(screen, isMultiplayer, transport,
-                                                     "RES_RAIL", RAIL_SPEED);
-                        }
-                        screen.researcher.setRailGunCharge(0f);
-                    }
-                } else {
-                    screen.researcher.setRailGunCharge(0f);
-                }
+            if (weapon != null && weapon.type == ItemType.RAIL_GUN)
+                screen.researcher.setRailGunCharge(0f);
+
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
+                screen.researcher.cycleWeapon();
+                Item nw = screen.researcher.getEquippedWeapon();
+                maxAmmo = maxAmmoFor(nw);
+                ammo    = Math.min(ammo, maxAmmo);
+                reloadTimer = 0f;
             }
 
 
@@ -412,6 +455,7 @@ public class PreparationState implements GameStateHandler {
 
                 for (int i = 0; i < TOTAL_TASKS && !consumed; i++) {
                     if (taskDone[i]) continue;
+                    if (taskCooldownTimer[i] > 0) continue;
                     float dx = screen.researcher.getX() - zoneX[i];
                     float dy = screen.researcher.getY() - zoneY[i];
                     if (dx * dx + dy * dy < TRIGGER_RADIUS * TRIGGER_RADIUS) {
@@ -427,13 +471,17 @@ public class PreparationState implements GameStateHandler {
                         float dx = screen.researcher.getX() - c.getX();
                         float dy = screen.researcher.getY() - c.getY();
                         if (dx * dx + dy * dy <= CHEST_RADIUS * CHEST_RADIUS) {
-                            if (c.interact(screen.researcher) && isMultiplayer) {
-                                ProjectileSpawn ev = new ProjectileSpawn();
-                                ev.x = c.getX(); ev.y = c.getY();
-                                ev.dirX = 0; ev.dirY = 0;
-                                ev.weaponType = "RES_CHEST";
-                                ev.timestamp  = System.currentTimeMillis();
-                                transport.sendProjectileSpawn(ev);
+                            List<Resource> loot = c.getContents();
+                            if (c.interact(screen.researcher)) {
+                                showChestNotification(loot);
+                                if (isMultiplayer) {
+                                    ProjectileSpawn ev = new ProjectileSpawn();
+                                    ev.x = c.getX(); ev.y = c.getY();
+                                    ev.dirX = 0; ev.dirY = 0;
+                                    ev.weaponType = "RES_CHEST";
+                                    ev.timestamp  = System.currentTimeMillis();
+                                    transport.sendProjectileSpawn(ev);
+                                }
                             }
                             consumed = true;
                             break;
@@ -633,19 +681,15 @@ public class PreparationState implements GameStateHandler {
 
         switch (weapon.type) {
             case PISTOL:
-                if (ammo > 0 && reloadTimer <= 0) { ammo--; fireResearcherProjectile(screen, isMultiplayer, transport, "RES_PISTOL", RES_BULLET_SPEED); }
-                break;
-            case STUN_GUN:
-                if (ammo > 0 && reloadTimer <= 0) { ammo--; fireResearcherProjectile(screen, isMultiplayer, transport, "RES_STUN", STUN_BULLET_SPEED); }
-                break;
             case ACID_GRENADE:
-                if (ammo > 0 && reloadTimer <= 0) { ammo--; fireResearcherProjectile(screen, isMultiplayer, transport, "RES_GRENADE", GRENADE_SPEED); }
-                break;
-            case TASER:
-                if (ammo > 0 && reloadTimer <= 0) { ammo--; handleTaser(screen, isMultiplayer, transport); }
-                break;
             case RAIL_GUN:
 
+                return;
+            case STUN_GUN:
+                if (reloadTimer <= 0) { fireResearcherProjectile(screen, isMultiplayer, transport, "RES_STUN", STUN_BULLET_SPEED); ammo--; }
+                break;
+            case TASER:
+                if (reloadTimer <= 0) { handleTaser(screen, isMultiplayer, transport); ammo--; }
                 break;
             default:
                 break;
@@ -845,6 +889,35 @@ public class PreparationState implements GameStateHandler {
         screen.game.batch.end();
 
 
+        if (fogRenderer != null) {
+            float fpx = isResearcher ? screen.researcher.getX()
+                                     : (screen.monster != null ? screen.monster.getX() : 0f);
+            float fpy = isResearcher ? screen.researcher.getY()
+                                     : (screen.monster != null ? screen.monster.getY() : 0f);
+            float fogRadius = (lightsOutActive && isResearcher) ? 96f : 300f;
+            fogRenderer.render(screen.game.batch, screen.camera, fpx, fpy, fogRadius);
+        }
+
+
+        Gdx.gl.glEnable(com.badlogic.gdx.graphics.GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(com.badlogic.gdx.graphics.GL20.GL_SRC_ALPHA,
+                           com.badlogic.gdx.graphics.GL20.GL_ONE_MINUS_SRC_ALPHA);
+        worldShapes.setProjectionMatrix(screen.camera.combined);
+        worldShapes.begin(com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled);
+        for (int i = 0; i < TOTAL_TASKS; i++) {
+            if (taskDone[i]) {
+                worldShapes.setColor(0.4f, 0.4f, 0.4f, 0.5f);
+            } else if (taskCooldownTimer[i] > 0) {
+                float pulse = 0.7f + 0.3f * MathUtils.sin(stateTime * 4f);
+                worldShapes.setColor(1f, 0.6f * pulse, 0f, 0.75f);
+            } else {
+                worldShapes.setColor(0.1f, 0.9f, 0.2f, 0.75f);
+            }
+            worldShapes.circle(zoneX[i], zoneY[i], 14f, 20);
+        }
+        worldShapes.end();
+
+
         if (!isResearcher && screen.monster != null && screen.monster.isEcholocationActive()) {
             float resX = screen.researcher.getX();
             float resY = screen.researcher.getY();
@@ -930,6 +1003,21 @@ public class PreparationState implements GameStateHandler {
             if (lightsOutActive && !panelOpen) {
                 hud.renderLightsOut();
             }
+
+            if (!panelOpen) {
+                Vector3 tmp = new Vector3();
+                for (int i = 0; i < TOTAL_TASKS; i++) {
+                    if (taskCooldownTimer[i] <= 0) continue;
+                    tmp.set(zoneX[i], zoneY[i], 0);
+                    screen.camera.project(tmp);
+                    int secs = (int) Math.ceil(taskCooldownTimer[i]);
+                    hud.drawCountdownAt((int) tmp.x, (int) tmp.y + 22, secs);
+                }
+            }
+
+            if (roundNotifTimer > 0) {
+                hud.renderNotification(roundNotifMsg);
+            }
         } else {
 
             if (screen.monster != null) {
@@ -953,6 +1041,7 @@ public class PreparationState implements GameStateHandler {
     @Override
     public void resize(GameScreen screen, int width, int height) {
         if (hud != null) hud.resize(width, height);
+        if (fogRenderer != null) fogRenderer.resize(width, height);
         if (activeTaskIdx >= 0 && tasks != null && tasks[activeTaskIdx] != null)
             tasks[activeTaskIdx].resize(width, height);
         if (levelUpScreen != null) levelUpScreen.resize(width, height);
@@ -966,6 +1055,7 @@ public class PreparationState implements GameStateHandler {
         TaskUiTheme.dispose();
         if (tasks != null) for (LabTask t : tasks) { if (t != null) t.dispose(); }
         if (hud != null) hud.dispose();
+        if (fogRenderer != null) fogRenderer.dispose();
         if (guardProjectilePool != null)      guardProjectilePool.dispose();
         if (researcherProjectilePool != null) researcherProjectilePool.dispose();
         if (monsterProjectilePool != null)    monsterProjectilePool.dispose();
@@ -1009,7 +1099,8 @@ public class PreparationState implements GameStateHandler {
                     for (int i = TOTAL_TASKS - 1; i >= 0; i--) {
                         if (taskDone[i]) {
                             taskDone[i] = false;
-
+                            taskRoundsCompleted[i] = 0;
+                            taskCooldownTimer[i]   = 0f;
                             tasks[i].dispose();
                             tasks[i] = createTask(i);
                             break;
@@ -1029,6 +1120,21 @@ public class PreparationState implements GameStateHandler {
             default:
                 break;
         }
+    }
+
+    private void showChestNotification(List<Resource> loot) {
+        if (loot.isEmpty()) return;
+        Map<Resource, Integer> count = new LinkedHashMap<>();
+        for (Resource r : loot) count.merge(r, 1, Integer::sum);
+        StringBuilder sb = new StringBuilder("Dapat: ");
+        boolean first = true;
+        for (Map.Entry<Resource, Integer> e : count.entrySet()) {
+            if (!first) sb.append(", ");
+            sb.append(e.getKey().name()).append(" x").append(e.getValue());
+            first = false;
+        }
+        roundNotifMsg   = sb.toString();
+        roundNotifTimer = 3.0f;
     }
 
 
