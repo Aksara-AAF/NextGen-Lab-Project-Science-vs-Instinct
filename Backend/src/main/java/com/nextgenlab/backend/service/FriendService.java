@@ -62,6 +62,7 @@ public class FriendService {
                 User u = userRepo.findById(otherId).orElse(null);
                 if (u == null) return null;
                 String roomCode = roomRepo.findJoinableRoomByHost(otherId)
+                    .stream().findFirst()
                     .map(r -> r.getRoomCode()).orElse(null);
                 return new UserSummaryDTO(otherId, u.getUsername(), roomCode);
             })

@@ -23,5 +23,5 @@ public interface GameRoomRepository extends JpaRepository<GameRoom, Long> {
     @Query("SELECT r FROM GameRoom r WHERE r.hostUserId = :uid " +
            "AND r.status NOT IN ('DISBANDED', 'FINISHED', 'STARTING') " +
            "AND r.player2UserId IS NULL")
-    Optional<GameRoom> findJoinableRoomByHost(@Param("uid") Long userId);
+    List<GameRoom> findJoinableRoomByHost(@Param("uid") Long userId);
 }

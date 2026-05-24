@@ -304,12 +304,12 @@ public class RoomScreen extends ScreenAdapter {
         if (newHostId  != null) isHost = newHostId.equals(game.backend.getCurrentUserId());
 
 
-        String myName = game.backend.getCurrentUsername();
-        boolean inRoom = myName != null && (
-            myName.equals(newResUser)  ||
-            myName.equals(newMonUser)  ||
-            myName.equals(newHostUser) ||
-            myName.equals(newP2User)
+        Long myId = game.backend.getCurrentUserId();
+        boolean inRoom = myId != null && (
+            myId.equals(newHostId)    ||
+            myId.equals(newResUserId) ||
+            myId.equals(newMonUserId) ||
+            myId.equals(newP2Id)
         );
         if (wasInRoom && !inRoom && !"DISBANDED".equals(newStatus)) {
             outOfRoomStreak++;
@@ -323,7 +323,6 @@ public class RoomScreen extends ScreenAdapter {
         if (inRoom) wasInRoom = true;
 
 
-        Long myId = game.backend.getCurrentUserId();
         if (myId != null) {
             if (myId.equals(newResUserId)) { myReady = newResReady; game.playerRole = "RESEARCHER"; }
             else if (myId.equals(newMonUserId)) { myReady = newMonReady; game.playerRole = "MONSTER"; }
