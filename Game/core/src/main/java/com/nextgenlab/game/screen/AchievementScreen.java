@@ -75,7 +75,7 @@ public class AchievementScreen extends ScreenAdapter {
         }
         game.backend.getUserAchievements(userId,
             resp -> { responseJson = resp; Gdx.app.postRunnable(this::buildDataScreen); },
-            err  -> Gdx.app.error("ACHIEVEMENT", "fetch failed: " + err.getMessage())
+            err  -> { responseJson = "[]"; Gdx.app.postRunnable(this::buildDataScreen); }
         );
     }
 

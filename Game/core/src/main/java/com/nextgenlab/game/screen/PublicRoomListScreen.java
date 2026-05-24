@@ -62,10 +62,12 @@ public class PublicRoomListScreen extends ScreenAdapter {
                 lastJson = resp;
                 buildDataScreen();
             }),
-            err -> {
+            err -> Gdx.app.postRunnable(() -> {
                 fetching = false;
-                Gdx.app.error("PUBLIC_ROOMS", err.getMessage());
-            }
+                if (!active) return;
+                lastJson = "[]";
+                buildDataScreen();
+            })
         );
     }
 

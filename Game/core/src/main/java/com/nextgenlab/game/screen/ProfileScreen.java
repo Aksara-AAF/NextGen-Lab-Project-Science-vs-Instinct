@@ -58,12 +58,18 @@ public class ProfileScreen extends ScreenAdapter {
         game.backend.getStats(userId, resp -> {
             statsJson = resp;
             tryRebuild();
-        }, t -> Gdx.app.error("PROFILE", "getStats failed: " + t.getMessage()));
+        }, t -> {
+            statsJson = "{}";
+            tryRebuild();
+        });
 
         game.backend.getMatchHistory(userId, 0, resp -> {
             historyJson = resp;
             tryRebuild();
-        }, t -> Gdx.app.error("PROFILE", "getHistory failed: " + t.getMessage()));
+        }, t -> {
+            historyJson = "[]";
+            tryRebuild();
+        });
     }
 
     private synchronized void tryRebuild() {

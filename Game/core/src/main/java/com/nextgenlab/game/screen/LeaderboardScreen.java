@@ -45,7 +45,7 @@ public class LeaderboardScreen extends ScreenAdapter {
 
         game.backend.getLeaderboard(
             resp -> { responseJson = resp; Gdx.app.postRunnable(this::buildDataScreen); },
-            err  -> Gdx.app.error("LEADERBOARD", "fetch failed: " + err.getMessage())
+            err  -> { responseJson = "{}"; Gdx.app.postRunnable(this::buildDataScreen); }
         );
     }
 
