@@ -8,6 +8,12 @@ Dua pemain. Dua peran berlawanan. Satu laboratorium yang penuh bahaya.
   <img src="Docs/Cover Game Akbar.png" alt="NextGenLab Cover" width="800"/>
 </p>
 
+<p align="center">
+  <a href="https://akbarfaraby.itch.io/nextgen-lab-project-science-vs-instinct">
+    <img src="https://img.shields.io/badge/▶%20Play%20on-itch.io-FA5C5C?style=for-the-badge&logo=itch.io&logoColor=white" alt="Play on itch.io"/>
+  </a>
+</p>
+
 ---
 
 ## Fitur Utama
