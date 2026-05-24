@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class WireTask extends LabTask {
@@ -17,90 +19,12 @@ public class WireTask extends LabTask {
     private static final int NODE_SIZE = 64;
 
 
-    private static final int[][][][] PUZZLES = {
+    private static final int E = 0, W = 1, N = 2, S = 3;
 
+    private static final int[] DR  = { 0,  0, -1,  1};
+    private static final int[] DC  = { 1, -1,  0,  0};
 
-        { {{0,0,1},{1,0,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{2,0,1},{1,0,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,2,1},{1,0,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,0,2},{1,0,1},{1,0,0}}, {{0,0,270},{90,0,270},{0,0,0}} },
-
-        { {{0,0,1},{1,0,2},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,0,1},{2,0,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,0,1},{1,0,1},{2,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{2,0,1},{1,0,1},{1,0,0}}, {{180,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,0,1},{1,2,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,0,1},{1,2,1},{1,0,0}}, {{0,0,180},{90,180,270},{0,0,0}} },
-
-        { {{0,0,1},{1,0,1},{1,2,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,0,1},{1,0,1},{1,0,2}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,2,1},{1,0,1},{1,0,0}}, {{0,180,180},{90,0,270},{0,0,0}} },
-
-        { {{2,0,1},{1,2,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,2,1},{1,0,1},{1,2,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,0,1},{1,0,2},{2,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{2,2,1},{1,2,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
-
-        { {{0,0,1},{1,2,1},{1,2,2}}, {{0,0,180},{90,180,270},{0,0,0}} },
-
-        { {{2,0,1},{1,2,1},{1,0,0}}, {{180,0,180},{90,180,270},{0,0,0}} },
-
-        { {{0,0,2},{2,0,1},{1,0,2}}, {{0,0,270},{90,0,270},{0,0,0}} },
-
-
-        { {{1,1,1},{0,0,0},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{2,1,1},{0,0,0},{1,1,1}}, {{270,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{2,0,0},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{0,0,0},{2,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{0,0,0},{1,2,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{0,2,0},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,2,1},{0,0,0},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,2},{0,0,0},{1,1,1}}, {{180,90,270},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{0,0,2},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{0,0,0},{1,1,2}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{2,1,1},{0,2,0},{1,1,1}}, {{270,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{2,0,2},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{0,0,0},{2,1,2}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,2,2},{0,0,0},{1,1,1}}, {{180,90,270},{90,90,90},{0,270,0}} },
-
-        { {{2,1,1},{0,0,0},{1,2,1}}, {{270,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{2,2,2},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
-
-        { {{2,1,1},{0,0,0},{2,1,2}}, {{270,90,180},{90,90,90},{0,270,0}} },
-
-        { {{1,1,2},{0,2,0},{1,2,1}}, {{180,90,270},{90,90,90},{0,270,0}} },
-
-        { {{2,2,2},{0,0,0},{1,1,1}}, {{270,90,270},{90,90,90},{0,270,0}} },
-
-        { {{1,1,1},{0,0,0},{2,2,2}}, {{180,90,180},{90,90,90},{0,270,0}} },
-    };
+    private static final int[] OPP = { W,  E,  S,  N};
 
     private int[][]              selectedTypes;
     private int[][]              selectedSolRot;
@@ -114,23 +38,29 @@ public class WireTask extends LabTask {
 
     @Override
     protected void buildUI() {
-        sr      = new ShapeRenderer();
-        nodes   = new CircuitNodeActor[GRID][GRID];
-        initRot = new int[GRID][GRID];
+        sr             = new ShapeRenderer();
+        nodes          = new CircuitNodeActor[GRID][GRID];
+        initRot        = new int[GRID][GRID];
+        selectedTypes  = new int[GRID][GRID];
+        selectedSolRot = new int[GRID][GRID];
 
-        int puzzleIdx  = new Random().nextInt(PUZZLES.length);
-        selectedTypes  = PUZZLES[puzzleIdx][0];
-        selectedSolRot = PUZZLES[puzzleIdx][1];
+
+        List<int[]> path = generateHamiltonianPath();
+
+
+        assignPipesFromPath(path);
 
 
         Random rng = new Random();
-        for (int r = 0; r < GRID; r++)
+        for (int r = 0; r < GRID; r++) {
             for (int c = 0; c < GRID; c++) {
                 int offset = (selectedTypes[r][c] == 0)
                     ? (rng.nextBoolean() ? 1 : 3)
                     : (1 + rng.nextInt(3));
                 initRot[r][c] = (selectedSolRot[r][c] + offset * 90) % 360;
             }
+        }
+
 
         Table panel = new Table();
         panel.setBackground(TaskUiTheme.panelBg());
@@ -174,27 +104,132 @@ public class WireTask extends LabTask {
         stage.addActor(panel);
     }
 
-    private int normalizedRot(int type, int rot) {
 
-        return (type == 0) ? rot % 180 : rot;
+    private List<int[]> generateHamiltonianPath() {
+        boolean[][] visited = new boolean[GRID][GRID];
+        List<int[]> path    = new ArrayList<>();
+        if (dfsPath(0, 0, visited, path, new Random())) return path;
+        return defaultPath();
     }
 
+
+    private boolean dfsPath(int r, int c, boolean[][] visited, List<int[]> path, Random rng) {
+        path.add(new int[]{r, c});
+        visited[r][c] = true;
+        if (r == 2 && c == 2 && path.size() == GRID * GRID) return true;
+
+
+        int[] dirs = {E, W, N, S};
+        for (int i = 3; i > 0; i--) {
+            int j = rng.nextInt(i + 1);
+            int tmp = dirs[i]; dirs[i] = dirs[j]; dirs[j] = tmp;
+        }
+        for (int d : dirs) {
+            int nr = r + DR[d], nc = c + DC[d];
+            if (nr >= 0 && nr < GRID && nc >= 0 && nc < GRID && !visited[nr][nc]) {
+                if (dfsPath(nr, nc, visited, path, rng)) return true;
+            }
+        }
+        path.remove(path.size() - 1);
+        visited[r][c] = false;
+        return false;
+    }
+
+
+    private List<int[]> defaultPath() {
+        List<int[]> p = new ArrayList<>();
+        for (int[] pt : new int[][]{{0,0},{0,1},{0,2},{1,2},{1,1},{1,0},{2,0},{2,1},{2,2}})
+            p.add(pt);
+        return p;
+    }
+
+
+    private void assignPipesFromPath(List<int[]> path) {
+        for (int i = 0; i < path.size(); i++) {
+            int r = path.get(i)[0], c = path.get(i)[1];
+            int entryPort = (i == 0)              ? W : portToward(path.get(i), path.get(i - 1));
+            int exitPort  = (i == path.size() - 1)? E : portToward(path.get(i), path.get(i + 1));
+            int[] tr = typeAndRot(entryPort, exitPort);
+            selectedTypes[r][c]  = tr[0];
+            selectedSolRot[r][c] = tr[1];
+        }
+    }
+
+
+    private static int portToward(int[] from, int[] to) {
+        int dc = to[1] - from[1], dr = to[0] - from[0];
+        if (dc ==  1) return E;
+        if (dc == -1) return W;
+        if (dr == -1) return N;
+        return S;
+    }
+
+
+    private static int[] typeAndRot(int p1, int p2) {
+        int lo = Math.min(p1, p2), hi = Math.max(p1, p2);
+        if (lo == E && hi == W) return new int[]{0,   0};
+        if (lo == N && hi == S) return new int[]{0,  90};
+        if (lo == E && hi == N) return new int[]{1,   0};
+        if (lo == E && hi == S) return new int[]{1,  90};
+        if (lo == W && hi == S) return new int[]{1, 180};
+        if (lo == W && hi == N) return new int[]{1, 270};
+        return new int[]{0, 0};
+    }
+
+
     private void checkFlow() {
-        boolean solved = true;
-        for (int r = 0; r < GRID && solved; r++)
-            for (int c = 0; c < GRID && solved; c++) {
-                int actual   = normalizedRot(selectedTypes[r][c], nodes[r][c].getPipeRotation());
-                int expected = normalizedRot(selectedTypes[r][c], selectedSolRot[r][c]);
-                if (actual != expected) solved = false;
+
+        int r = 0, c = 0, inDir = W;
+        boolean[][] visited = new boolean[GRID][GRID];
+        visited[r][c] = true;
+
+        for (int step = 0; step < GRID * GRID; step++) {
+            boolean[] ports = computePorts(selectedTypes[r][c], nodes[r][c].getPipeRotation());
+            ports[inDir] = false;
+
+
+            int outDir = -1;
+            for (int d = 0; d < 4; d++) { if (ports[d]) { outDir = d; break; } }
+            if (outDir == -1) break;
+
+
+            if (r == 2 && c == 2 && outDir == E) {
+                statusLabel.setText("ARUS TERSAMBUNG");
+                statusLabel.setColor(TaskUiTheme.CYAN);
+                sourceActor.setLit(true);
+                sinkActor.setLit(true);
+                finishTask();
+                return;
             }
 
-        if (solved) {
-            statusLabel.setText("ARUS TERSAMBUNG");
-            statusLabel.setColor(TaskUiTheme.CYAN);
-            sourceActor.setLit(true);
-            sinkActor.setLit(true);
-            finishTask();
+            int nr = r + DR[outDir], nc = c + DC[outDir];
+            if (nr < 0 || nr >= GRID || nc < 0 || nc >= GRID || visited[nr][nc]) break;
+            visited[nr][nc] = true;
+            inDir = OPP[outDir];
+            r = nr; c = nc;
         }
+
+        statusLabel.setText("ARUS TERPUTUS");
+        statusLabel.setColor(Color.RED);
+        sourceActor.setLit(false);
+        sinkActor.setLit(false);
+    }
+
+
+    private static boolean[] computePorts(int type, int rotation) {
+        boolean[] p;
+        switch (type) {
+            case 1:  p = new boolean[]{true,  false, true,  false}; break;
+            case 2:  p = new boolean[]{true,  true,  true,  false}; break;
+            default: p = new boolean[]{true,  true,  false, false}; break;
+        }
+        int steps = (rotation / 90) % 4;
+        for (int i = 0; i < steps; i++) {
+
+            boolean e = p[E], w = p[W], n = p[N], s = p[S];
+            p[E] = n; p[S] = e; p[W] = s; p[N] = w;
+        }
+        return p;
     }
 
     @Override
@@ -293,10 +328,10 @@ public class WireTask extends LabTask {
 
             sr.setColor(0f, 0.96f, 0.83f, 1f);
             boolean[] ports = getPorts();
-            if (ports[0]) hline(sr, cx, cy, cx + half, thick);
-            if (ports[1]) hline(sr, cx - half, cy, cx, thick);
-            if (ports[2]) vline(sr, cx, cy, cy + half, thick);
-            if (ports[3]) vline(sr, cx, cy - half, cy, thick);
+            if (ports[E]) hline(sr, cx, cy, cx + half, thick);
+            if (ports[W]) hline(sr, cx - half, cy, cx, thick);
+            if (ports[N]) vline(sr, cx, cy, cy + half, thick);
+            if (ports[S]) vline(sr, cx, cy - half, cy, thick);
 
             sr.setColor(0.20f, 0.70f, 0.60f, 1f);
             sr.circle(cx, cy, thick);
@@ -309,7 +344,6 @@ public class WireTask extends LabTask {
         }
 
         private boolean[] basePortsForType(int t) {
-
             switch (t) {
                 case 0:  return new boolean[]{true,  true,  false, false};
                 case 1:  return new boolean[]{true,  false, true,  false};
@@ -319,7 +353,6 @@ public class WireTask extends LabTask {
         }
 
         private boolean[] rotatePorts(boolean[] b, int deg) {
-
             boolean[] r = b.clone();
             int steps = (deg / 90) % 4;
             for (int i = 0; i < steps; i++) {

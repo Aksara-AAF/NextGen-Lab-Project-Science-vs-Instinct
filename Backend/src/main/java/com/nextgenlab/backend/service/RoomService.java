@@ -31,6 +31,13 @@ public class RoomService {
 
     @Transactional
     public GameRoom createRoom(Long userId, boolean isPublic) {
+        if (userId != null) {
+            roomRepository.findActiveRoomsByHost(userId).forEach(r -> {
+                r.setStatus("DISBANDED");
+                roomRepository.save(r);
+            });
+        }
+
         MatchSession session = new MatchSession();
         session.setPrepStartedAt(System.currentTimeMillis());
         matchRepository.save(session);
@@ -149,6 +156,28 @@ public class RoomService {
     public void leaveRoom(String roomCode, Long userId) {
         GameRoom room = roomRepository.findByRoomCode(roomCode).orElseThrow();
 
+        if ("DISBANDED".equals(room.getStatus())) return;
+
+
+        if ("FINISHED".equals(room.getStatus())) {
+            if (userId.equals(room.getResearcherUserId())) {
+                room.setResearcherUserId(null); room.setResearcherReady(false);
+            }
+            if (userId.equals(room.getMonsterUserId())) {
+                room.setMonsterUserId(null); room.setMonsterReady(false);
+            }
+            if (userId.equals(room.getPlayer2UserId())) room.setPlayer2UserId(null);
+            if (userId.equals(room.getHostUserId())) {
+                Long newHost = room.getPlayer2UserId();
+                room.setHostUserId(newHost);
+                room.setPlayer2UserId(null);
+            }
+            boolean anyoneLeft = room.getHostUserId() != null;
+            if (!anyoneLeft) room.setStatus("DISBANDED");
+            roomRepository.save(room);
+            return;
+        }
+
         if ("STARTING".equals(room.getStatus())) {
             room.setStatus("WAITING");
             room.setStartingAt(null);
@@ -209,6 +238,20 @@ public class RoomService {
         GameRoom room = roomRepository.findByRoomCode(roomCode).orElseThrow();
         if (!callerId.equals(room.getHostUserId())) throw new RuntimeException("Only host");
         room.setPublic(isPublic);
+        roomRepository.save(room);
+    }
+
+    @Transactional
+    public void resetRoom(String roomCode, Long userId) {
+        GameRoom room = roomRepository.findByRoomCode(roomCode).orElseThrow();
+        if (!userId.equals(room.getHostUserId()))
+            throw new RuntimeException("Only host can reset");
+        room.setStatus("WAITING");
+        room.setResearcherUserId(null);
+        room.setMonsterUserId(null);
+        room.setResearcherReady(false);
+        room.setMonsterReady(false);
+        room.setStartingAt(null);
         roomRepository.save(room);
     }
 

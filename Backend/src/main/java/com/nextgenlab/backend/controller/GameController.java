@@ -94,6 +94,12 @@ public class GameController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{code}/reset")
+    public ResponseEntity<Void> resetRoom(@PathVariable String code, Authentication auth) {
+        roomService.resetRoom(code, (Long) auth.getPrincipal());
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/{code}/kick/{userId}")
     public ResponseEntity<Void> kickPlayer(@PathVariable String code,
                                             @PathVariable Long userId,

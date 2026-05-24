@@ -33,6 +33,9 @@ public class AudioFacade {
         loadSfx("sfx_levelup",           "audio/sfx_levelup.ogg");
         loadSfx("sfx_button_click",      "audio/sfx_button_click.ogg");
         loadSfx("sfx_button_hover",      "audio/sfx_button_hover.ogg");
+        loadSfx("sfx_shoot",             "audio/sfx_shoot.ogg");
+        loadSfx("sfx_guard_shoot",       "audio/sfx_guard_shoot.ogg");
+        loadSfx("sfx_monster_melee",     "audio/sfx_monster_melee.ogg");
         loadBgm("bgm_menu",        "audio/bgm_menu.ogg");
         loadBgm("bgm_lab_ambient", "audio/bgm_lab_ambient.ogg");
         loadBgm("bgm_duel",        "audio/bgm_duel.ogg");

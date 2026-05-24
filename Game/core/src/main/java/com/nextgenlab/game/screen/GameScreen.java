@@ -181,7 +181,8 @@ public class GameScreen extends ScreenAdapter {
         eb.subscribe(OnMonsterLevelUp.class, listenerLevelUp = e -> af.playSfx("sfx_levelup"));
         eb.subscribe(OnTaskCompleted.class,  listenerTask    = e -> {
             af.playSfx("sfx_task_complete");
-            DialogPopup.show(overlayStage, "Tugas selesai!");
+            DialogPopup.show(overlayStage,
+                "Tugas selesai: " + e.taskName + "  (" + e.totalCompleted + "/" + e.totalTasks + ")");
         });
         eb.subscribe(OnGuardKilled.class,    listenerGuard   = e -> af.playSfx("sfx_hit"));
         eb.subscribe(OnPlayerHit.class,      listenerHit     = e -> af.playSfx("sfx_hit"));

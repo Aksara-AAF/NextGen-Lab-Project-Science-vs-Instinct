@@ -219,6 +219,12 @@ public class BackendFacade {
         post("/api/room/" + code + "/leave", "{}", onSuccess, onFail);
     }
 
+    public void resetRoom(String code,
+                          java.util.function.Consumer<String> onSuccess,
+                          java.util.function.Consumer<Throwable> onFail) {
+        post("/api/room/" + code + "/reset", "{}", onSuccess, onFail);
+    }
+
     public void setVisibility(String code, boolean isPublic,
                               java.util.function.Consumer<String> ok,
                               java.util.function.Consumer<Throwable> fail) {

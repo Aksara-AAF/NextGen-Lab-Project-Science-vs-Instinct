@@ -124,13 +124,19 @@ public class LevelUpScreen {
         }
 
         root.add(outer);
+        stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         Gdx.input.setInputProcessor(stage);
     }
 
     public boolean isChosen()      { return chosen; }
     public String  getChosenGene() { return chosenGene; }
 
+    public void resize(int width, int height) {
+        if (stage != null) stage.getViewport().update(width, height, true);
+    }
+
     public void render(float delta) {
+        stage.getViewport().apply(true);
         stage.act(delta);
         stage.draw();
     }

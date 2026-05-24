@@ -131,7 +131,8 @@ public class HudOverlay {
                                   int resHp, int resMaxHp,
                                   float stamina, float maxStamina,
                                   int monHp, int monMaxHp,
-                                  boolean isMonsterView) {
+                                  boolean isMonsterView,
+                                  boolean panelOpen) {
         int W = Gdx.graphics.getWidth();
         int H = Gdx.graphics.getHeight();
         hudCamera.update();
@@ -140,11 +141,13 @@ public class HudOverlay {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
 
 
-        shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
-        shapes.rect(10, H - 34, 200, 18);
-        float fill = totalTasks > 0 ? (float) tasksCompleted / totalTasks : 0f;
-        shapes.setColor(Color.GREEN);
-        shapes.rect(10, H - 34, 200 * fill, 18);
+        if (!panelOpen) {
+            shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
+            shapes.rect(10, H - 46, 200, 18);
+            float fill = totalTasks > 0 ? (float) tasksCompleted / totalTasks : 0f;
+            shapes.setColor(Color.GREEN);
+            shapes.rect(10, H - 46, 200 * fill, 18);
+        }
 
 
         shapes.setColor(0.15f, 0.15f, 0.15f, 1f);
@@ -166,21 +169,27 @@ public class HudOverlay {
 
         hudBatch.setProjectionMatrix(hudCamera.combined);
         hudBatch.begin();
-        font.setColor(Color.WHITE);
-        font.draw(hudBatch,
-            "PERSIAPAN  " + tasksCompleted + "/" + totalTasks + " task selesai",
-            10, H - 10);
-        font.draw(hudBatch, "[E] interaksi  [RMB] tembak  [Shift] sprint",
-            10, H - 44);
+
+
+        if (!panelOpen) {
+            font.setColor(Color.WHITE);
+            font.draw(hudBatch,
+                "PERSIAPAN  " + tasksCompleted + "/" + totalTasks + " task selesai",
+                10, H - 24);
+            font.setColor(Color.LIGHT_GRAY);
+            if (!isMonsterView)
+                font.draw(hudBatch, "[E] interaksi  [LMB] tembak  [Shift] sprint  [I] inventori",
+                    10, H - 62);
+            else
+                font.draw(hudBatch, "[LMB] serang  [Shift] dash  [E] sabotase",
+                    10, H - 62);
+        }
 
 
         font.setColor(Color.LIGHT_GRAY);
         font.draw(hudBatch, "Peneliti", 10, 80);
-
-
         float monsterLabelY = isMonsterView ? 92f : 50f;
         font.draw(hudBatch, "Monster", barX, monsterLabelY);
-
 
         font.setColor(Color.WHITE);
         font.draw(hudBatch, resHp + "/" + resMaxHp, 14, 25);
@@ -233,7 +242,7 @@ public class HudOverlay {
         int W = Gdx.graphics.getWidth();
         int H = Gdx.graphics.getHeight();
         float barX = W - 210f;
-        float barY = H - 34f;
+        float barY = H - 46f;
         hudCamera.update();
         shapes.setProjectionMatrix(hudCamera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
@@ -249,7 +258,7 @@ public class HudOverlay {
         String label = level >= maxLevel
             ? "EVOLUSI  Lv MAX"
             : "EVOLUSI  Lv " + level + "  " + xp + "/" + threshold;
-        font.draw(hudBatch, label, barX, H - 10);
+        font.draw(hudBatch, label, barX, H - 24);
         hudBatch.end();
     }
 
@@ -396,7 +405,7 @@ public class HudOverlay {
         font.setColor(secondsLeft < 30f ? Color.RED : Color.WHITE);
         com.badlogic.gdx.graphics.g2d.GlyphLayout layout =
             new com.badlogic.gdx.graphics.g2d.GlyphLayout(font, text);
-        font.draw(hudBatch, text, (W - layout.width) / 2f, H - 20f);
+        font.draw(hudBatch, text, (W - layout.width) / 2f, H - 6f);
         font.setColor(Color.WHITE);
         hudBatch.end();
     }
@@ -423,10 +432,25 @@ public class HudOverlay {
     public void renderNotification(String msg) {
         int W = Gdx.graphics.getWidth(), H = Gdx.graphics.getHeight();
         hudCamera.update();
+        com.badlogic.gdx.graphics.g2d.GlyphLayout gl =
+            new com.badlogic.gdx.graphics.g2d.GlyphLayout(font, msg);
+        float textX = (W - gl.width) / 2f;
+        float textY = H - 76f;
+        float pad = 10f;
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapes.setProjectionMatrix(hudCamera.combined);
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(0f, 0f, 0f, 0.65f);
+        shapes.rect(textX - pad, textY - gl.height - pad + 4f,
+                    gl.width + 2 * pad, gl.height + 2 * pad);
+        shapes.end();
         hudBatch.setProjectionMatrix(hudCamera.combined);
         hudBatch.begin();
         font.setColor(Color.YELLOW);
-        font.draw(hudBatch, msg, W / 2f - 80, H - 60);
+        font.draw(hudBatch, msg, textX, textY);
+        font.setColor(Color.WHITE);
         hudBatch.end();
     }
 

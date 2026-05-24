@@ -16,12 +16,14 @@ public interface GameRoomRepository extends JpaRepository<GameRoom, Long> {
 
     List<GameRoom> findByStatus(String status);
 
-    @Query(value = "SELECT * FROM game_rooms WHERE status = 'WAITING' AND is_public = true AND host_user_id IS NOT NULL AND player2_user_id IS NULL",
-           nativeQuery = true)
+    @Query("SELECT r FROM GameRoom r WHERE r.status = 'WAITING' AND r.publicRoom = true AND r.hostUserId IS NOT NULL AND r.player2UserId IS NULL")
     List<GameRoom> findPublicWaitingRooms();
 
     @Query("SELECT r FROM GameRoom r WHERE r.hostUserId = :uid " +
            "AND r.status NOT IN ('DISBANDED', 'FINISHED', 'STARTING') " +
-           "AND r.player2UserId IS NULL")
+           "AND r.player2UserId IS NULL ORDER BY r.id DESC")
     List<GameRoom> findJoinableRoomByHost(@Param("uid") Long userId);
+
+    @Query("SELECT r FROM GameRoom r WHERE r.hostUserId = :uid AND r.status NOT IN ('DISBANDED', 'FINISHED')")
+    List<GameRoom> findActiveRoomsByHost(@Param("uid") Long userId);
 }

@@ -118,6 +118,10 @@ public class PreparationState implements GameStateHandler {
     private int   maxAmmo     = 6;
     private float reloadTimer = 0f;
 
+    private static final String[] TASK_NAMES = {
+        "Rangkaian Kawat", "Server Hack", "Reaktor", "Campuran Kimia", "Biometric Lock"
+    };
+
     private ProjectilePool monsterProjectilePool;
     private com.badlogic.gdx.graphics.glutils.ShapeRenderer worldShapes;
     private com.badlogic.gdx.graphics.Texture dashIconTex;
@@ -322,7 +326,8 @@ public class PreparationState implements GameStateHandler {
             if (tasks[activeTaskIdx].isCompleted() && !taskDone[activeTaskIdx]) {
                 taskDone[activeTaskIdx] = true;
                 tasksCompleted++;
-                EventBus.getInstance().publish(new OnTaskCompleted(tasksCompleted));
+                EventBus.getInstance().publish(
+                    new OnTaskCompleted(tasksCompleted, TASK_NAMES[activeTaskIdx], TOTAL_TASKS));
                 activeTaskIdx = -1;
                 Gdx.input.setInputProcessor(null);
                 if (screen.matchId != null)
@@ -514,6 +519,7 @@ public class PreparationState implements GameStateHandler {
                     float dy = screen.monster.getY() - g.getY();
                     Projectile bullet = guardProjectilePool.obtain();
                     if (bullet != null) bullet.init(g.getX(), g.getY(), dx, dy, "GUARD", GUARD_BULLET_SPEED);
+                    AudioFacade.getInstance().playSfx("sfx_guard_shoot");
                     if (isMultiplayer) {
                         ProjectileSpawn s = new ProjectileSpawn();
                         s.x = g.getX(); s.y = g.getY();
@@ -656,6 +662,7 @@ public class PreparationState implements GameStateHandler {
 
         Projectile bullet = researcherProjectilePool.obtain();
         if (bullet != null) bullet.init(rX, rY, dx, dy, weaponType, speed);
+        AudioFacade.getInstance().playSfx("sfx_shoot");
 
         if (isMultiplayer) {
             ProjectileSpawn s = new ProjectileSpawn();
@@ -885,15 +892,16 @@ public class PreparationState implements GameStateHandler {
         craftingPanel.render();
         inventoryPanel.render();
 
+        boolean panelOpen = craftingPanel.isOpen() || inventoryPanel.isOpen();
         int monHp    = screen.monster != null ? screen.monster.getHp()    : 0;
         int monMaxHp = screen.monster != null ? screen.monster.getMaxHp() : 1;
         hud.renderPreparation(tasksCompleted, TOTAL_TASKS,
             screen.researcher.getHp(), screen.researcher.getMaxHp(),
             screen.researcher.getStamina(), screen.researcher.getMaxStamina(),
-            monHp, monMaxHp, !isResearcher);
+            monHp, monMaxHp, !isResearcher, panelOpen);
 
 
-        if (screen.monster != null) {
+        if (!panelOpen && screen.monster != null) {
             int[] thresholds = screen.monster.getLevelXpTable();
             int   maxLvl     = screen.monster.getMaxLevel();
             int   displayXp, displayLvl;
@@ -907,19 +915,19 @@ public class PreparationState implements GameStateHandler {
             int threshold = (displayLvl < maxLvl) ? thresholds[displayLvl] : 0;
             hud.renderXpBar(displayXp, displayLvl, maxLvl, threshold);
         }
-
-
-        hud.renderMatchTimer(Math.max(0f, prepTimerLocal));
+        if (!panelOpen) hud.renderMatchTimer(Math.max(0f, prepTimerLocal));
 
         if (isResearcher) {
-            hud.renderWeaponSlots(
-                screen.researcher.getEquippedWeapon(),
-                screen.researcher.getEquippedUtility());
-            hud.renderAmmo(ammo, maxAmmo, screen.researcher.getAmmoReserve(), reloadTimer > 0, reloadTimer);
+            if (!panelOpen) {
+                hud.renderWeaponSlots(
+                    screen.researcher.getEquippedWeapon(),
+                    screen.researcher.getEquippedUtility());
+                hud.renderAmmo(ammo, maxAmmo, screen.researcher.getAmmoReserve(), reloadTimer > 0, reloadTimer);
+            }
             if (showLevelUpNotification) {
                 hud.renderNotification("Monster sedang berevolusi...");
             }
-            if (lightsOutActive) {
+            if (lightsOutActive && !panelOpen) {
                 hud.renderLightsOut();
             }
         } else {
@@ -947,6 +955,7 @@ public class PreparationState implements GameStateHandler {
         if (hud != null) hud.resize(width, height);
         if (activeTaskIdx >= 0 && tasks != null && tasks[activeTaskIdx] != null)
             tasks[activeTaskIdx].resize(width, height);
+        if (levelUpScreen != null) levelUpScreen.resize(width, height);
     }
 
     @Override
@@ -1108,8 +1117,11 @@ public class PreparationState implements GameStateHandler {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             if (screen.researcher != null) {
                 boolean hit = screen.monster.attackMelee(screen.researcher);
-                if (hit) screen.monster.setActionFlag(
-                    screen.monster.getActionFlag() | PositionUpdate.FLAG_HIT);
+                if (hit) {
+                    AudioFacade.getInstance().playSfx("sfx_monster_melee");
+                    screen.monster.setActionFlag(
+                        screen.monster.getActionFlag() | PositionUpdate.FLAG_HIT);
+                }
             }
             for (Guard g : screen.guards) {
                 if (g.isAlive()) {

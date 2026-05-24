@@ -101,10 +101,10 @@ public class GameOverScreen extends ScreenAdapter {
         rightPanel.setPosition(640, 0);
         rightPanel.setSize(640, 720);
         rightPanel.top().left().pad(40f);
-        rightPanel.add(resultLabel).padBottom(24).left().row();
-        rightPanel.add(outroLabel).width(560).padBottom(20).left().row();
-        rightPanel.add(achievementLabel).padBottom(24).left().row();
-        rightPanel.add(buttonsTable).left().row();
+        rightPanel.add(resultLabel).padBottom(28).left().row();
+        rightPanel.add(outroLabel).width(560).padBottom(24).left().row();
+        rightPanel.add(achievementLabel).padBottom(16).left().row();
+        rightPanel.add(buttonsTable).padTop(16).center().row();
 
         stage.addActor(rightPanel);
 
@@ -150,7 +150,13 @@ public class GameOverScreen extends ScreenAdapter {
 
     private void onRematch() {
         String code = game.currentRoomCode;
-        game.setScreen(new RoomScreen(game, code));
+        if (code != null && game.backend.isLoggedIn()) {
+            game.backend.resetRoom(code,
+                r -> Gdx.app.postRunnable(() -> game.setScreen(new RoomScreen(game, code))),
+                e -> Gdx.app.postRunnable(() -> game.setScreen(new RoomScreen(game, code))));
+        } else {
+            game.setScreen(new RoomScreen(game, code));
+        }
     }
 
     private void onLeave() {
