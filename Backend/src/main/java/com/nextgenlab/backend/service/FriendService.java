@@ -9,7 +9,10 @@ import com.nextgenlab.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,18 +58,26 @@ public class FriendService {
         friendRepo.findBetween(userId, targetId).ifPresent(friendRepo::delete);
     }
 
+    @Transactional(readOnly = true)
     public List<UserSummaryDTO> getMyFriends(Long userId) {
-        return friendRepo.findByUserIdAndStatus(userId, "ACCEPTED").stream()
-            .map(f -> {
-                Long otherId = f.getRequesterId().equals(userId) ? f.getAddresseeId() : f.getRequesterId();
-                User u = userRepo.findById(otherId).orElse(null);
-                if (u == null) return null;
-                String roomCode = roomRepo.findJoinableRoomByHost(otherId)
-                    .stream().findFirst()
-                    .map(r -> r.getRoomCode()).orElse(null);
-                return new UserSummaryDTO(otherId, u.getUsername(), roomCode);
-            })
-            .filter(dto -> dto != null)
+        List<Friendship> friendships = friendRepo.findByUserIdAndStatus(userId, "ACCEPTED");
+
+        List<Long> otherIds = friendships.stream()
+            .map(f -> f.getRequesterId().equals(userId) ? f.getAddresseeId() : f.getRequesterId())
+            .collect(Collectors.toList());
+
+        if (otherIds.isEmpty()) return Collections.emptyList();
+
+        Map<Long, String> usernames = userRepo.findAllById(otherIds).stream()
+            .collect(Collectors.toMap(User::getId, User::getUsername, (a, b) -> a));
+
+        Map<Long, String> roomCodes = new HashMap<>();
+        roomRepo.findJoinableRoomsByHosts(otherIds)
+            .forEach(r -> roomCodes.putIfAbsent(r.getHostUserId(), r.getRoomCode()));
+
+        return otherIds.stream()
+            .filter(usernames::containsKey)
+            .map(id -> new UserSummaryDTO(id, usernames.get(id), roomCodes.get(id)))
             .collect(Collectors.toList());
     }
 

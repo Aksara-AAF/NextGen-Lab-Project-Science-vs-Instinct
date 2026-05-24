@@ -10,7 +10,9 @@ import com.nextgenlab.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -74,15 +76,24 @@ public class RoomService {
             .orElseThrow(() -> new RuntimeException("Room not found: " + roomCode));
     }
 
+    @Transactional(readOnly = true)
     public List<PublicRoomDTO> getWaitingRooms() {
-        return roomRepository.findPublicWaitingRooms().stream()
-            .map(r -> {
-                PublicRoomDTO dto = new PublicRoomDTO();
-                dto.roomCode     = r.getRoomCode();
-                dto.hostUsername = lookupUsername(r.getHostUserId());
-                dto.playerCount  = 1;
-                return dto;
-            }).collect(Collectors.toList());
+        List<GameRoom> rooms = roomRepository.findPublicWaitingRooms();
+        if (rooms.isEmpty()) return Collections.emptyList();
+
+        List<Long> hostIds = rooms.stream()
+            .map(GameRoom::getHostUserId).filter(id -> id != null)
+            .collect(Collectors.toList());
+        Map<Long, String> usernames = userRepository.findAllById(hostIds).stream()
+            .collect(Collectors.toMap(User::getId, User::getUsername, (a, b) -> a));
+
+        return rooms.stream().map(r -> {
+            PublicRoomDTO dto = new PublicRoomDTO();
+            dto.roomCode     = r.getRoomCode();
+            dto.hostUsername  = usernames.getOrDefault(r.getHostUserId(), "?");
+            dto.playerCount  = 1;
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @Transactional

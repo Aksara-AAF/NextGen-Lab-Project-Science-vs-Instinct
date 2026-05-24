@@ -8,6 +8,8 @@ import com.badlogic.gdx.utils.JsonValue;
 
 public class BackendFacade {
 
+    private static final int HTTP_TIMEOUT = 15000;
+
     private final String baseUrl;
 
     private String authToken       = null;
@@ -282,7 +284,9 @@ public class BackendFacade {
             .header("Content-Type", "application/json")
             .content(body);
         if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
-        Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
+        Net.HttpRequest req = builder.build();
+        req.setTimeOut(HTTP_TIMEOUT);
+        Gdx.net.sendHttpRequest(req, listener(onSuccess, onFail));
     }
 
     private void put(String path, String body,
@@ -294,7 +298,9 @@ public class BackendFacade {
             .header("Content-Type", "application/json")
             .content(body);
         if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
-        Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
+        Net.HttpRequest req = builder.build();
+        req.setTimeOut(HTTP_TIMEOUT);
+        Gdx.net.sendHttpRequest(req, listener(onSuccess, onFail));
     }
 
     private void delete(String path,
@@ -304,7 +310,9 @@ public class BackendFacade {
             .newRequest().method(Net.HttpMethods.DELETE)
             .url(baseUrl + path);
         if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
-        Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
+        Net.HttpRequest req = builder.build();
+        req.setTimeOut(HTTP_TIMEOUT);
+        Gdx.net.sendHttpRequest(req, listener(onSuccess, onFail));
     }
 
     private void get(String path,
@@ -314,7 +322,9 @@ public class BackendFacade {
             .newRequest().method(Net.HttpMethods.GET)
             .url(baseUrl + path);
         if (authToken != null) builder.header("Authorization", "Bearer " + authToken);
-        Gdx.net.sendHttpRequest(builder.build(), listener(onSuccess, onFail));
+        Net.HttpRequest req = builder.build();
+        req.setTimeOut(HTTP_TIMEOUT);
+        Gdx.net.sendHttpRequest(req, listener(onSuccess, onFail));
     }
 
     private Net.HttpResponseListener listener(java.util.function.Consumer<String> onSuccess,

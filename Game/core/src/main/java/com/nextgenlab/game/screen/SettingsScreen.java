@@ -97,7 +97,7 @@ public class SettingsScreen extends ScreenAdapter {
         Table presetRow = new Table();
         presetRow.add(makePresetBtn("Localhost", Color.CYAN,   () -> serverField.setText("localhost"))).width(120).height(38).padRight(8);
         presetRow.add(makePresetBtn("LAN",       Color.GREEN,  () -> serverField.setText(getLocalIp()))).width(120).height(38).padRight(8);
-        presetRow.add(makePresetBtn("Internet",  Color.YELLOW, () -> serverField.setText("https://"))).width(120).height(38);
+        presetRow.add(makePresetBtn("Internet",  Color.YELLOW, () -> serverField.setText("nextgen-lab-project-science-vs-instinct-production.up.railway.app"))).width(120).height(38);
         t.add(presetRow).padBottom(6).row();
 
         TextField.TextFieldStyle tf = new TextField.TextFieldStyle();
