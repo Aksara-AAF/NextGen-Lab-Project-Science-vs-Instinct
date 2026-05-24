@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -64,14 +62,8 @@ public class StoryScreen extends ScreenAdapter {
     public void show() {
         AudioFacade.getInstance().playBgm("bgm_menu");
 
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 28;
-        font = gen.generateFont(p);
-        p.size = 20;
-        promptFont = gen.generateFont(p);
-        gen.dispose();
+        font       = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_28.fnt"));
+        promptFont = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_20.fnt"));
 
 
         boolean isResearcher = pages == PAGES_RESEARCHER;

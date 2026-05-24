@@ -19,6 +19,7 @@
             <option value="$PROJECT_DIR$/Game" />
             <option value="$PROJECT_DIR$/Game/core" />
             <option value="$PROJECT_DIR$/Game/lwjgl3" />
+            <option value="$PROJECT_DIR$/Game/teavm" />
           </set>
         </option>
       </GradleProjectSettings>

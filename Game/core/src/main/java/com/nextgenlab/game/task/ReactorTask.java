@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -22,6 +23,7 @@ public class ReactorTask extends LabTask {
     private Label       holdLabel;
     private float       holdTimer = 0f;
     private ShapeRenderer sr;
+    private final Vector2 tmpTouch = new Vector2();
 
     public ReactorTask() { super(); init(); }
 
@@ -56,8 +58,10 @@ public class ReactorTask extends LabTask {
         float delta = Gdx.graphics.getDeltaTime();
 
 
-        r21.handleInput();
-        r22.handleInput();
+        tmpTouch.set(Gdx.input.getX(), Gdx.input.getY());
+        stage.screenToStageCoordinates(tmpTouch);
+        r21.handleInput(tmpTouch.x, tmpTouch.y);
+        r22.handleInput(tmpTouch.x, tmpTouch.y);
 
         stage.act();
 
@@ -104,10 +108,8 @@ public class ReactorTask extends LabTask {
             this.sr    = sr;
         }
 
-        void handleInput() {
+        void handleInput(float sx, float sy) {
             if (Gdx.input.isTouched()) {
-                float sy = Gdx.graphics.getHeight() - Gdx.input.getY();
-                float sx = Gdx.input.getX();
                 float wx = getX(), wy = getY(), ww = getWidth(), wh = getHeight();
                 if (sx >= wx - 10 && sx <= wx + ww + 10 && sy >= wy && sy <= wy + wh) {
                     float pct = MathUtils.clamp((sy - wy) / wh, 0f, 1f);

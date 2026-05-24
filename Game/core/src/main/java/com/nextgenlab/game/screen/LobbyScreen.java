@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -39,16 +37,9 @@ public class LobbyScreen extends ScreenAdapter {
         AudioFacade.getInstance().playBgm("bgm_menu");
         game.resetSession();
 
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 44;
-        titleFont = gen.generateFont(p);
-        p.size = 22;
-        btnFont = gen.generateFont(p);
-        p.size = 17;
-        labelFont = gen.generateFont(p);
-        gen.dispose();
+        titleFont = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_44.fnt"));
+        btnFont   = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_22.fnt"));
+        labelFont = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_17.fnt"));
 
         btnUpTex  = buildBorderTex(380, 56, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
         btnOverTex = buildBorderTex(380, 56, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);

@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -27,12 +25,7 @@ public class PhaseTransitionOverlay extends Group {
 
         dimTex = solidTex();
 
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 52;
-        titleFont = gen.generateFont(p);
-        gen.dispose();
+        titleFont = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_52.fnt"));
 
         Label lbl = new Label(title, new Label.LabelStyle(titleFont, Color.GOLD));
         lbl.setPosition((w - lbl.getPrefWidth()) / 2f, h / 2f - 40f);

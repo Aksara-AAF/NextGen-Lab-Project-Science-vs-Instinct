@@ -17,18 +17,93 @@ public class WireTask extends LabTask {
     private static final int NODE_SIZE = 64;
 
 
-    private static final int[][] INIT_TYPES = {
-        {0, 0, 1},
-        {1, 0, 1},
-        {1, 0, 0}
+    private static final int[][][][] PUZZLES = {
+
+
+        { {{0,0,1},{1,0,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{2,0,1},{1,0,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,2,1},{1,0,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,0,2},{1,0,1},{1,0,0}}, {{0,0,270},{90,0,270},{0,0,0}} },
+
+        { {{0,0,1},{1,0,2},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,0,1},{2,0,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,0,1},{1,0,1},{2,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{2,0,1},{1,0,1},{1,0,0}}, {{180,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,0,1},{1,2,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,0,1},{1,2,1},{1,0,0}}, {{0,0,180},{90,180,270},{0,0,0}} },
+
+        { {{0,0,1},{1,0,1},{1,2,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,0,1},{1,0,1},{1,0,2}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,2,1},{1,0,1},{1,0,0}}, {{0,180,180},{90,0,270},{0,0,0}} },
+
+        { {{2,0,1},{1,2,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,2,1},{1,0,1},{1,2,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,0,1},{1,0,2},{2,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{2,2,1},{1,2,1},{1,0,0}}, {{0,0,180},{90,0,270},{0,0,0}} },
+
+        { {{0,0,1},{1,2,1},{1,2,2}}, {{0,0,180},{90,180,270},{0,0,0}} },
+
+        { {{2,0,1},{1,2,1},{1,0,0}}, {{180,0,180},{90,180,270},{0,0,0}} },
+
+        { {{0,0,2},{2,0,1},{1,0,2}}, {{0,0,270},{90,0,270},{0,0,0}} },
+
+
+        { {{1,1,1},{0,0,0},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{2,1,1},{0,0,0},{1,1,1}}, {{270,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{2,0,0},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{0,0,0},{2,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{0,0,0},{1,2,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{0,2,0},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,2,1},{0,0,0},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,2},{0,0,0},{1,1,1}}, {{180,90,270},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{0,0,2},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{0,0,0},{1,1,2}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{2,1,1},{0,2,0},{1,1,1}}, {{270,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{2,0,2},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{0,0,0},{2,1,2}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,2,2},{0,0,0},{1,1,1}}, {{180,90,270},{90,90,90},{0,270,0}} },
+
+        { {{2,1,1},{0,0,0},{1,2,1}}, {{270,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{2,2,2},{1,1,1}}, {{180,90,180},{90,90,90},{0,270,0}} },
+
+        { {{2,1,1},{0,0,0},{2,1,2}}, {{270,90,180},{90,90,90},{0,270,0}} },
+
+        { {{1,1,2},{0,2,0},{1,2,1}}, {{180,90,270},{90,90,90},{0,270,0}} },
+
+        { {{2,2,2},{0,0,0},{1,1,1}}, {{270,90,270},{90,90,90},{0,270,0}} },
+
+        { {{1,1,1},{0,0,0},{2,2,2}}, {{180,90,180},{90,90,90},{0,270,0}} },
     };
 
-    private static final int[][] SOLUTION_ROT = {
-        {0,   0,   180},
-        {90,  0,   270},
-        {0,   0,   0}
-    };
-
+    private int[][]              selectedTypes;
+    private int[][]              selectedSolRot;
     private CircuitNodeActor[][] nodes;
     private int[][]              initRot;
     private Label                statusLabel;
@@ -43,14 +118,18 @@ public class WireTask extends LabTask {
         nodes   = new CircuitNodeActor[GRID][GRID];
         initRot = new int[GRID][GRID];
 
+        int puzzleIdx  = new Random().nextInt(PUZZLES.length);
+        selectedTypes  = PUZZLES[puzzleIdx][0];
+        selectedSolRot = PUZZLES[puzzleIdx][1];
+
 
         Random rng = new Random();
         for (int r = 0; r < GRID; r++)
             for (int c = 0; c < GRID; c++) {
-                int offset = (INIT_TYPES[r][c] == 0)
+                int offset = (selectedTypes[r][c] == 0)
                     ? (rng.nextBoolean() ? 1 : 3)
                     : (1 + rng.nextInt(3));
-                initRot[r][c] = (SOLUTION_ROT[r][c] + offset * 90) % 360;
+                initRot[r][c] = (selectedSolRot[r][c] + offset * 90) % 360;
             }
 
         Table panel = new Table();
@@ -68,7 +147,7 @@ public class WireTask extends LabTask {
             for (int col = 0; col < GRID; col++) {
                 final int r = row, c = col;
                 CircuitNodeActor node = new CircuitNodeActor(
-                    INIT_TYPES[row][col], initRot[row][col], sr);
+                    selectedTypes[row][col], initRot[row][col], sr);
                 node.addListener(new ClickListener() {
                     @Override public void clicked(InputEvent e, float x, float y) {
                         nodes[r][c].rotate();
@@ -104,8 +183,8 @@ public class WireTask extends LabTask {
         boolean solved = true;
         for (int r = 0; r < GRID && solved; r++)
             for (int c = 0; c < GRID && solved; c++) {
-                int actual   = normalizedRot(INIT_TYPES[r][c], nodes[r][c].getPipeRotation());
-                int expected = normalizedRot(INIT_TYPES[r][c], SOLUTION_ROT[r][c]);
+                int actual   = normalizedRot(selectedTypes[r][c], nodes[r][c].getPipeRotation());
+                int expected = normalizedRot(selectedTypes[r][c], selectedSolRot[r][c]);
                 if (actual != expected) solved = false;
             }
 
@@ -142,15 +221,12 @@ public class WireTask extends LabTask {
             sr.setProjectionMatrix(batch.getProjectionMatrix());
 
             float x = getX(), y = getY(), w = getWidth(), h = getHeight();
-
-
             float midY = isSource ? y + h * (1f - 1f / (2f * GRID))
                                   : y + h / (2f * GRID);
             float boxW = 42f, boxH = 36f;
 
-
-            float boxX  = isSource ? x          : x + w - boxW;
-            float stubX = isSource ? x + boxW   : x;
+            float boxX  = isSource ? x        : x + w - boxW;
+            float stubX = isSource ? x + boxW : x;
             float stubW = w - boxW;
 
             Color accent    = isSource ? TaskUiTheme.GREEN : TaskUiTheme.GOLD;
@@ -159,19 +235,15 @@ public class WireTask extends LabTask {
 
             sr.begin(ShapeRenderer.ShapeType.Filled);
 
-
             sr.setColor(0.08f, 0.10f, 0.18f, 1f);
             sr.rect(boxX, midY - boxH / 2f, boxW, boxH);
-
             sr.setColor(borderCol);
             sr.rect(boxX,            midY - boxH / 2f,     boxW, 2);
             sr.rect(boxX,            midY + boxH / 2f - 2, boxW, 2);
             sr.rect(boxX,            midY - boxH / 2f,     2,    boxH);
             sr.rect(boxX + boxW - 2, midY - boxH / 2f,     2,    boxH);
-
             sr.setColor(wireColor);
             sr.rect(stubX, midY - 3f, stubW, 6f);
-
             if (isSource) {
                 float tip = stubX + stubW;
                 sr.triangle(tip - 10, midY - 7, tip, midY, tip - 10, midY + 7);

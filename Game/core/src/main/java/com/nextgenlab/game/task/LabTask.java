@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public abstract class LabTask {
 
@@ -21,7 +22,7 @@ public abstract class LabTask {
     private static final float BORDER_H = 300f;
 
     public LabTask() {
-        this.stage         = new Stage();
+        this.stage         = new Stage(new FitViewport(600, 450));
         this.shapeRenderer = new ShapeRenderer();
 
 
@@ -38,6 +39,8 @@ public abstract class LabTask {
     public void render() {
         stateTime += Gdx.graphics.getDeltaTime();
         stage.act();
+
+        stage.getViewport().apply();
         drawPanelBorder();
         stage.draw();
     }
@@ -60,6 +63,8 @@ public abstract class LabTask {
     public boolean checkEscape() {
         return Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE);
     }
+
+    public void resize(int w, int h) { stage.getViewport().update(w, h, true); }
 
     public Stage   getStage()     { return stage; }
     public boolean isCompleted()  { return isCompleted; }

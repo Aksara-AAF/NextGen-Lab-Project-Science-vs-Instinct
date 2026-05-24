@@ -9,8 +9,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -47,12 +45,7 @@ public class SettingsScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 20;
-        font = gen.generateFont(p);
-        gen.dispose();
+        font = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_20.fnt"));
         btnTex       = buildBorder(380, 56, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
         btnSelTex    = buildBorder(380, 56, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
         presetUpTex  = buildBorder(120, 38, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
@@ -185,10 +178,14 @@ public class SettingsScreen extends ScreenAdapter {
     }
 
     private static String getLocalIp() {
+
+
         try {
-            return java.net.InetAddress.getLocalHost().getHostAddress();
+            Class<?> cls  = Class.forName("java.net.InetAddress");
+            Object   addr = cls.getMethod("getLocalHost").invoke(null);
+            return (String) addr.getClass().getMethod("getHostAddress").invoke(addr);
         } catch (Exception e) {
-            return "127.0.0.1";
+            return "";
         }
     }
 

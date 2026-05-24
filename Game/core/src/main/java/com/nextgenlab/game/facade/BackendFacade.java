@@ -45,18 +45,22 @@ public class BackendFacade {
         String body = "{\"email\":\"" + esc(email) + "\",\"username\":\"" + esc(username)
                     + "\",\"password\":\"" + esc(password) + "\"}";
         post("/api/auth/register", body, response -> handleAuthResponse(response, callback),
-            t -> { if (callback != null) callback.onFailure("Network error: " + t.getMessage()); });
+            t -> { if (callback != null) callback.onFailure(extractError(t)); });
     }
 
     public void login(String email, String password, AuthCallback callback) {
         String body = "{\"email\":\"" + esc(email) + "\",\"password\":\"" + esc(password) + "\"}";
         post("/api/auth/login", body, response -> handleAuthResponse(response, callback),
-            t -> { if (callback != null) callback.onFailure("Network error: " + t.getMessage()); });
+            t -> { if (callback != null) callback.onFailure(extractError(t)); });
     }
 
     private void handleAuthResponse(String response, AuthCallback callback) {
         try {
             JsonValue root = new JsonReader().parse(response);
+            if (root == null) {
+                if (callback != null) callback.onFailure("Server response was empty");
+                return;
+            }
             JsonValue err  = root.get("error");
             if (err != null) {
                 if (callback != null) callback.onFailure(err.asString());
@@ -310,9 +314,17 @@ public class BackendFacade {
     private Net.HttpResponseListener listener(java.util.function.Consumer<String> onSuccess,
                                                java.util.function.Consumer<Throwable> onFail) {
         return new Net.HttpResponseListener() {
-            @Override public void handleHttpResponse(Net.HttpResponse r) { onSuccess.accept(r.getResultAsString()); }
-            @Override public void failed(Throwable t)                    { onFail.accept(t); }
-            @Override public void cancelled()                            {}
+            @Override public void handleHttpResponse(Net.HttpResponse r) {
+                int code = r.getStatus().getStatusCode();
+                String body = r.getResultAsString();
+                if (code >= 200 && code < 300) {
+                    onSuccess.accept(body);
+                } else {
+                    onFail.accept(new Exception("HTTP " + code + ": " + body));
+                }
+            }
+            @Override public void failed(Throwable t)  { onFail.accept(t); }
+            @Override public void cancelled()          {}
         };
     }
 
@@ -327,6 +339,22 @@ public class BackendFacade {
         } catch (Exception e) {
             Gdx.app.error("BACKEND", "parseRoom: " + e.getMessage());
         }
+    }
+
+    private static String extractError(Throwable t) {
+        String raw = t.getMessage();
+        if (raw == null) return "Network error";
+        int idx = raw.indexOf('{');
+        if (idx >= 0) {
+            try {
+                JsonValue j = new JsonReader().parse(raw.substring(idx));
+                if (j != null) {
+                    if (j.has("error"))   return j.getString("error");
+                    if (j.has("message")) return j.getString("message");
+                }
+            } catch (Exception ignored) {}
+        }
+        return "Network error";
     }
 
     private static String esc(String s) {

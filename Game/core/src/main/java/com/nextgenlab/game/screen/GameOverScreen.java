@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -61,14 +59,8 @@ public class GameOverScreen extends ScreenAdapter {
     public void show() {
         AudioFacade.getInstance().stopBgm();
 
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 20;
-        font = gen.generateFont(p);
-        p.size = 40;
-        titleFont = gen.generateFont(p);
-        gen.dispose();
+        font      = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_20.fnt"));
+        titleFont = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_40.fnt"));
 
         btnTex    = solid(220, 44, 0.15f, 0.15f, 0.20f, 1f);
         btnSelTex = solid(220, 44, 0.08f, 0.08f, 0.12f, 1f);

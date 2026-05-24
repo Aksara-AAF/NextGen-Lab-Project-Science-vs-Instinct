@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -44,12 +42,7 @@ public class ProfileScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 18;
-        font = gen.generateFont(p);
-        gen.dispose();
+        font = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_18.fnt"));
         bgTex     = solidTex(0f, 0f, 0f, 0.9f);
         rowTex    = solidTex(0.12f, 0.12f, 0.18f, 1f);
         bgImgTex  = Gdx.files.internal("background/lobby_bg.png").exists()

@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -23,7 +21,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nextgenlab.game.NextGenLabGame;
 import com.nextgenlab.game.facade.AudioFacade;
 import com.nextgenlab.game.network.NetworkTransport;
-import com.nextgenlab.game.network.WebSocketTransport;
+import com.nextgenlab.game.network.NetworkTransportFactory;
 
 public class RoomScreen extends ScreenAdapter {
 
@@ -42,11 +40,12 @@ public class RoomScreen extends ScreenAdapter {
     private float   disbandTimer   = -1f;
     private float   kickedTimer    = -1f;
 
-    private Long    pendingMatchId = null;
-    private boolean isHost         = false;
-    private boolean myReady        = false;
-    private boolean active         = true;
-    private boolean wasInRoom      = false;
+    private Long    pendingMatchId   = null;
+    private boolean isHost           = false;
+    private boolean myReady          = false;
+    private boolean active           = true;
+    private boolean wasInRoom        = false;
+    private int     outOfRoomStreak  = 0;
 
     private String  lastStatus    = "";
     private boolean lastResReady  = false;
@@ -71,12 +70,7 @@ public class RoomScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter fp = new FreeTypeFontParameter();
-        fp.size = 20;
-        font = gen.generateFont(fp);
-        gen.dispose();
+        font = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_20.fnt"));
         btnTex    = buildBorder(380, 56, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
         btnSelTex = buildBorder(380, 56, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
         btnDimTex = buildBorder(380, 56, 0.08f, 0.08f, 0.13f, 0.80f, 0f, 0.50f, 0.50f);
@@ -288,8 +282,10 @@ public class RoomScreen extends ScreenAdapter {
 
     private void handlePollResponse(String json) {
         if (!active || kickedTimer > 0) return;
+        if (json == null || json.isEmpty()) return;
 
         String  newStatus    = parseStr(json, "status");
+        if (newStatus.isEmpty()) return;
         boolean newResReady  = parseBoolField(json, "researcherReady");
         boolean newMonReady  = parseBoolField(json, "monsterReady");
         String  newResUser   = parseStr(json, "researcherUsername");
@@ -316,9 +312,13 @@ public class RoomScreen extends ScreenAdapter {
             myName.equals(newP2User)
         );
         if (wasInRoom && !inRoom && !"DISBANDED".equals(newStatus)) {
+            outOfRoomStreak++;
+            if (outOfRoomStreak < 2) return;
             kickedTimer = 3f;
             buildKickedUI();
             return;
+        } else {
+            outOfRoomStreak = 0;
         }
         if (inRoom) wasInRoom = true;
 
@@ -440,7 +440,7 @@ public class RoomScreen extends ScreenAdapter {
         String wsBase = game.backend.getBaseUrl()
             .replace("https://", "wss://")
             .replace("http://", "ws://");
-        NetworkTransport tr = new WebSocketTransport(pendingMatchId, game.playerRole, wsBase);
+        NetworkTransport tr = NetworkTransportFactory.create(pendingMatchId, game.playerRole, wsBase);
         tr.connect();
         game.transport = tr;
         Gdx.app.log("ROOM", "WS matchId=" + pendingMatchId + " role=" + game.playerRole);

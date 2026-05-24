@@ -411,6 +411,7 @@ public class PreparationState implements GameStateHandler {
                     float dy = screen.researcher.getY() - zoneY[i];
                     if (dx * dx + dy * dy < TRIGGER_RADIUS * TRIGGER_RADIUS) {
                         activeTaskIdx = i;
+                        tasks[i].resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                         Gdx.input.setInputProcessor(tasks[i].getStage());
                         consumed = true;
                     }
@@ -876,7 +877,11 @@ public class PreparationState implements GameStateHandler {
             }
         }
 
-        if (activeTaskIdx >= 0) tasks[activeTaskIdx].render();
+        if (activeTaskIdx >= 0) {
+            tasks[activeTaskIdx].render();
+
+            Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        }
         craftingPanel.render();
         inventoryPanel.render();
 
@@ -940,6 +945,8 @@ public class PreparationState implements GameStateHandler {
     @Override
     public void resize(GameScreen screen, int width, int height) {
         if (hud != null) hud.resize(width, height);
+        if (activeTaskIdx >= 0 && tasks != null && tasks[activeTaskIdx] != null)
+            tasks[activeTaskIdx].resize(width, height);
     }
 
     @Override

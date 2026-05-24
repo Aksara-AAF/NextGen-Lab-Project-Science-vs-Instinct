@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -41,12 +39,7 @@ public class PlayModeScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 22;
-        font = gen.generateFont(p);
-        gen.dispose();
+        font = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_22.fnt"));
         bgTex = loadBgOrSolid("background/lobby_bg.png", 0.03f, 0.03f, 0.08f);
         overlayTex = solid1x1(0f, 0f, 0f);
         buildTextures();

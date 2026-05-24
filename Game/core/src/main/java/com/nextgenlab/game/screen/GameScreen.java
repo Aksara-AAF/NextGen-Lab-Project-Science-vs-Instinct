@@ -33,6 +33,7 @@ import com.nextgenlab.game.state.GameStateHandler;
 import com.nextgenlab.game.state.PreparationState;
 import com.nextgenlab.game.ui.DialogPopup;
 import com.nextgenlab.game.ui.PhaseTransitionOverlay;
+import com.nextgenlab.game.pool.Projectile;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,6 +119,7 @@ public class GameScreen extends ScreenAdapter {
 
         map         = new TmxMapLoader().load("lab.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(map);
+        updateProjectileBounds();
 
         loadSpawnPoints();
         matchId = game.currentMatchId;
@@ -246,6 +248,7 @@ public class GameScreen extends ScreenAdapter {
         if (map != null) map.dispose();
         map = new TmxMapLoader().load(mapPath);
         mapRenderer = new OrthogonalTiledMapRenderer(map);
+        updateProjectileBounds();
         for (int i = 0; i < map.getLayers().getCount(); i++) map.getLayers().get(i).setVisible(true);
         bgLayerIndices = findLayerIndices("Background", "Dekorasi Non-Solid");
         fgLayerIndices = findLayerIndices("Foreground", "Interact Object");
@@ -377,6 +380,12 @@ public class GameScreen extends ScreenAdapter {
             else if ("sabotage_drain".equals(name))  type = SabotagePanel.Type.SERUM_DRAIN;
             if (type != null) sabotagePanels.add(EntityFactory.createSabotagePanel(cx, cy, type));
         }
+    }
+
+    private void updateProjectileBounds() {
+        float[] px = getMapPixelSize();
+        Projectile.mapBoundX = px[0];
+        Projectile.mapBoundY = px[1];
     }
 
     private int[] findLayerIndices(String... names) {

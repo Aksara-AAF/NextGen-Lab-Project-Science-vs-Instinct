@@ -3,11 +3,14 @@ package com.nextgenlab.game.lwjgl3;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.nextgenlab.game.NextGenLabGame;
+import com.nextgenlab.game.network.NetworkTransportFactory;
+import com.nextgenlab.game.network.WebSocketTransport;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
+        NetworkTransportFactory.set((matchId, role, wsBaseUrl) -> new WebSocketTransport(matchId, role, wsBaseUrl));
         createApplication();
     }
 

@@ -9,8 +9,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -46,16 +44,9 @@ public class MenuScreen extends ScreenAdapter {
         logoTex    = Gdx.files.internal("background/title_logo.png").exists()
             ? new Texture(Gdx.files.internal("background/title_logo.png")) : null;
 
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 52;
-        titleFont = gen.generateFont(p);
-        p.size = 20;
-        promptFont = gen.generateFont(p);
-        p.size = 15;
-        labelFont = gen.generateFont(p);
-        gen.dispose();
+        titleFont  = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_52.fnt"));
+        promptFont = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_20.fnt"));
+        labelFont  = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_15.fnt"));
 
         stage = new Stage(new FitViewport(1280, 720));
         Gdx.input.setInputProcessor(stage);

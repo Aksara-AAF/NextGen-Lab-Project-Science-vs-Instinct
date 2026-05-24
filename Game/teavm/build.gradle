@@ -1,0 +1,68 @@
+// ─── Web/TeaVM Build Module ────────────────────────────────────────────────
+// Build:  ./gradlew teavm:buildRelease   → output in teavm/build/dist/
+// Serve:  ./gradlew teavm:runRelease     → http://localhost:8080/
+//
+// How it works: no external Gradle plugin needed. TeaVMBuilder.java (in this
+// module) is run as a plain Java program via JavaExec. It uses the backend-web
+// library's TeaCompiler API to transpile core bytecode to JavaScript.
+//
+// Dependency: com.github.xpenatan.gdx-teavm:backend-web (teavmVersion in gradle.properties)
+// Compatible with LibGDX 1.13.1+ (uses WebApplication / WebApplicationConfiguration).
+
+plugins {
+    id 'java'
+}
+
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+project.ext.mainClassName = "com.nextgenlab.game.teavm.TeaVMBuilder"
+eclipse.project.name = appName + "-teavm"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+dependencies {
+    implementation project(':core')
+    implementation "com.github.xpenatan.gdx-teavm:backend-web:$teavmVersion"
+}
+
+tasks.register("runRelease", JavaExec) {
+    description = "Run the TeaVM application hosted via a local Jetty server at http://localhost:8080/"
+    group("application")
+    dependsOn(classes)
+    mainClass.set(project.mainClassName)
+    setClasspath(sourceSets.main.runtimeClasspath)
+    args += ["run"]
+}
+
+tasks.register("runDebug", JavaExec) {
+    description = "Run the TeaVM application with debug enabled hosted via a local Jetty server at http://localhost:8080/"
+    group("application")
+    dependsOn(classes)
+    mainClass.set(project.mainClassName)
+    setClasspath(sourceSets.main.runtimeClasspath)
+    args += ["debug", "run"]
+}
+
+tasks.register("buildRelease", JavaExec) {
+    description = "Build the TeaVM application into build/dist/; doesn't run a server"
+    group("build")
+    dependsOn(classes)
+    mainClass.set(project.mainClassName)
+    setClasspath(sourceSets.main.runtimeClasspath)
+}
+
+tasks.register("buildDebug", JavaExec) {
+    description = "Build the TeaVM application with debug/source-map output"
+    group("build")
+    dependsOn(classes)
+    mainClass.set(project.mainClassName)
+    setClasspath(sourceSets.main.runtimeClasspath)
+    args += ["debug"]
+}
+
+tasks.register("run") {
+    dependsOn runRelease
+}
+build.dependsOn buildRelease

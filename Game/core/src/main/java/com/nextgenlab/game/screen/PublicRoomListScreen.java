@@ -9,8 +9,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -43,12 +41,7 @@ public class PublicRoomListScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter p = new FreeTypeFontParameter();
-        p.size = 18;
-        font = gen.generateFont(p);
-        gen.dispose();
+        font = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_18.fnt"));
         bgTex     = solidTex(0f, 0f, 0f, 0.9f);
         btnTex    = buildBorder(100, 44, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
         btnSelTex = buildBorder(100, 44, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);

@@ -9,8 +9,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -42,12 +40,7 @@ public class FriendScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
-            Gdx.files.internal("fonts/VCR_OSD_MONO_1.001.ttf"));
-        FreeTypeFontParameter fp = new FreeTypeFontParameter();
-        fp.size = 18;
-        font = gen.generateFont(fp);
-        gen.dispose();
+        font = new BitmapFont(Gdx.files.internal("fonts/VCR_OSD_MONO_1.001_18.fnt"));
         btnTex       = buildBorder(190, 48, 0.05f, 0.05f, 0.15f, 0.88f, 0f, 0.85f, 0.85f);
         btnSelTex    = buildBorder(190, 48, 0.09f, 0.13f, 0.24f, 0.95f, 0f, 1.00f, 1.00f);
         btnActiveTex = buildBorder(190, 48, 0.05f, 0.20f, 0.30f, 0.95f, 0f, 0.90f, 1.00f);
